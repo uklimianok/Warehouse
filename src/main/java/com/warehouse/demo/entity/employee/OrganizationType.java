@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "shifts")
+@Table(name = "organization_types")
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor 
 @Getter
 @Setter
-public class Shift {
+public class OrganizationType {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shift_seq")
-    @SequenceGenerator(name = "shift_seq", sequenceName = "shift_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_type_seq")
+    @SequenceGenerator(name = "organization_type_seq", sequenceName = "organization_type_seq", allocationSize = 1)
     private long id;
-    private String symbol; 
+    private String name;
 }

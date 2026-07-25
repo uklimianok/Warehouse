@@ -1,4 +1,6 @@
-package com.warehouse.demo.entity.employee.organization;
+package com.warehouse.demo.entity.workplace;
+
+import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,15 +14,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="organization_types")
+@Table(name = "workshops")
 @NoArgsConstructor
-@AllArgsConstructor 
+@AllArgsConstructor
 @Getter
 @Setter
-public class OrganizationType {
+public class Workshop {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="organization_type_seq")
-    @SequenceGenerator(name="organization_type_seq", sequenceName="organization_type_seq", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workshop_seq")
+    @SequenceGenerator(name = "workshop_seq", sequenceName = "workshop_seq", allocationSize = 1)
     private long id;
     private String name;
+    private BigDecimal standard;
 }

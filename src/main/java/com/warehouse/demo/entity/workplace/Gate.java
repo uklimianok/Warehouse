@@ -1,4 +1,4 @@
-package com.warehouse.demo.entity.employee;
+package com.warehouse.demo.entity.workplace;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "shifts")
+@Table(name = "gates")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Shift {
+public class Gate {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shift_seq")
-    @SequenceGenerator(name = "shift_seq", sequenceName = "shift_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gate_seq")
+    @SequenceGenerator(name = "gate_seq", sequenceName = "gate_seq", allocationSize = 1)
     private long id;
-    private String symbol; 
+    private String symbol;
 }

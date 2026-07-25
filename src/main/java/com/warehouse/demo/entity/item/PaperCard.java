@@ -1,4 +1,6 @@
-package com.warehouse.demo.entity.product;
+package com.warehouse.demo.entity.item;
+
+import com.warehouse.demo.entity.order.Order;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,20 +17,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="packages")
+@Table(name = "paper_cards")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Package {
+public class PaperCard {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="package_seq")
-    @SequenceGenerator(name="package_seq", sequenceName="package_seq", allocationSize=50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paper_cards_seq")
+    @SequenceGenerator(name = "paper_cards_seq", sequenceName = "paper_cards_seq", allocationSize = 50)
     private long id;
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="product_id", referencedColumnName="id")
-    private Product product;
-    private int productsAmount;
-    private double volume;
-    private double weight;
+    private String code;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private Order order;
 }

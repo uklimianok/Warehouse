@@ -1,5 +1,7 @@
 package com.warehouse.demo.entity.item;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,20 +14,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="pallets")
+@Table(name = "pallets")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class Pallet {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pallet_seq")
-    @SequenceGenerator(name="pallet_seq", sequenceName="pallet_seq", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pallet_seq")
+    @SequenceGenerator(name = "pallet_seq", sequenceName = "pallet_seq", allocationSize = 1)
     private long id;
     private String name;
     private String color;
-    private double length;
-    private double width;
-    private double height;
-    private double weight;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
+    private BigDecimal weight;
 }

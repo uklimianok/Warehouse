@@ -1,8 +1,8 @@
-package com.warehouse.demo.entity.product;
+package com.warehouse.demo.entity.service;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-import com.warehouse.demo.entity.employee.Organization;
+import com.warehouse.demo.entity.employee.Employee;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,20 +19,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "products")
+@Table(name = "action_logs")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Product {
+public class ActionLog {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "products_seq")
-    @SequenceGenerator(name = "products_seq", sequenceName = "products_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "action_logs_seq")
+    @SequenceGenerator(name = "action_logs_seq", sequenceName = "action_logs_seq", allocationSize = 50)
     private long id;
-    private String name;
-    private String barcodeNumber;
-    private BigDecimal cost;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producer_id", referencedColumnName = "id")
-    private Organization producer;
+    @JoinColumn(name = "employee_id", referencedColumnName="id")
+    private Employee employee;
+    private LocalDateTime proceededAt;
+    private String entityType;
+    private long entityId;
+    private String action;
 }

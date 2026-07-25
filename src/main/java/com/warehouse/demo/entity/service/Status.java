@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="statuses")
+@Table(name = "statuses")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class Status {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="status_seq")
-    @SequenceGenerator(name="status_seq", sequenceName="status_seq", allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "status_seq")
+    @SequenceGenerator(name = "status_seq", sequenceName = "status_seq", allocationSize = 1)
     private long id;
     private String name;
 }

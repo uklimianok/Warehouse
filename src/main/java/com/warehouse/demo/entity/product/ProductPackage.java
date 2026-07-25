@@ -1,4 +1,6 @@
-package com.warehouse.demo.entity.employee.organization;
+package com.warehouse.demo.entity.product;
+
+import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,23 +17,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="organizations")
+@Table(name="packages")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Organization {
+public class ProductPackage {
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="organization_seq")
-    @SequenceGenerator(name="organization_seq", sequenceName="organization_seq", allocationSize=50)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="package_seq")
+    @SequenceGenerator(name="package_seq", sequenceName="package_seq", allocationSize=50)
     private long id;
-    private String name;
-    private String organizationNumber;
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="organization_type_id", referencedColumnName="id")
-    private OrganizationType organizationType;
-    private String address;
-    private String phone;
-    private String email;
-    private String url;
+    @JoinColumn(name="product_id", referencedColumnName="id")
+    private Product product;
+    private int productsAmount;
+    private BigDecimal volume;
+    private BigDecimal weight;
 }
