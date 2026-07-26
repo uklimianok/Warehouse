@@ -416,3 +416,24 @@
 2026-07-26T13:47:52.738+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists workshop_seq
 2026-07-26T13:47:52.741+02:00  INFO 8384 --- [demo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2026-07-26T13:47:52.743+02:00  INFO 8384 --- [demo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-07-26T17:49:30.392+02:00  INFO 12220 --- [demo] [main] com.warehouse.demo.DemoApplication       : Starting DemoApplication using Java 26.0.1 with PID 12220 (C:\Users\v1rus\Development\Java\Warehouse\demo\target\classes started by v1rus in C:\Users\v1rus\Development\Java\Warehouse\demo)
+2026-07-26T17:49:30.395+02:00  INFO 12220 --- [demo] [main] com.warehouse.demo.DemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-07-26T17:49:31.105+02:00  INFO 12220 --- [demo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-26T17:49:31.197+02:00  INFO 12220 --- [demo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 83 ms. Found 22 JPA repository interfaces.
+2026-07-26T17:49:31.863+02:00  INFO 12220 --- [demo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: AotMetamodel]
+2026-07-26T17:49:31.906+02:00  INFO 12220 --- [demo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-07-26T17:49:32.294+02:00  INFO 12220 --- [demo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-26T17:49:32.319+02:00  INFO 12220 --- [demo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [undefined/unknown]
+	Database driver: undefined/unknown
+	Database dialect: SpringDataJpaAotDialect
+	Database version: 0.0
+	Default catalog/schema: unknown/unknown
+	Autocommit mode: undefined/unknown
+	Isolation level: <unknown>
+	JDBC fetch size: undefined/unknown
+	Pool: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-26T17:49:33.106+02:00  INFO 12220 --- [demo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-26T17:49:34.077+02:00  INFO 12220 --- [demo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
