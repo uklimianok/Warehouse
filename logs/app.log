@@ -1,0 +1,418 @@
+2026-07-26T13:44:50.867+02:00  INFO 21492 --- [demo] [main] com.warehouse.demo.DemoApplication       : Starting DemoApplication using Java 26.0.1 with PID 21492 (C:\Users\v1rus\Development\Java\Warehouse\demo\target\classes started by v1rus in C:\Users\v1rus\Development\Java\Warehouse\demo)
+2026-07-26T13:44:50.871+02:00  INFO 21492 --- [demo] [main] com.warehouse.demo.DemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-07-26T13:44:51.490+02:00  INFO 21492 --- [demo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-26T13:44:51.621+02:00  INFO 21492 --- [demo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 121 ms. Found 21 JPA repository interfaces.
+2026-07-26T13:44:52.054+02:00  INFO 21492 --- [demo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-26T13:44:52.067+02:00  INFO 21492 --- [demo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-26T13:44:52.068+02:00  INFO 21492 --- [demo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-07-26T13:44:52.116+02:00  INFO 21492 --- [demo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1201 ms
+2026-07-26T13:44:52.342+02:00  INFO 21492 --- [demo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-26T13:44:52.406+02:00  INFO 21492 --- [demo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-07-26T13:44:52.815+02:00  INFO 21492 --- [demo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-26T13:44:52.843+02:00  INFO 21492 --- [demo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-26T13:44:53.015+02:00  INFO 21492 --- [demo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4a4b288a
+2026-07-26T13:44:53.017+02:00  INFO 21492 --- [demo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-26T13:44:53.070+02:00  INFO 21492 --- [demo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/warehouse_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.4
+	Default catalog/schema: warehouse_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-26T13:44:53.897+02:00  INFO 21492 --- [demo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-26T13:44:53.915+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : set client_min_messages = WARNING
+2026-07-26T13:44:53.916+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists action_logs drop constraint if exists FKabx32d38kv3htb0sytu0grnft
+2026-07-26T13:44:53.917+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKh62l7gpgesex8wjd6himtb3e1
+2026-07-26T13:44:53.917+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKngcpgx7fx5kednw3m7u0u8of3
+2026-07-26T13:44:53.918+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKerjbet32797doputgk79dc4ga
+2026-07-26T13:44:53.918+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKpqdqlwod8tktiphtoc7oer7rt
+2026-07-26T13:44:53.919+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKre8sl05h2cj0mpxc2r8t7fvvx
+2026-07-26T13:44:53.919+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKamr5jy658vv73d04vembos2bw
+2026-07-26T13:44:53.919+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products drop constraint if exists FKi7isf670mbq331v0muqqry1cd
+2026-07-26T13:44:53.919+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products drop constraint if exists FK4ximfyldt9wafxil44a95nbow
+2026-07-26T13:44:53.919+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKlwggw414a2ts5kuwn3w3xwey4
+2026-07-26T13:44:53.920+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FK90a9kwkuq8tdssbn73patuj1o
+2026-07-26T13:44:53.920+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKsskkpl1vd8t45wcvx150udmvo
+2026-07-26T13:44:53.920+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKp7dc0isy2d4u0q76rrmwyyye9
+2026-07-26T13:44:53.920+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists organizations drop constraint if exists FKapumdmay8yodgwtrshtoukpm1
+2026-07-26T13:44:53.922+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists packages drop constraint if exists FKpbap7arai7981kim42hnmllvy
+2026-07-26T13:44:53.922+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists paper_cards drop constraint if exists FKd9updxxiind6n0qu03wobuvh6
+2026-07-26T13:44:53.922+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products drop constraint if exists FKd7dkbt15tcqu5a44qp1f8fpvw
+2026-07-26T13:44:53.922+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products drop constraint if exists FKl3toya91sky77ldb56ak25egp
+2026-07-26T13:44:53.923+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKq0c540v7295mp0t33kl6sj0v3
+2026-07-26T13:44:53.923+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKpnufn9ti4t3cus76xl9727jpl
+2026-07-26T13:44:53.923+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKge9nts7ge6rddq124q7wm7geh
+2026-07-26T13:44:53.923+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FK437c8obhesvrd78rdmv09bmym
+2026-07-26T13:44:53.925+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists products drop constraint if exists FK9f4oe4i29p9ah82tlxxfx9qmw
+2026-07-26T13:44:53.925+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products drop constraint if exists FK4ncg3gnnd9f9wcadd80whdc89
+2026-07-26T13:44:53.925+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products drop constraint if exists FKv2qnmbp3kaqqe4wycem8mhti
+2026-07-26T13:44:53.925+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists tracks drop constraint if exists FKh4jx673abomox36uqp69qe0a6
+2026-07-26T13:44:53.926+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists work_stations drop constraint if exists FKsb494sowyhqf94e5oumi6b7a0
+2026-07-26T13:44:53.926+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists action_logs cascade
+2026-07-26T13:44:53.926+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists employees cascade
+2026-07-26T13:44:53.928+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists gates cascade
+2026-07-26T13:44:53.928+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists order_pallets cascade
+2026-07-26T13:44:53.928+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists ordered_products cascade
+2026-07-26T13:44:53.928+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists orders cascade
+2026-07-26T13:44:53.928+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists organization_types cascade
+2026-07-26T13:44:53.929+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists organizations cascade
+2026-07-26T13:44:53.929+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists packages cascade
+2026-07-26T13:44:53.929+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists pallets cascade
+2026-07-26T13:44:53.929+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists paper_cards cascade
+2026-07-26T13:44:53.930+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists picked_products cascade
+2026-07-26T13:44:53.930+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists positions cascade
+2026-07-26T13:44:53.930+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists product_pallets cascade
+2026-07-26T13:44:53.930+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists products cascade
+2026-07-26T13:44:53.932+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists return_products cascade
+2026-07-26T13:44:53.932+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists shifts cascade
+2026-07-26T13:44:53.932+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists statuses cascade
+2026-07-26T13:44:53.933+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists tracks cascade
+2026-07-26T13:44:53.933+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists work_stations cascade
+2026-07-26T13:44:53.933+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop table if exists workshops cascade
+2026-07-26T13:44:53.934+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists action_logs_seq
+2026-07-26T13:44:53.934+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists employee_seq
+2026-07-26T13:44:53.934+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists gate_seq
+2026-07-26T13:44:53.935+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists order_pallets_seq
+2026-07-26T13:44:53.935+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists order_seq
+2026-07-26T13:44:53.935+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists ordered_products_seq
+2026-07-26T13:44:53.935+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists organization_seq
+2026-07-26T13:44:53.936+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists organization_type_seq
+2026-07-26T13:44:53.936+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists package_seq
+2026-07-26T13:44:53.936+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists pallet_seq
+2026-07-26T13:44:53.936+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists paper_cards_seq
+2026-07-26T13:44:53.938+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists picked_products_seq
+2026-07-26T13:44:53.938+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists position_seq
+2026-07-26T13:44:53.938+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists product_pallet_seq
+2026-07-26T13:44:53.938+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists products_seq
+2026-07-26T13:44:53.939+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists return_products_seq
+2026-07-26T13:44:53.939+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists shift_seq
+2026-07-26T13:44:53.939+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists status_seq
+2026-07-26T13:44:53.940+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists track_seq
+2026-07-26T13:44:53.940+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists work_station_seq
+2026-07-26T13:44:53.940+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists workshop_seq
+2026-07-26T13:44:53.944+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence action_logs_seq start with 1 increment by 50
+2026-07-26T13:44:53.947+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence employee_seq start with 1 increment by 50
+2026-07-26T13:44:53.949+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence gate_seq start with 1 increment by 1
+2026-07-26T13:44:53.950+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence order_pallets_seq start with 1 increment by 50
+2026-07-26T13:44:53.951+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence order_seq start with 1 increment by 50
+2026-07-26T13:44:53.953+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence ordered_products_seq start with 1 increment by 50
+2026-07-26T13:44:53.954+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence organization_seq start with 1 increment by 50
+2026-07-26T13:44:53.956+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence organization_type_seq start with 1 increment by 1
+2026-07-26T13:44:53.958+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence package_seq start with 1 increment by 50
+2026-07-26T13:44:53.959+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence pallet_seq start with 1 increment by 1
+2026-07-26T13:44:53.961+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence paper_cards_seq start with 1 increment by 50
+2026-07-26T13:44:53.963+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence picked_products_seq start with 1 increment by 50
+2026-07-26T13:44:53.964+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence position_seq start with 1 increment by 1
+2026-07-26T13:44:53.965+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence product_pallet_seq start with 1 increment by 50
+2026-07-26T13:44:53.966+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence products_seq start with 1 increment by 50
+2026-07-26T13:44:53.967+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence return_products_seq start with 1 increment by 50
+2026-07-26T13:44:53.969+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence shift_seq start with 1 increment by 1
+2026-07-26T13:44:53.970+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence status_seq start with 1 increment by 1
+2026-07-26T13:44:53.971+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence track_seq start with 1 increment by 1
+2026-07-26T13:44:53.973+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence work_station_seq start with 1 increment by 1
+2026-07-26T13:44:53.975+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create sequence workshop_seq start with 1 increment by 1
+2026-07-26T13:44:53.979+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table action_logs (employee_id bigint, entity_id bigint not null, id bigint not null, proceeded_at timestamp(6), action varchar(255), entity_type varchar(255), primary key (id))
+2026-07-26T13:44:53.984+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table employees (birth_date date, employee_number integer not null, id bigint not null, organization_id bigint, position_id bigint, shift_id bigint, document_id varchar(255), first_name varchar(255), last_name varchar(255), phone_number varchar(255), residence_address varchar(255), primary key (id))
+2026-07-26T13:44:53.988+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table gates (id bigint not null, symbol varchar(255), primary key (id))
+2026-07-26T13:44:53.991+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table order_pallets (id bigint not null, order_id bigint, pallet_id bigint, status_id bigint, primary key (id))
+2026-07-26T13:44:53.994+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table ordered_products (ordered_volume numeric(38,2), id bigint not null, order_id bigint, package_id bigint, primary key (id))
+2026-07-26T13:44:53.997+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table orders (gate_id bigint, id bigint not null, shift_id bigint, status_id bigint, store_id bigint, note varchar(255), primary key (id))
+2026-07-26T13:44:53.999+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table organization_types (id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:44:54.001+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table organizations (id bigint not null, organization_type_id bigint, address varchar(255), email varchar(255), name varchar(255), organization_number varchar(255), phone varchar(255), url varchar(255), primary key (id))
+2026-07-26T13:44:54.005+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table packages (products_amount integer not null, volume numeric(38,2), weight numeric(38,2), id bigint not null, product_id bigint, primary key (id))
+2026-07-26T13:44:54.008+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table pallets (height numeric(38,2), length numeric(38,2), weight numeric(38,2), width numeric(38,2), id bigint not null, color varchar(255), name varchar(255), primary key (id))
+2026-07-26T13:44:54.012+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table paper_cards (id bigint not null, order_id bigint, code varchar(255), primary key (id))
+2026-07-26T13:44:54.014+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table picked_products (picked_volume numeric(38,2), id bigint not null, order_pallet_id bigint, product_package_id bigint, primary key (id))
+2026-07-26T13:44:54.017+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table positions (id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:44:54.019+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table product_pallets (package_amount integer not null, id bigint not null, pallet_id bigint, product_package_id bigint, status_id bigint, work_station_id bigint, id_number varchar(255), primary key (id))
+2026-07-26T13:44:54.023+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table products (cost numeric(38,2), id bigint not null, producer_id bigint, barcode_number varchar(255), name varchar(255), primary key (id))
+2026-07-26T13:44:54.026+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table return_products (products_amount integer not null, id bigint not null, order_id bigint, product_id bigint, primary key (id))
+2026-07-26T13:44:54.029+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table shifts (id bigint not null, symbol varchar(255), primary key (id))
+2026-07-26T13:44:54.031+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table statuses (id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:44:54.034+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table tracks (length numeric(38,2), width numeric(38,2), gate_id bigint, id bigint not null, symbol varchar(255), primary key (id))
+2026-07-26T13:44:54.036+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table work_stations (id bigint not null, workshop_id bigint, control_number varchar(255), station_number varchar(255), type varchar(255), primary key (id))
+2026-07-26T13:44:54.040+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : create table workshops (standard numeric(38,2), id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:44:54.043+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists action_logs add constraint FKabx32d38kv3htb0sytu0grnft foreign key (employee_id) references employees
+2026-07-26T13:44:54.046+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees add constraint FKh62l7gpgesex8wjd6himtb3e1 foreign key (organization_id) references organizations
+2026-07-26T13:44:54.046+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees add constraint FKngcpgx7fx5kednw3m7u0u8of3 foreign key (position_id) references positions
+2026-07-26T13:44:54.047+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees add constraint FKerjbet32797doputgk79dc4ga foreign key (shift_id) references shifts
+2026-07-26T13:44:54.048+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets add constraint FKpqdqlwod8tktiphtoc7oer7rt foreign key (order_id) references orders
+2026-07-26T13:44:54.051+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets add constraint FKre8sl05h2cj0mpxc2r8t7fvvx foreign key (pallet_id) references pallets
+2026-07-26T13:44:54.052+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets add constraint FKamr5jy658vv73d04vembos2bw foreign key (status_id) references statuses
+2026-07-26T13:44:54.053+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products add constraint FKi7isf670mbq331v0muqqry1cd foreign key (order_id) references orders
+2026-07-26T13:44:54.054+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products add constraint FK4ximfyldt9wafxil44a95nbow foreign key (package_id) references packages
+2026-07-26T13:44:54.055+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FKlwggw414a2ts5kuwn3w3xwey4 foreign key (gate_id) references gates
+2026-07-26T13:44:54.057+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FK90a9kwkuq8tdssbn73patuj1o foreign key (shift_id) references shifts
+2026-07-26T13:44:54.058+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FKsskkpl1vd8t45wcvx150udmvo foreign key (status_id) references statuses
+2026-07-26T13:44:54.059+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FKp7dc0isy2d4u0q76rrmwyyye9 foreign key (store_id) references organizations
+2026-07-26T13:44:54.060+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists organizations add constraint FKapumdmay8yodgwtrshtoukpm1 foreign key (organization_type_id) references organization_types
+2026-07-26T13:44:54.061+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists packages add constraint FKpbap7arai7981kim42hnmllvy foreign key (product_id) references products
+2026-07-26T13:44:54.062+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists paper_cards add constraint FKd9updxxiind6n0qu03wobuvh6 foreign key (order_id) references orders
+2026-07-26T13:44:54.064+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products add constraint FKd7dkbt15tcqu5a44qp1f8fpvw foreign key (order_pallet_id) references order_pallets
+2026-07-26T13:44:54.065+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products add constraint FKl3toya91sky77ldb56ak25egp foreign key (product_package_id) references packages
+2026-07-26T13:44:54.066+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FKq0c540v7295mp0t33kl6sj0v3 foreign key (pallet_id) references pallets
+2026-07-26T13:44:54.068+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FKpnufn9ti4t3cus76xl9727jpl foreign key (product_package_id) references packages
+2026-07-26T13:44:54.069+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FKge9nts7ge6rddq124q7wm7geh foreign key (status_id) references statuses
+2026-07-26T13:44:54.069+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FK437c8obhesvrd78rdmv09bmym foreign key (work_station_id) references work_stations
+2026-07-26T13:44:54.069+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists products add constraint FK9f4oe4i29p9ah82tlxxfx9qmw foreign key (producer_id) references organizations
+2026-07-26T13:44:54.071+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products add constraint FK4ncg3gnnd9f9wcadd80whdc89 foreign key (order_id) references orders
+2026-07-26T13:44:54.073+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products add constraint FKv2qnmbp3kaqqe4wycem8mhti foreign key (product_id) references products
+2026-07-26T13:44:54.073+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists tracks add constraint FKh4jx673abomox36uqp69qe0a6 foreign key (gate_id) references gates
+2026-07-26T13:44:54.075+02:00 DEBUG 21492 --- [demo] [main] org.hibernate.SQL                        : alter table if exists work_stations add constraint FKsb494sowyhqf94e5oumi6b7a0 foreign key (workshop_id) references workshops
+2026-07-26T13:44:54.078+02:00  INFO 21492 --- [demo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-26T13:44:54.127+02:00  WARN 21492 --- [demo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-26T13:44:54.415+02:00  INFO 21492 --- [demo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-26T13:44:54.675+02:00  INFO 21492 --- [demo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-07-26T13:44:54.680+02:00  INFO 21492 --- [demo] [main] com.warehouse.demo.DemoApplication       : Started DemoApplication in 4.205 seconds (process running for 4.516)
+2026-07-26T13:46:32.705+02:00  INFO 8384 --- [demo] [main] com.warehouse.demo.DemoApplication       : Starting DemoApplication using Java 26.0.1 with PID 8384 (C:\Users\v1rus\Development\Java\Warehouse\demo\target\classes started by v1rus in C:\Users\v1rus\Development\Java\Warehouse\demo)
+2026-07-26T13:46:32.708+02:00  INFO 8384 --- [demo] [main] com.warehouse.demo.DemoApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-07-26T13:46:33.211+02:00  INFO 8384 --- [demo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-26T13:46:33.301+02:00  INFO 8384 --- [demo] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 81 ms. Found 21 JPA repository interfaces.
+2026-07-26T13:46:33.659+02:00  INFO 8384 --- [demo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-07-26T13:46:33.668+02:00  INFO 8384 --- [demo] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-26T13:46:33.669+02:00  INFO 8384 --- [demo] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-07-26T13:46:33.709+02:00  INFO 8384 --- [demo] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 969 ms
+2026-07-26T13:46:33.881+02:00  INFO 8384 --- [demo] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-07-26T13:46:33.925+02:00  INFO 8384 --- [demo] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-07-26T13:46:34.224+02:00  INFO 8384 --- [demo] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-26T13:46:34.248+02:00  INFO 8384 --- [demo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-26T13:46:34.371+02:00  INFO 8384 --- [demo] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6aaa678d
+2026-07-26T13:46:34.372+02:00  INFO 8384 --- [demo] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-26T13:46:34.436+02:00  INFO 8384 --- [demo] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/warehouse_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.4
+	Default catalog/schema: warehouse_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-07-26T13:46:35.184+02:00  INFO 8384 --- [demo] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-26T13:46:35.201+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : set client_min_messages = WARNING
+2026-07-26T13:46:35.202+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists action_logs drop constraint if exists FKabx32d38kv3htb0sytu0grnft
+2026-07-26T13:46:35.222+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKh62l7gpgesex8wjd6himtb3e1
+2026-07-26T13:46:35.223+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKngcpgx7fx5kednw3m7u0u8of3
+2026-07-26T13:46:35.225+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKerjbet32797doputgk79dc4ga
+2026-07-26T13:46:35.225+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKpqdqlwod8tktiphtoc7oer7rt
+2026-07-26T13:46:35.226+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKre8sl05h2cj0mpxc2r8t7fvvx
+2026-07-26T13:46:35.227+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKamr5jy658vv73d04vembos2bw
+2026-07-26T13:46:35.227+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products drop constraint if exists FKi7isf670mbq331v0muqqry1cd
+2026-07-26T13:46:35.228+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products drop constraint if exists FK4ximfyldt9wafxil44a95nbow
+2026-07-26T13:46:35.228+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKlwggw414a2ts5kuwn3w3xwey4
+2026-07-26T13:46:35.229+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FK90a9kwkuq8tdssbn73patuj1o
+2026-07-26T13:46:35.229+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKsskkpl1vd8t45wcvx150udmvo
+2026-07-26T13:46:35.231+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKp7dc0isy2d4u0q76rrmwyyye9
+2026-07-26T13:46:35.232+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists organizations drop constraint if exists FKapumdmay8yodgwtrshtoukpm1
+2026-07-26T13:46:35.232+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists packages drop constraint if exists FKpbap7arai7981kim42hnmllvy
+2026-07-26T13:46:35.233+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists paper_cards drop constraint if exists FKd9updxxiind6n0qu03wobuvh6
+2026-07-26T13:46:35.234+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products drop constraint if exists FKd7dkbt15tcqu5a44qp1f8fpvw
+2026-07-26T13:46:35.234+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products drop constraint if exists FKl3toya91sky77ldb56ak25egp
+2026-07-26T13:46:35.235+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKq0c540v7295mp0t33kl6sj0v3
+2026-07-26T13:46:35.236+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKpnufn9ti4t3cus76xl9727jpl
+2026-07-26T13:46:35.237+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKge9nts7ge6rddq124q7wm7geh
+2026-07-26T13:46:35.238+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FK437c8obhesvrd78rdmv09bmym
+2026-07-26T13:46:35.239+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists products drop constraint if exists FK9f4oe4i29p9ah82tlxxfx9qmw
+2026-07-26T13:46:35.240+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products drop constraint if exists FK4ncg3gnnd9f9wcadd80whdc89
+2026-07-26T13:46:35.241+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products drop constraint if exists FKv2qnmbp3kaqqe4wycem8mhti
+2026-07-26T13:46:35.241+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists tracks drop constraint if exists FKh4jx673abomox36uqp69qe0a6
+2026-07-26T13:46:35.241+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists work_stations drop constraint if exists FKsb494sowyhqf94e5oumi6b7a0
+2026-07-26T13:46:35.243+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists action_logs cascade
+2026-07-26T13:46:35.245+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists employees cascade
+2026-07-26T13:46:35.246+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists gates cascade
+2026-07-26T13:46:35.247+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists order_pallets cascade
+2026-07-26T13:46:35.248+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists ordered_products cascade
+2026-07-26T13:46:35.249+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists orders cascade
+2026-07-26T13:46:35.251+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists organization_types cascade
+2026-07-26T13:46:35.252+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists organizations cascade
+2026-07-26T13:46:35.255+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists packages cascade
+2026-07-26T13:46:35.256+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists pallets cascade
+2026-07-26T13:46:35.258+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists paper_cards cascade
+2026-07-26T13:46:35.259+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists picked_products cascade
+2026-07-26T13:46:35.260+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists positions cascade
+2026-07-26T13:46:35.261+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists product_pallets cascade
+2026-07-26T13:46:35.262+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists products cascade
+2026-07-26T13:46:35.264+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists return_products cascade
+2026-07-26T13:46:35.264+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists shifts cascade
+2026-07-26T13:46:35.265+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists statuses cascade
+2026-07-26T13:46:35.268+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists tracks cascade
+2026-07-26T13:46:35.269+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists work_stations cascade
+2026-07-26T13:46:35.270+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop table if exists workshops cascade
+2026-07-26T13:46:35.272+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists action_logs_seq
+2026-07-26T13:46:35.273+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists employee_seq
+2026-07-26T13:46:35.274+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists gate_seq
+2026-07-26T13:46:35.275+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists order_pallets_seq
+2026-07-26T13:46:35.276+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists order_seq
+2026-07-26T13:46:35.276+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists ordered_products_seq
+2026-07-26T13:46:35.277+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists organization_seq
+2026-07-26T13:46:35.278+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists organization_type_seq
+2026-07-26T13:46:35.279+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists package_seq
+2026-07-26T13:46:35.280+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists pallet_seq
+2026-07-26T13:46:35.281+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists paper_cards_seq
+2026-07-26T13:46:35.282+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists picked_products_seq
+2026-07-26T13:46:35.282+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists position_seq
+2026-07-26T13:46:35.284+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists product_pallet_seq
+2026-07-26T13:46:35.285+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists products_seq
+2026-07-26T13:46:35.286+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists return_products_seq
+2026-07-26T13:46:35.287+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists shift_seq
+2026-07-26T13:46:35.288+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists status_seq
+2026-07-26T13:46:35.289+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists track_seq
+2026-07-26T13:46:35.289+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists work_station_seq
+2026-07-26T13:46:35.289+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : drop sequence if exists workshop_seq
+2026-07-26T13:46:35.294+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence action_logs_seq start with 1 increment by 50
+2026-07-26T13:46:35.295+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence employee_seq start with 1 increment by 50
+2026-07-26T13:46:35.297+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence gate_seq start with 1 increment by 1
+2026-07-26T13:46:35.298+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence order_pallets_seq start with 1 increment by 50
+2026-07-26T13:46:35.300+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence order_seq start with 1 increment by 50
+2026-07-26T13:46:35.301+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence ordered_products_seq start with 1 increment by 50
+2026-07-26T13:46:35.302+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence organization_seq start with 1 increment by 50
+2026-07-26T13:46:35.303+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence organization_type_seq start with 1 increment by 1
+2026-07-26T13:46:35.306+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence package_seq start with 1 increment by 50
+2026-07-26T13:46:35.306+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence pallet_seq start with 1 increment by 1
+2026-07-26T13:46:35.307+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence paper_cards_seq start with 1 increment by 50
+2026-07-26T13:46:35.308+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence picked_products_seq start with 1 increment by 50
+2026-07-26T13:46:35.310+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence position_seq start with 1 increment by 1
+2026-07-26T13:46:35.311+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence product_pallet_seq start with 1 increment by 50
+2026-07-26T13:46:35.312+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence products_seq start with 1 increment by 50
+2026-07-26T13:46:35.312+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence return_products_seq start with 1 increment by 50
+2026-07-26T13:46:35.314+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence shift_seq start with 1 increment by 1
+2026-07-26T13:46:35.315+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence status_seq start with 1 increment by 1
+2026-07-26T13:46:35.316+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence track_seq start with 1 increment by 1
+2026-07-26T13:46:35.317+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence work_station_seq start with 1 increment by 1
+2026-07-26T13:46:35.319+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create sequence workshop_seq start with 1 increment by 1
+2026-07-26T13:46:35.323+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table action_logs (employee_id bigint, entity_id bigint not null, id bigint not null, proceeded_at timestamp(6), action varchar(255), entity_type varchar(255), primary key (id))
+2026-07-26T13:46:35.327+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table employees (birth_date date, employee_number integer not null, id bigint not null, organization_id bigint, position_id bigint, shift_id bigint, document_id varchar(255), first_name varchar(255), last_name varchar(255), phone_number varchar(255), residence_address varchar(255), primary key (id))
+2026-07-26T13:46:35.330+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table gates (id bigint not null, symbol varchar(255), primary key (id))
+2026-07-26T13:46:35.333+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table order_pallets (id bigint not null, order_id bigint, pallet_id bigint, status_id bigint, primary key (id))
+2026-07-26T13:46:35.336+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table ordered_products (ordered_volume numeric(38,2), id bigint not null, order_id bigint, package_id bigint, primary key (id))
+2026-07-26T13:46:35.338+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table orders (gate_id bigint, id bigint not null, shift_id bigint, status_id bigint, store_id bigint, note varchar(255), primary key (id))
+2026-07-26T13:46:35.339+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table organization_types (id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:46:35.341+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table organizations (id bigint not null, organization_type_id bigint, address varchar(255), email varchar(255), name varchar(255), organization_number varchar(255), phone varchar(255), url varchar(255), primary key (id))
+2026-07-26T13:46:35.345+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table packages (products_amount integer not null, volume numeric(38,2), weight numeric(38,2), id bigint not null, product_id bigint, primary key (id))
+2026-07-26T13:46:35.347+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table pallets (height numeric(38,2), length numeric(38,2), weight numeric(38,2), width numeric(38,2), id bigint not null, color varchar(255), name varchar(255), primary key (id))
+2026-07-26T13:46:35.349+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table paper_cards (id bigint not null, order_id bigint, code varchar(255), primary key (id))
+2026-07-26T13:46:35.352+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table picked_products (picked_volume numeric(38,2), id bigint not null, order_pallet_id bigint, product_package_id bigint, primary key (id))
+2026-07-26T13:46:35.355+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table positions (id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:46:35.357+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table product_pallets (package_amount integer not null, id bigint not null, pallet_id bigint, product_package_id bigint, status_id bigint, work_station_id bigint, id_number varchar(255), primary key (id))
+2026-07-26T13:46:35.359+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table products (cost numeric(38,2), id bigint not null, producer_id bigint, barcode_number varchar(255), name varchar(255), primary key (id))
+2026-07-26T13:46:35.361+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table return_products (products_amount integer not null, id bigint not null, order_id bigint, product_id bigint, primary key (id))
+2026-07-26T13:46:35.363+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table shifts (id bigint not null, symbol varchar(255), primary key (id))
+2026-07-26T13:46:35.366+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table statuses (id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:46:35.368+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table tracks (length numeric(38,2), width numeric(38,2), gate_id bigint, id bigint not null, symbol varchar(255), primary key (id))
+2026-07-26T13:46:35.370+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table work_stations (id bigint not null, workshop_id bigint, control_number varchar(255), station_number varchar(255), type varchar(255), primary key (id))
+2026-07-26T13:46:35.374+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : create table workshops (standard numeric(38,2), id bigint not null, name varchar(255), primary key (id))
+2026-07-26T13:46:35.376+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists action_logs add constraint FKabx32d38kv3htb0sytu0grnft foreign key (employee_id) references employees
+2026-07-26T13:46:35.378+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees add constraint FKh62l7gpgesex8wjd6himtb3e1 foreign key (organization_id) references organizations
+2026-07-26T13:46:35.379+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees add constraint FKngcpgx7fx5kednw3m7u0u8of3 foreign key (position_id) references positions
+2026-07-26T13:46:35.380+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists employees add constraint FKerjbet32797doputgk79dc4ga foreign key (shift_id) references shifts
+2026-07-26T13:46:35.381+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets add constraint FKpqdqlwod8tktiphtoc7oer7rt foreign key (order_id) references orders
+2026-07-26T13:46:35.383+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets add constraint FKre8sl05h2cj0mpxc2r8t7fvvx foreign key (pallet_id) references pallets
+2026-07-26T13:46:35.384+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists order_pallets add constraint FKamr5jy658vv73d04vembos2bw foreign key (status_id) references statuses
+2026-07-26T13:46:35.386+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products add constraint FKi7isf670mbq331v0muqqry1cd foreign key (order_id) references orders
+2026-07-26T13:46:35.387+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists ordered_products add constraint FK4ximfyldt9wafxil44a95nbow foreign key (package_id) references packages
+2026-07-26T13:46:35.389+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FKlwggw414a2ts5kuwn3w3xwey4 foreign key (gate_id) references gates
+2026-07-26T13:46:35.390+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FK90a9kwkuq8tdssbn73patuj1o foreign key (shift_id) references shifts
+2026-07-26T13:46:35.390+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FKsskkpl1vd8t45wcvx150udmvo foreign key (status_id) references statuses
+2026-07-26T13:46:35.392+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists orders add constraint FKp7dc0isy2d4u0q76rrmwyyye9 foreign key (store_id) references organizations
+2026-07-26T13:46:35.393+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists organizations add constraint FKapumdmay8yodgwtrshtoukpm1 foreign key (organization_type_id) references organization_types
+2026-07-26T13:46:35.394+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists packages add constraint FKpbap7arai7981kim42hnmllvy foreign key (product_id) references products
+2026-07-26T13:46:35.395+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists paper_cards add constraint FKd9updxxiind6n0qu03wobuvh6 foreign key (order_id) references orders
+2026-07-26T13:46:35.395+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products add constraint FKd7dkbt15tcqu5a44qp1f8fpvw foreign key (order_pallet_id) references order_pallets
+2026-07-26T13:46:35.396+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists picked_products add constraint FKl3toya91sky77ldb56ak25egp foreign key (product_package_id) references packages
+2026-07-26T13:46:35.397+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FKq0c540v7295mp0t33kl6sj0v3 foreign key (pallet_id) references pallets
+2026-07-26T13:46:35.398+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FKpnufn9ti4t3cus76xl9727jpl foreign key (product_package_id) references packages
+2026-07-26T13:46:35.399+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FKge9nts7ge6rddq124q7wm7geh foreign key (status_id) references statuses
+2026-07-26T13:46:35.401+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists product_pallets add constraint FK437c8obhesvrd78rdmv09bmym foreign key (work_station_id) references work_stations
+2026-07-26T13:46:35.403+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists products add constraint FK9f4oe4i29p9ah82tlxxfx9qmw foreign key (producer_id) references organizations
+2026-07-26T13:46:35.404+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products add constraint FK4ncg3gnnd9f9wcadd80whdc89 foreign key (order_id) references orders
+2026-07-26T13:46:35.405+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists return_products add constraint FKv2qnmbp3kaqqe4wycem8mhti foreign key (product_id) references products
+2026-07-26T13:46:35.406+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists tracks add constraint FKh4jx673abomox36uqp69qe0a6 foreign key (gate_id) references gates
+2026-07-26T13:46:35.407+02:00 DEBUG 8384 --- [demo] [main] org.hibernate.SQL                        : alter table if exists work_stations add constraint FKsb494sowyhqf94e5oumi6b7a0 foreign key (workshop_id) references workshops
+2026-07-26T13:46:35.409+02:00  INFO 8384 --- [demo] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-26T13:46:35.442+02:00  WARN 8384 --- [demo] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-26T13:46:35.705+02:00  INFO 8384 --- [demo] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-07-26T13:46:35.940+02:00  INFO 8384 --- [demo] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-26T13:46:35.995+02:00  INFO 8384 --- [demo] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-07-26T13:46:36.001+02:00  INFO 8384 --- [demo] [main] com.warehouse.demo.DemoApplication       : Started DemoApplication in 3.613 seconds (process running for 3.88)
+2026-07-26T13:47:52.647+02:00  INFO 8384 --- [demo] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-07-26T13:47:52.652+02:00  INFO 8384 --- [demo] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-07-26T13:47:52.656+02:00  INFO 8384 --- [demo] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-07-26T13:47:52.656+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : set client_min_messages = WARNING
+2026-07-26T13:47:52.658+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists action_logs drop constraint if exists FKabx32d38kv3htb0sytu0grnft
+2026-07-26T13:47:52.678+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKh62l7gpgesex8wjd6himtb3e1
+2026-07-26T13:47:52.679+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKngcpgx7fx5kednw3m7u0u8of3
+2026-07-26T13:47:52.680+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists employees drop constraint if exists FKerjbet32797doputgk79dc4ga
+2026-07-26T13:47:52.681+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKpqdqlwod8tktiphtoc7oer7rt
+2026-07-26T13:47:52.681+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKre8sl05h2cj0mpxc2r8t7fvvx
+2026-07-26T13:47:52.681+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists order_pallets drop constraint if exists FKamr5jy658vv73d04vembos2bw
+2026-07-26T13:47:52.682+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists ordered_products drop constraint if exists FKi7isf670mbq331v0muqqry1cd
+2026-07-26T13:47:52.683+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists ordered_products drop constraint if exists FK4ximfyldt9wafxil44a95nbow
+2026-07-26T13:47:52.684+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKlwggw414a2ts5kuwn3w3xwey4
+2026-07-26T13:47:52.684+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FK90a9kwkuq8tdssbn73patuj1o
+2026-07-26T13:47:52.685+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKsskkpl1vd8t45wcvx150udmvo
+2026-07-26T13:47:52.685+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists orders drop constraint if exists FKp7dc0isy2d4u0q76rrmwyyye9
+2026-07-26T13:47:52.687+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists organizations drop constraint if exists FKapumdmay8yodgwtrshtoukpm1
+2026-07-26T13:47:52.687+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists packages drop constraint if exists FKpbap7arai7981kim42hnmllvy
+2026-07-26T13:47:52.688+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists paper_cards drop constraint if exists FKd9updxxiind6n0qu03wobuvh6
+2026-07-26T13:47:52.688+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists picked_products drop constraint if exists FKd7dkbt15tcqu5a44qp1f8fpvw
+2026-07-26T13:47:52.689+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists picked_products drop constraint if exists FKl3toya91sky77ldb56ak25egp
+2026-07-26T13:47:52.690+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKq0c540v7295mp0t33kl6sj0v3
+2026-07-26T13:47:52.690+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKpnufn9ti4t3cus76xl9727jpl
+2026-07-26T13:47:52.691+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FKge9nts7ge6rddq124q7wm7geh
+2026-07-26T13:47:52.691+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists product_pallets drop constraint if exists FK437c8obhesvrd78rdmv09bmym
+2026-07-26T13:47:52.692+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists products drop constraint if exists FK9f4oe4i29p9ah82tlxxfx9qmw
+2026-07-26T13:47:52.692+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists return_products drop constraint if exists FK4ncg3gnnd9f9wcadd80whdc89
+2026-07-26T13:47:52.693+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists return_products drop constraint if exists FKv2qnmbp3kaqqe4wycem8mhti
+2026-07-26T13:47:52.693+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists tracks drop constraint if exists FKh4jx673abomox36uqp69qe0a6
+2026-07-26T13:47:52.695+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : alter table if exists work_stations drop constraint if exists FKsb494sowyhqf94e5oumi6b7a0
+2026-07-26T13:47:52.695+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists action_logs cascade
+2026-07-26T13:47:52.697+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists employees cascade
+2026-07-26T13:47:52.699+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists gates cascade
+2026-07-26T13:47:52.700+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists order_pallets cascade
+2026-07-26T13:47:52.701+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists ordered_products cascade
+2026-07-26T13:47:52.702+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists orders cascade
+2026-07-26T13:47:52.703+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists organization_types cascade
+2026-07-26T13:47:52.704+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists organizations cascade
+2026-07-26T13:47:52.705+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists packages cascade
+2026-07-26T13:47:52.707+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists pallets cascade
+2026-07-26T13:47:52.708+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists paper_cards cascade
+2026-07-26T13:47:52.709+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists picked_products cascade
+2026-07-26T13:47:52.710+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists positions cascade
+2026-07-26T13:47:52.711+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists product_pallets cascade
+2026-07-26T13:47:52.712+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists products cascade
+2026-07-26T13:47:52.713+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists return_products cascade
+2026-07-26T13:47:52.715+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists shifts cascade
+2026-07-26T13:47:52.717+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists statuses cascade
+2026-07-26T13:47:52.718+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists tracks cascade
+2026-07-26T13:47:52.719+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists work_stations cascade
+2026-07-26T13:47:52.721+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop table if exists workshops cascade
+2026-07-26T13:47:52.722+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists action_logs_seq
+2026-07-26T13:47:52.723+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists employee_seq
+2026-07-26T13:47:52.723+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists gate_seq
+2026-07-26T13:47:52.724+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists order_pallets_seq
+2026-07-26T13:47:52.725+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists order_seq
+2026-07-26T13:47:52.726+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists ordered_products_seq
+2026-07-26T13:47:52.726+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists organization_seq
+2026-07-26T13:47:52.727+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists organization_type_seq
+2026-07-26T13:47:52.728+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists package_seq
+2026-07-26T13:47:52.728+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists pallet_seq
+2026-07-26T13:47:52.730+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists paper_cards_seq
+2026-07-26T13:47:52.731+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists picked_products_seq
+2026-07-26T13:47:52.731+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists position_seq
+2026-07-26T13:47:52.732+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists product_pallet_seq
+2026-07-26T13:47:52.733+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists products_seq
+2026-07-26T13:47:52.735+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists return_products_seq
+2026-07-26T13:47:52.736+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists shift_seq
+2026-07-26T13:47:52.736+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists status_seq
+2026-07-26T13:47:52.737+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists track_seq
+2026-07-26T13:47:52.738+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists work_station_seq
+2026-07-26T13:47:52.738+02:00 DEBUG 8384 --- [demo] [SpringApplicationShutdownHook] org.hibernate.SQL                        : drop sequence if exists workshop_seq
+2026-07-26T13:47:52.741+02:00  INFO 8384 --- [demo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-07-26T13:47:52.743+02:00  INFO 8384 --- [demo] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

@@ -39,7 +39,7 @@ public class Employee {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shift_id", referencedColumnName = "id")
     private Shift shift;
-    private LocalDate birDate;
+    private LocalDate birthDate;
     private String documentId;
     private String residenceAddress;
     private String phoneNumber;
