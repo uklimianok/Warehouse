@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.employee;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +27,7 @@ public class Organization {
     @SequenceGenerator(name = "organization_seq", sequenceName = "organization_seq", allocationSize = 50)
     private long id;
     private String name;
+    @Column(unique = true)
     private String organizationNumber;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_type_id", referencedColumnName = "id")
