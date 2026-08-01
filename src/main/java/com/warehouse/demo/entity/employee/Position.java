@@ -23,4 +23,5 @@ public class Position {
     @SequenceGenerator(name = "position_seq", sequenceName = "position_seq", allocationSize = 1)
     private long id;
     private String name;
+    private String codeName;
 }

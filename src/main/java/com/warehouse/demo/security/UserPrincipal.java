@@ -20,9 +20,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String rawRole = user.getEmployee().getPosition().getName();
-        String role = "ROLE_" + rawRole.toUpperCase().replace(' ', '_');
-
+        String role = "ROLE_" + user.getEmployee().getPosition().getCodeName();
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
 
         Collection<SimpleGrantedAuthority> authorityList = new ArrayList<>();
