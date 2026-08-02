@@ -1,6 +1,7 @@
 package com.warehouse.demo.security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
@@ -42,5 +43,13 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.isEnabled();
+    }
+
+    public boolean hasAnyRole(String... roleCodes) {
+        return Arrays.stream(roleCodes)
+            .anyMatch(rc -> this.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_" + rc))
+        );
     }
 }
