@@ -1,4 +1,4 @@
-package com.warehouse.demo.service.impl;
+package com.warehouse.demo.service.employee.impl;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +10,7 @@ import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
-import com.warehouse.demo.service.PositionService;
+import com.warehouse.demo.service.employee.PositionService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public Position readById(long id) {
+    public Position read(long id) {
         Optional<Position> position = positionRepository.findById(id);
         if (position.isPresent()) return position.get();
         else throw new EntityNotFoundException("Position not found.");
@@ -35,6 +35,9 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public Position create(PositionRequest positionRequest) {
+        boolean positionExists = positionRepository.existsByName(positionRequest.getName());
+        if (positionExists) throw new DataIntegrityViolationException("Position already exists.");
+
         Position position = new Position();
         position.setName(positionRequest.getName());
         position.setCodeName(position.getName().replace(' ', '_').toUpperCase());
@@ -54,11 +57,10 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public void delete(long id) {
-        boolean positionExists = positionRepository.existsById(id);
-        if (positionExists) {
-            boolean activeEmployeeExists = employeeRepository.existsByPositionId(id);
-            if (activeEmployeeExists) throw new DataIntegrityViolationException("Position is active.");
+    public void deleteById(long id) {
+        if (positionRepository.existsById(id)) {
+            if (employeeRepository.existsByPositionId(id)) 
+                throw new DataIntegrityViolationException("Position is active.");
             else positionRepository.deleteById(id);
         } else throw new EntityNotFoundException("Position not found.");
     }

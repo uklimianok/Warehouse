@@ -4,4 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.warehouse.demo.entity.employee.Organization;
 
-public interface OrganizationRepository extends JpaRepository<Organization, Long> {}
+public interface OrganizationRepository extends JpaRepository<Organization, Long> {
+    boolean existsByOrganizationTypeId(long id);
+    boolean existsByOrganizationNumber(String organizationNumber);
+}

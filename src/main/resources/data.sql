@@ -1,4 +1,4 @@
-INSERT INTO organization_types (id, name) VALUES (nextval('organization_type_seq'),'Employer');
+INSERT INTO organization_types (id, name) VALUES (nextval('organization_type_seq'), 'Employer');
 
 INSERT INTO organizations (id, name, organization_number, organization_type_id, address, phone, email, url) VALUES (nextval('organization_seq'),'Organization A', '00000001', 1, 'Address A', '+1234567890', 'A@email.com', 'A.com');
 

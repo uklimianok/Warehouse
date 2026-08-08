@@ -10,7 +10,7 @@ import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.dto.employee.position.PositionResponse;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.security.UserPrincipal;
-import com.warehouse.demo.service.PositionService;
+import com.warehouse.demo.service.employee.PositionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,10 +32,10 @@ public class PositionController {
     private final PositionService positionService;
     
     private static final String READ_ACCESS_ROLES = 
-        "hasAnyRole('GOODS_UNLOADER','GOODS_PICKER','SET_GOODS_EXPORTER','SET_GOODS_LOADER'," +
-        "'OPERATOR','RETURN_GOODS_CONTROLLER','COORDINATOR','DATA_CONTROLLER'," +
-        "'WAREHOUSE_EMPLOYEES_HR','OFFICE_EMPLOYEES_HR','DIRECTOR','MAJOR_HR'," +
-        "'DEVELOPER','SYSTEM_ADMINISTRATOR')";
+        "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'SET_GOODS_EXPORTER', 'SET_GOODS_LOADER', " +
+        "'OPERATOR', 'RETURN_GOODS_CONTROLLER', 'COORDINATOR', 'DATA_CONTROLLER', " +
+        "'WAREHOUSE_EMPLOYEES_HR', 'OFFICE_EMPLOYEES_HR', 'DIRECTOR', 'MAJOR_HR', " +
+        "'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
     private static final String READ_UPDATE_ACCESS_ROLES =
         "hasAnyRole('MAJOR_HR', 'WAREHOUSE_EMPLOYEES_HR', 'OFFICE_EMPLOYEES_HR', " +
         "'SYSTEM_ADMINISTRATOR')";
@@ -48,55 +48,32 @@ public class PositionController {
     @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends PositionResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<Position> positions = positionService.readAll();
-        List<? extends PositionResponse> positionsResponse = null;
-        
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR)) {
-            positionsResponse = positions
-                .stream()
-                .map(p -> new FullPositionResponse(p.getId(), p.getName(), p.getCodeName()))
-                .toList();
-        } else {
-            positionsResponse = positions
-                .stream()
-                .map(p -> new PositionResponse(p.getId(), p.getName()))
-                .toList();
-        }
+        List<? extends PositionResponse> positionsResponse = positions
+            .stream()
+            .map(p -> returnPositionResponse(p, userPrincipal))
+            .toList();
 
-        ResponseEntity<List<? extends PositionResponse>> response = new ResponseEntity<List<? extends PositionResponse>>(positionsResponse, HttpStatus.OK);
+        ResponseEntity<List<? extends PositionResponse>> response = new ResponseEntity<>(positionsResponse, HttpStatus.OK);
         return response;
     }
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<PositionResponse> readById(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        Position position = positionService.readById(id);
-        PositionResponse positionResponse = null;
+    public ResponseEntity<PositionResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        Position position = positionService.read(id);
+        PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
 
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR)) {
-            positionResponse = new FullPositionResponse(
-                position.getId(), 
-                position.getName(), 
-                position.getCodeName()
-            );
-        } else {
-            positionResponse = new PositionResponse(position.getId(), position.getName());
-        }
-
-        ResponseEntity<PositionResponse> response = new ResponseEntity<PositionResponse>(positionResponse, HttpStatus.OK);
+        ResponseEntity<PositionResponse> response = new ResponseEntity<>(positionResponse, HttpStatus.OK);
         return response;
     }
     
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<FullPositionResponse> create(@RequestBody PositionRequest positionRequest) {
+    public ResponseEntity<PositionResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PositionRequest positionRequest) {
         Position position = positionService.create(positionRequest);
-        FullPositionResponse positionResponse = new FullPositionResponse(
-            position.getId(), 
-            position.getName(), 
-            position.getCodeName()
-        );
+        PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
         
-        ResponseEntity<FullPositionResponse> response = new ResponseEntity<FullPositionResponse>(positionResponse, HttpStatus.CREATED);
+        ResponseEntity<PositionResponse> response = new ResponseEntity<>(positionResponse, HttpStatus.CREATED);
         return response;
     }
 
@@ -104,31 +81,36 @@ public class PositionController {
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
     public ResponseEntity<PositionResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PositionRequest positionRequest) {
         Position position = positionService.update(id, positionRequest);
-        PositionResponse positionResponse = null;
-
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR)) {
-            positionResponse = new FullPositionResponse(
-                position.getId(), 
-                position.getName(), 
-                position.getCodeName()
-            );
-        } else {
-            positionResponse = new PositionResponse(
-                position.getId(), 
-                position.getName()
-            );
-        }
+        PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
         
-        ResponseEntity<PositionResponse> response = new ResponseEntity<PositionResponse>(positionResponse, HttpStatus.OK);
+        ResponseEntity<PositionResponse> response = new ResponseEntity<>(positionResponse, HttpStatus.OK);
         return response;
     }
     
     @DeleteMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
-        positionService.delete(id);
+        positionService.deleteById(id);
 
-        ResponseEntity<String> response = new ResponseEntity<String>("Deleted.", HttpStatus.OK);
+        ResponseEntity<String> response = new ResponseEntity<>("Position is deleted.", HttpStatus.OK);
         return response;
+    }
+
+    private PositionResponse returnPositionResponse(Position from, UserPrincipal userPrincipal) {
+        PositionResponse positionResponse = null;
+        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR)) {
+            positionResponse = new FullPositionResponse(
+                from.getId(), 
+                from.getName(), 
+                from.getCodeName()
+            );
+        } else {
+            positionResponse = new PositionResponse(
+                from.getId(), 
+                from.getName()
+            );
+        }
+
+        return positionResponse;
     }
 }
