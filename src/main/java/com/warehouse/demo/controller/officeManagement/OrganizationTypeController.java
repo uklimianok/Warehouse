@@ -37,7 +37,7 @@ public class OrganizationTypeController {
     @GetMapping
     @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends OrganizationTypeResponse>> readAll() {
-        List<OrganizationType> organizationTypes = this.organizationTypeService.readAll();
+        List<OrganizationType> organizationTypes = organizationTypeService.readAll();
         List<? extends OrganizationTypeResponse> organizationTypeResponses = organizationTypes
             .stream()
             .map(ot -> new OrganizationTypeResponse(ot.getId(), ot.getName()))
@@ -50,7 +50,7 @@ public class OrganizationTypeController {
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<OrganizationTypeResponse> readById(@PathVariable long id) {
-        OrganizationType organizationType = this.organizationTypeService.readById(id);
+        OrganizationType organizationType = organizationTypeService.read(id);
         OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
             organizationType.getId(), 
             organizationType.getName()
@@ -63,7 +63,7 @@ public class OrganizationTypeController {
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<OrganizationTypeResponse> create(@RequestBody OrganizationTypeRequest organizationTypeRequest) {
-        OrganizationType organizationType = this.organizationTypeService.create(organizationTypeRequest);
+        OrganizationType organizationType = organizationTypeService.create(organizationTypeRequest);
         OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
             organizationType.getId(), 
             organizationType.getName()
@@ -76,7 +76,7 @@ public class OrganizationTypeController {
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<OrganizationTypeResponse> update(@PathVariable long id, @RequestBody OrganizationTypeRequest organizationTypeRequest) {
-        OrganizationType organizationType = this.organizationTypeService.update(id, organizationTypeRequest);
+        OrganizationType organizationType = organizationTypeService.update(id, organizationTypeRequest);
         OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
             organizationType.getId(),
             organizationType.getName()
@@ -89,7 +89,7 @@ public class OrganizationTypeController {
     @DeleteMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
-        this.organizationTypeService.deleteById(id);
+        organizationTypeService.delete(id);
 
         ResponseEntity<String> response = new ResponseEntity<>("Organization type is deleted.", HttpStatus.OK);
         return response;

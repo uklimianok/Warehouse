@@ -90,7 +90,7 @@ public class PositionController {
     @DeleteMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
-        positionService.deleteById(id);
+        positionService.delete(id);
 
         ResponseEntity<String> response = new ResponseEntity<>("Position is deleted.", HttpStatus.OK);
         return response;

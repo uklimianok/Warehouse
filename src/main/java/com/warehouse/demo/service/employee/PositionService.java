@@ -1,14 +1,10 @@
 package com.warehouse.demo.service.employee;
 
-import java.util.List;
-
 import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.entity.employee.Position;
+import com.warehouse.demo.service.AbstractService;
 
-public interface PositionService {
-    List<Position> readAll();
-    Position read(long id);
+public interface PositionService extends AbstractService<Position, Long> {
     Position create(PositionRequest positionRequest);
     Position update(long id, PositionRequest positionRequest);
-    void deleteById(long id);
 }

@@ -1,0 +1,27 @@
+package com.warehouse.demo.dto.employee;
+
+import java.time.LocalDate;
+
+import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
+import com.warehouse.demo.dto.employee.position.PositionResponse;
+import com.warehouse.demo.dto.employee.shift.ShiftResponse;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@Getter
+public class FullEmployeeResponse extends DataControllerEmployeeResponse {
+    private LocalDate birthDate;
+    private String documentId;
+    private String residenceAddress;
+    private String phoneNumber;
+
+    public FullEmployeeResponse(long id, String firstName, String lastName, OrganizationResponse organization, String employeeNumber, PositionResponse position, ShiftResponse shift, LocalDate birthDate, String documentId, String residenceAddress, String phoneNumber) {
+        super(id, firstName, lastName, organization, employeeNumber, position, shift);
+        this.birthDate = birthDate;
+        this.documentId = documentId;
+        this.residenceAddress = residenceAddress;
+        this.phoneNumber = phoneNumber;
+    }
+}
