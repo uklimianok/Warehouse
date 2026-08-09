@@ -8,14 +8,17 @@ import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
-import com.warehouse.demo.service.AbstractCrudService;
+import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.PositionService;
+import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.OutputMessage;
+import com.warehouse.demo.util.Utility;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PositionServiceImpl extends AbstractCrudService<Position, Long> implements PositionService {
+public class PositionServiceImpl extends AbstractService<Position, Long> implements PositionService {
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
 
@@ -25,8 +28,8 @@ public class PositionServiceImpl extends AbstractCrudService<Position, Long> imp
     }
 
     @Override
-    protected String getEntityName() {
-        return "Position";
+    protected EntityName getEntityName() {
+        return EntityName.POSITION;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class PositionServiceImpl extends AbstractCrudService<Position, Long> imp
     @Override
     public Position create(PositionRequest positionRequest) {
         if (positionRepository.existsByName(positionRequest.getName())) 
-            throw new DataIntegrityViolationException("Position already exists.");
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.POSITION, OutputMessage.EXISTS));
 
         Position position = new Position();
         position.setName(positionRequest.getName());

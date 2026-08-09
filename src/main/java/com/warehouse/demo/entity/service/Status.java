@@ -6,13 +6,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "statuses")
+@Table(name = "statuses", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "type"}))
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -23,4 +24,5 @@ public class Status {
     @SequenceGenerator(name = "status_seq", sequenceName = "status_seq", allocationSize = 1)
     private long id;
     private String name;
+    private String type;
 }

@@ -12,15 +12,18 @@ import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
-import com.warehouse.demo.service.AbstractCrudService;
+import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationService;
+import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.OutputMessage;
+import com.warehouse.demo.util.Utility;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizationServiceImpl extends AbstractCrudService<Organization, Long> implements OrganizationService {
+public class OrganizationServiceImpl extends AbstractService<Organization, Long> implements OrganizationService {
     private final OrganizationRepository organizationRepository;
     private final OrganizationTypeRepository organizationTypeRepository;
     private final EmployeeRepository employeeRepository;
@@ -31,8 +34,8 @@ public class OrganizationServiceImpl extends AbstractCrudService<Organization, L
     }
 
     @Override
-    protected String getEntityName() {
-        return "Organization";
+    protected EntityName getEntityName() {
+        return EntityName.ORGANIZATION;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class OrganizationServiceImpl extends AbstractCrudService<Organization, L
     @Override
     public Organization create(OrganizationRequest organizationRequest) {
         if (organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber()))
-            throw new DataIntegrityViolationException("Organization already exists.");
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.EXISTS));
 
         return modifyAndSave(new Organization(), organizationRequest);
     }
@@ -54,7 +57,7 @@ public class OrganizationServiceImpl extends AbstractCrudService<Organization, L
         boolean organizationNumberChanged = !organization.getOrganizationNumber().equals(organizationRequest.getOrganizationNumber());
         boolean organizationNumberExists = organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber());
         if (organizationNumberChanged && organizationNumberExists)
-            throw new DataIntegrityViolationException("Organization already exists.");
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.EXISTS));
 
         return modifyAndSave(organization, organizationRequest);
     }
@@ -63,13 +66,13 @@ public class OrganizationServiceImpl extends AbstractCrudService<Organization, L
         target.setName(from.getName());
         target.setOrganizationNumber(from.getOrganizationNumber());
         target.setAddress(from.getAddress());
-        target.setPhone(from.getPhone());
+        target.setPhoneNumber(from.getPhone());
         target.setEmail(from.getEmail());
         target.setUrl(from.getUrl());
 
         Optional<OrganizationType> organizationType = organizationTypeRepository.findById(from.getOrganizationTypeId());
         if (organizationType.isPresent()) target.setOrganizationType(organizationType.get());
-        else throw new EntityNotFoundException("Organization type not found.");
+        else throw new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION_TYPE, OutputMessage.NOT_FOUND));
 
         return organizationRepository.save(target);
     }

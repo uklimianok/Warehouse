@@ -101,7 +101,7 @@ public class OrganizationController {
                 from.getOrganizationNumber(),
                 new OrganizationTypeResponse(from.getOrganizationType().getId(), from.getOrganizationType().getName()),
                 from.getAddress(),
-                from.getPhone(),
+                from.getPhoneNumber(),
                 from.getEmail(),
                 from.getUrl()
             ) :

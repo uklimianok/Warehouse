@@ -10,19 +10,24 @@ import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.repository.employee.ShiftRepository;
-import com.warehouse.demo.service.AbstractCrudService;
+import com.warehouse.demo.repository.user.UserRepository;
+import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
+import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.OutputMessage;
+import com.warehouse.demo.util.Utility;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeServiceImpl extends AbstractCrudService<Employee, Long> implements EmployeeService {
+public class EmployeeServiceImpl extends AbstractService<Employee, Long> implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final OrganizationRepository organizationRepository;
     private final PositionRepository positionRepository;
     private final ShiftRepository shiftRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Employee create(EmployeeRequest employeeRequest) {
@@ -51,8 +56,13 @@ public class EmployeeServiceImpl extends AbstractCrudService<Employee, Long> imp
     }
 
     @Override
-    protected String getEntityName() {
-        return "Employee";
+    protected EntityName getEntityName() {
+        return EntityName.EMPLOYEE;
+    }
+
+    @Override
+    protected boolean isUsed(Long id) {
+        return userRepository.existsByEmployeeId(id);
     }
 
     private String generateEmployeeNumber(int counter, EmployeeRequest from) {  // fix method later
@@ -81,21 +91,21 @@ public class EmployeeServiceImpl extends AbstractCrudService<Employee, Long> imp
             organizationRepository.findById(
                 from.getOrganizationId()
             ).orElseThrow(
-                () -> new EntityNotFoundException("Organization not found.")
+                () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.NOT_FOUND))
             )
         );
         target.setPosition(
             positionRepository.findById(
                 from.getPositionId()
             ).orElseThrow(
-                () -> new EntityNotFoundException("Position not found.")
+                () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.POSITION, OutputMessage.NOT_FOUND))
             )
         );
         target.setShift(
             shiftRepository.findById(
                 from.getShiftId()
             ).orElseThrow(
-                () -> new EntityNotFoundException("Shift not found.")
+                () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.SHIFT, OutputMessage.NOT_FOUND))
             )
         );
 

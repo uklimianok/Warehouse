@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.warehouse.demo.entity.employee.Organization;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ public class Product {
     @SequenceGenerator(name = "products_seq", sequenceName = "products_seq", allocationSize = 50)
     private long id;
     private String name;
+    @Column(unique = true)
     private String barcodeNumber;
     private BigDecimal cost;
     @ManyToOne(fetch = FetchType.LAZY)

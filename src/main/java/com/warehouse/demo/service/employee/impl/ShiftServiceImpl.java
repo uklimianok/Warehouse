@@ -7,14 +7,15 @@ import com.warehouse.demo.dto.employee.shift.ShiftRequest;
 import com.warehouse.demo.entity.employee.Shift;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.ShiftRepository;
-import com.warehouse.demo.service.AbstractCrudService;
+import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.ShiftService;
+import com.warehouse.demo.util.EntityName;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ShiftServiceImpl extends AbstractCrudService<Shift, Long> implements ShiftService {
+public class ShiftServiceImpl extends AbstractService<Shift, Long> implements ShiftService {
     private final ShiftRepository shiftRepository;
     private final EmployeeRepository employeeRepository;
 
@@ -24,8 +25,8 @@ public class ShiftServiceImpl extends AbstractCrudService<Shift, Long> implement
     }
 
     @Override
-    protected String getEntityName() {
-        return "Shift";
+    protected EntityName getEntityName() {
+        return EntityName.SHIFT;
     }
 
     @Override

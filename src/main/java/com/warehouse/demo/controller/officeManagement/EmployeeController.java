@@ -71,7 +71,7 @@ public class EmployeeController {
             .stream()
             .map(e -> returnObjectResponse(e, userPrincipal))
             .toList();
-
+        
         ResponseEntity<List<? extends EmployeeResponse>> response = new ResponseEntity<>(employeeResponse, HttpStatus.OK);
         return response;
     }
@@ -131,7 +131,7 @@ public class EmployeeController {
                         from.getOrganization().getOrganizationType().getName()
                     ),
                     from.getOrganization().getAddress(),
-                    from.getOrganization().getPhone(),
+                    from.getOrganization().getPhoneNumber(),
                     from.getOrganization().getEmail(),
                     from.getOrganization().getUrl()
                 ),

@@ -9,14 +9,17 @@ import org.springframework.stereotype.Service;
 import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeRequest;
 import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
-import com.warehouse.demo.service.AbstractCrudService;
+import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationTypeService;
+import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.OutputMessage;
+import com.warehouse.demo.util.Utility;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizationTypeServiceImpl extends AbstractCrudService<OrganizationType, Long> implements OrganizationTypeService {
+public class OrganizationTypeServiceImpl extends AbstractService<OrganizationType, Long> implements OrganizationTypeService {
     private final OrganizationTypeRepository organizationTypeRepository;
     private final OrganizationRepository organizationRepository;
 
@@ -26,8 +29,8 @@ public class OrganizationTypeServiceImpl extends AbstractCrudService<Organizatio
     }
 
     @Override
-    protected String getEntityName() {
-        return "Organization type";
+    protected EntityName getEntityName() {
+        return EntityName.ORGANIZATION_TYPE;
     }
 
     @Override
@@ -38,7 +41,7 @@ public class OrganizationTypeServiceImpl extends AbstractCrudService<Organizatio
     @Override
     public OrganizationType create(OrganizationTypeRequest organizationTypeRequest) {
         if (organizationTypeRepository.existsByName(organizationTypeRequest.getName()))
-            throw new DataIntegrityViolationException("Organization type already exists.");
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION_TYPE, OutputMessage.EXISTS));
 
         OrganizationType organizationType = new OrganizationType();
         organizationType.setName(organizationTypeRequest.getName());

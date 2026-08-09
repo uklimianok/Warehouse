@@ -33,7 +33,7 @@ public class Organization {
     @JoinColumn(name = "organization_type_id", referencedColumnName = "id")
     private OrganizationType organizationType;
     private String address;
-    private String phone;
+    private String phoneNumber;
     private String email;
     private String url;
 }
