@@ -10,6 +10,7 @@ import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.repository.employee.ShiftRepository;
+import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.repository.user.UserRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
@@ -28,6 +29,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final PositionRepository positionRepository;
     private final ShiftRepository shiftRepository;
     private final UserRepository userRepository;
+    private final ActionLogRepository actionLogRepository;
 
     @Override
     public Employee create(EmployeeRequest employeeRequest) {
@@ -62,7 +64,9 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     @Override
     protected boolean isUsed(Long id) {
-        return userRepository.existsByEmployeeId(id);
+        boolean activeInUser = userRepository.existsByEmployeeId(id);
+        boolean activeInActionLog = actionLogRepository.existsByEmployeeId(id);
+        return activeInUser || activeInActionLog;
     }
 
     private String generateEmployeeNumber(int counter, EmployeeRequest from) {  // fix method later
@@ -87,9 +91,9 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         target.setDocumentId(from.getDocumentId());
         target.setResidenceAddress(from.getResidenceAddress());
         target.setPhoneNumber(from.getPhoneNumber());
-        target.setOrganization(
+        target.setEmployerOrganization(
             organizationRepository.findById(
-                from.getOrganizationId()
+                from.getEmployerOrganizationId()
             ).orElseThrow(
                 () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.NOT_FOUND))
             )

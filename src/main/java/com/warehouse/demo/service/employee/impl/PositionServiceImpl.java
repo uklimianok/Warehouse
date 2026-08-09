@@ -34,7 +34,8 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
 
     @Override
     protected boolean isUsed(Long id) {
-        return employeeRepository.existsByPositionId(id);
+        boolean activeInEmployee = employeeRepository.existsByPositionId(id);
+        return activeInEmployee;
     }
 
     @Override

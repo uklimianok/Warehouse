@@ -123,17 +123,17 @@ public class EmployeeController {
                 from.getFirstName(),
                 from.getLastName(),
                 new FullOrganizationResponse(
-                    from.getOrganization().getId(), 
-                    from.getOrganization().getName(), 
-                    from.getOrganization().getOrganizationNumber(),
+                    from.getEmployerOrganization().getId(), 
+                    from.getEmployerOrganization().getName(), 
+                    from.getEmployerOrganization().getOrganizationNumber(),
                     new OrganizationTypeResponse(
-                        from.getOrganization().getOrganizationType().getId(),
-                        from.getOrganization().getOrganizationType().getName()
+                        from.getEmployerOrganization().getOrganizationType().getId(),
+                        from.getEmployerOrganization().getOrganizationType().getName()
                     ),
-                    from.getOrganization().getAddress(),
-                    from.getOrganization().getPhoneNumber(),
-                    from.getOrganization().getEmail(),
-                    from.getOrganization().getUrl()
+                    from.getEmployerOrganization().getAddress(),
+                    from.getEmployerOrganization().getPhoneNumber(),
+                    from.getEmployerOrganization().getEmail(),
+                    from.getEmployerOrganization().getUrl()
                 ),
                 from.getEmployeeNumber(),
                 new FullPositionResponse(
@@ -156,9 +156,9 @@ public class EmployeeController {
                 from.getFirstName(),
                 from.getLastName(),
                 new OrganizationResponse(
-                    from.getOrganization().getId(), 
-                    from.getOrganization().getName(), 
-                    from.getOrganization().getOrganizationNumber()
+                    from.getEmployerOrganization().getId(), 
+                    from.getEmployerOrganization().getName(), 
+                    from.getEmployerOrganization().getOrganizationNumber()
                 ),
                 from.getEmployeeNumber(),
                 new PositionResponse(
@@ -176,9 +176,9 @@ public class EmployeeController {
                 from.getFirstName(), 
                 from.getLastName(), 
                 new OrganizationResponse(
-                    from.getOrganization().getId(), 
-                    from.getOrganization().getName(), 
-                    from.getOrganization().getOrganizationNumber()
+                    from.getEmployerOrganization().getId(), 
+                    from.getEmployerOrganization().getName(), 
+                    from.getEmployerOrganization().getOrganizationNumber()
                 ),
                 from.getEmployeeNumber(),
                 new PositionResponse(

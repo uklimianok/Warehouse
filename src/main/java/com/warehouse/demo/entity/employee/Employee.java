@@ -31,8 +31,8 @@ public class Employee {
     private String firstName;
     private String lastName;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id", referencedColumnName = "id")
-    private Organization organization;
+    @JoinColumn(name = "employer_organization_id", referencedColumnName = "id")
+    private Organization employerOrganization;
     @Column(unique = true)
     private String employeeNumber;
     @ManyToOne(fetch = FetchType.LAZY)

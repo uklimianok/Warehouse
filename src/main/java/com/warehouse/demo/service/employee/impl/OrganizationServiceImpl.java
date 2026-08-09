@@ -12,6 +12,8 @@ import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
+import com.warehouse.demo.repository.order.OrderRepository;
+import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationService;
 import com.warehouse.demo.util.EntityName;
@@ -27,6 +29,8 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
     private final OrganizationRepository organizationRepository;
     private final OrganizationTypeRepository organizationTypeRepository;
     private final EmployeeRepository employeeRepository;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     protected JpaRepository<Organization, Long> getRepository() {
@@ -40,7 +44,10 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
 
     @Override
     protected boolean isUsed(Long id) {
-        return employeeRepository.existsByOrganizationId(id);
+        boolean activeInOrganization = employeeRepository.existsByEmployerOrganizationId(id);
+        boolean activeInProduct = productRepository.existsByProducerId(id);
+        boolean activeInOrder = orderRepository.existsByStoreId(id);
+        return activeInOrganization || activeInProduct || activeInOrder;
     }
 
     @Override

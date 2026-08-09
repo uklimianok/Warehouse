@@ -7,6 +7,7 @@ import com.warehouse.demo.dto.employee.shift.ShiftRequest;
 import com.warehouse.demo.entity.employee.Shift;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.ShiftRepository;
+import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.ShiftService;
 import com.warehouse.demo.util.EntityName;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class ShiftServiceImpl extends AbstractService<Shift, Long> implements ShiftService {
     private final ShiftRepository shiftRepository;
     private final EmployeeRepository employeeRepository;
+    private final OrderRepository orderRepository;
 
     @Override
     protected JpaRepository<Shift, Long> getRepository() {
@@ -31,7 +33,9 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
 
     @Override
     protected boolean isUsed(Long id) {
-        return employeeRepository.existsByShiftId(id);
+        boolean activeInEmployee = employeeRepository.existsByShiftId(id);
+        boolean activeInOrder = orderRepository.existsByShiftId(id);
+        return activeInEmployee || activeInOrder;
     }
 
     @Override

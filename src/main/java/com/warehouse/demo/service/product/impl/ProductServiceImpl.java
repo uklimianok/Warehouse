@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.warehouse.demo.dto.product.ProductRequest;
 import com.warehouse.demo.entity.product.Product;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
+import com.warehouse.demo.repository.order.ReturnProductRepository;
 import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
@@ -24,6 +25,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     private final ProductRepository productRepository;
     private final OrganizationRepository organizationRepository;
     private final ProductPackageRepository productPackageRepository;
+    private final ReturnProductRepository returnProductRepository;
 
     @Override
     public Product create(ProductRequest productRequest) {
@@ -56,7 +58,9 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
 
     @Override
     protected boolean isUsed(Long id) {
-        return productPackageRepository.existsByProductId(id);
+        boolean activeInProductPackage = productPackageRepository.existsByProductId(id);
+        boolean activeInReturnProduct = returnProductRepository.existsByProductId(id);
+        return activeInProductPackage || activeInReturnProduct;
     }
 
     private Product modifyAndSave(Product target, ProductRequest from) {

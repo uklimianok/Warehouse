@@ -17,8 +17,8 @@ public class FullEmployeeResponse extends DataControllerEmployeeResponse {
     private String residenceAddress;
     private String phoneNumber;
 
-    public FullEmployeeResponse(long id, String firstName, String lastName, OrganizationResponse organization, String employeeNumber, PositionResponse position, ShiftResponse shift, LocalDate birthDate, String documentId, String residenceAddress, String phoneNumber) {
-        super(id, firstName, lastName, organization, employeeNumber, position, shift);
+    public FullEmployeeResponse(long id, String firstName, String lastName, OrganizationResponse employerOrganization, String employeeNumber, PositionResponse position, ShiftResponse shift, LocalDate birthDate, String documentId, String residenceAddress, String phoneNumber) {
+        super(id, firstName, lastName, employerOrganization, employeeNumber, position, shift);
         this.birthDate = birthDate;
         this.documentId = documentId;
         this.residenceAddress = residenceAddress;

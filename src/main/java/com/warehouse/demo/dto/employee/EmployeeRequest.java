@@ -14,7 +14,7 @@ import lombok.Setter;
 public class EmployeeRequest {
     private String firstName;
     private String lastName;
-    private long organizationId;
+    private long employerOrganizationId;
     private long positionId;
     private long shiftId;
     private LocalDate birthDate;

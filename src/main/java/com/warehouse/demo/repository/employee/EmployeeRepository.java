@@ -6,7 +6,7 @@ import com.warehouse.demo.entity.employee.Employee;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     boolean existsByPositionId(long positionId);
-    boolean existsByOrganizationId(long organizationId);
+    boolean existsByEmployerOrganizationId(long employerOrganizationId);
     boolean existsByShiftId(long shiftId);
     boolean existsByEmployeeNumber(String employeeNumber);
 }

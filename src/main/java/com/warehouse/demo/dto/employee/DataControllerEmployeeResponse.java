@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 public class DataControllerEmployeeResponse extends EmployeeResponse {
     private ShiftResponse shift;
 
-    public DataControllerEmployeeResponse(long id, String firstName, String lastName, OrganizationResponse organization, String employeeNumber, PositionResponse position, ShiftResponse shift) {
-        super(id, firstName, lastName, organization, employeeNumber, position);
+    public DataControllerEmployeeResponse(long id, String firstName, String lastName, OrganizationResponse employerOrganization, String employeeNumber, PositionResponse position, ShiftResponse shift) {
+        super(id, firstName, lastName, employerOrganization, employeeNumber, position);
         this.shift = shift;
     }
 }

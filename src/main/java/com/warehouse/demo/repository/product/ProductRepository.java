@@ -6,4 +6,5 @@ import com.warehouse.demo.entity.product.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByBarcodeNumber(String barcodeNumber);
+    boolean existsByProducerId(long id);
 }

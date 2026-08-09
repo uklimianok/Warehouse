@@ -35,7 +35,8 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
 
     @Override
     protected boolean isUsed(Long id) {
-        return organizationRepository.existsByOrganizationTypeId(id);
+        boolean activeInOrganization = organizationRepository.existsByOrganizationTypeId(id);
+        return activeInOrganization;
     }
 
     @Override
