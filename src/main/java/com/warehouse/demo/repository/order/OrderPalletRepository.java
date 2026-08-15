@@ -7,4 +7,5 @@ import com.warehouse.demo.entity.order.OrderPallet;
 public interface OrderPalletRepository extends JpaRepository<OrderPallet, Long> {
     boolean existsByPalletId(long id);
     boolean existsByStatusId(long id);
+    boolean existsByOrderId(long id);
 }

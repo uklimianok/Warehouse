@@ -4,6 +4,7 @@ import com.warehouse.demo.entity.item.Pallet;
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.entity.workplace.WorkStation;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -36,11 +37,16 @@ public class ProductPallet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pallet_id", referencedColumnName = "id")
     private Pallet pallet;
-    private String idNumber;
+    @Column(unique = true)
+    private String palletNumber;
+    private String groupNumber;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id", referencedColumnName = "id")
     private Status status;
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="work_station_id", referencedColumnName = "id")
     private WorkStation workStation;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="next_work_station_id", referencedColumnName = "id")
+    private WorkStation nextWorkStation;
 }

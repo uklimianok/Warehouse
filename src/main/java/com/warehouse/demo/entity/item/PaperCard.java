@@ -1,6 +1,6 @@
 package com.warehouse.demo.entity.item;
 
-import com.warehouse.demo.entity.order.Order;
+import com.warehouse.demo.entity.order.OrderPallet;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,6 +29,6 @@ public class PaperCard {
     private long id;
     private String code;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
+    @JoinColumn(name = "order_pallet_id", referencedColumnName = "id")
+    private OrderPallet orderPallet;
 }

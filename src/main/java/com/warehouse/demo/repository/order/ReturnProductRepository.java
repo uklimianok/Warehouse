@@ -6,4 +6,5 @@ import com.warehouse.demo.entity.order.ReturnProduct;
 
 public interface ReturnProductRepository extends JpaRepository<ReturnProduct, Long> {
     boolean existsByProductId(long id);
+    boolean existsByOrderId(long id);
 }

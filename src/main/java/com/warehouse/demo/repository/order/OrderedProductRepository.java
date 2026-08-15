@@ -6,4 +6,5 @@ import com.warehouse.demo.entity.order.OrderedProduct;
 
 public interface OrderedProductRepository extends JpaRepository<OrderedProduct, Long> {
     boolean existsByProductPackageId(long id);
+    boolean existsByOrderId(long id);
 }

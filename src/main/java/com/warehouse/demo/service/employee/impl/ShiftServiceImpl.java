@@ -1,5 +1,6 @@
 package com.warehouse.demo.service.employee.impl;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,8 @@ import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.ShiftService;
 import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.OutputMessage;
+import com.warehouse.demo.util.Utility;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,12 +43,23 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
 
     @Override
     public Shift create(ShiftRequest shiftRequest) {
-        return modifyAndSave(new Shift(), shiftRequest);
+        if (shiftRepository.existsBySymbol(shiftRequest.getSymbol()))
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        Shift shift = new Shift();
+        
+        return modifyAndSave(shift, shiftRequest);
     }
 
     @Override
     public Shift update(long id, ShiftRequest shiftRequest) {
-        return modifyAndSave(read(id), shiftRequest);
+        Shift shift = read(id);
+        boolean shiftChanged = !shift.getSymbol().equals(shiftRequest.getSymbol());
+        boolean shiftExists = shiftRepository.existsBySymbol(shiftRequest.getSymbol());
+        if (shiftChanged && shiftExists)
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        return modifyAndSave(shift, shiftRequest);
     }
 
     private Shift modifyAndSave(Shift shift, ShiftRequest shiftRequest) {

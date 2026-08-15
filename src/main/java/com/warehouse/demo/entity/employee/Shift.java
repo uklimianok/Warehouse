@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.employee;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,5 +23,6 @@ public class Shift {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shift_seq")
     @SequenceGenerator(name = "shift_seq", sequenceName = "shift_seq", allocationSize = 1)
     private long id;
+    @Column(unique = true)
     private String symbol; 
 }

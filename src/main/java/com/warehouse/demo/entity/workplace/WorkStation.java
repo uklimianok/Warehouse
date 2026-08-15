@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.workplace;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ public class WorkStation {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "work_station_seq")
     @SequenceGenerator(name = "work_station_seq", sequenceName = "work_station_seq", allocationSize = 1)
     private long id;
+    @Column(unique = true)
     private String stationNumber;
     private String controlNumber;
     private String type;

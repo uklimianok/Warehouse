@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.workplace;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,5 +23,6 @@ public class Gate {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gate_seq")
     @SequenceGenerator(name = "gate_seq", sequenceName = "gate_seq", allocationSize = 1)
     private long id;
+    @Column(unique = true)
     private String symbol;
 }

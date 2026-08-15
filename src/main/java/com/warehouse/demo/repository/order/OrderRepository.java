@@ -8,4 +8,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByStoreId(long id);
     boolean existsByShiftId(long id);
     boolean existsByStatusId(long id);
+    boolean existsByGateId(long id);
 }

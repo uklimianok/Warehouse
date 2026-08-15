@@ -25,6 +25,7 @@ public enum EntityName {
     PAPER_CARD("Paper card"),
     RETURN_PRODUCT("Return product"),
     PICKED_PRODUCT("Picked product"),
+    ORDER("Order"),
     ACTION_LOG("Action log"),
     USER("User"),
     BARCODE_NUMBER("Barcode number");

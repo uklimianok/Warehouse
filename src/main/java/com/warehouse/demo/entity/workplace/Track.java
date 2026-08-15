@@ -2,6 +2,7 @@ package com.warehouse.demo.entity.workplace;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +28,7 @@ public class Track {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "track_seq")
     @SequenceGenerator(name = "track_seq", sequenceName = "track_seq", allocationSize = 1)
     private long id;
+    @Column(unique = true)
     private String symbol;
     private BigDecimal length;
     private BigDecimal width;
