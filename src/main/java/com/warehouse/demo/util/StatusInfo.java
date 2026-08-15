@@ -21,8 +21,21 @@ public class StatusInfo {
     public static enum OrderStatus {
         ACCEPTED("Accepted"),
         STARTED("Started"),
-        INCOMPLETE("Incomplete"),
+        INCOMPLETE_INACTIVE("Incomplete-inactive"),
+        INCOMPLETE_ACTIVE("Incomplete-active"),
         COMPLETE("Complete"),
+        SENT("Sent");
+
+        private final String name;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static enum OrderPalletStatus {
+        PICKING("Picking"),
+        PICKED("Picked"),
+        EXPORTING("Exporting"),
+        LOADING("Loading"),
         SENT("Sent");
 
         private final String name;

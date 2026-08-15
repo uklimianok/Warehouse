@@ -4,4 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.warehouse.demo.entity.item.PaperCard;
 
-public interface PaperCardRepository extends JpaRepository<PaperCard, Long> {}
+public interface PaperCardRepository extends JpaRepository<PaperCard, Long> {
+    boolean existsByOrderPalletId(long id);
+}
