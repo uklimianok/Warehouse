@@ -78,7 +78,7 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<EmployeeResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends EmployeeResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Employee employee = employeeService.read(id);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
 
@@ -88,7 +88,7 @@ public class EmployeeController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<EmployeeResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody EmployeeRequest employeeRequest) {
+    public ResponseEntity<? extends EmployeeResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody EmployeeRequest employeeRequest) {
         Employee employee = employeeService.create(employeeRequest);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
 
@@ -98,7 +98,7 @@ public class EmployeeController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<EmployeeResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody EmployeeRequest employeeRequest) {
+    public ResponseEntity<? extends EmployeeResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody EmployeeRequest employeeRequest) {
         Employee employee = employeeService.update(id, employeeRequest);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
 
@@ -139,7 +139,8 @@ public class EmployeeController {
                 new FullPositionResponse(
                     from.getPosition().getId(), 
                     from.getPosition().getName(),
-                    from.getPosition().getCodeName()
+                    from.getPosition().getCodeName(),
+                    from.getPosition().isHasDatabaseAccess()
                 ),
                 new ShiftResponse(
                     from.getShift().getId(), 

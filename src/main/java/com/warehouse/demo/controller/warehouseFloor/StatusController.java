@@ -52,7 +52,7 @@ public class StatusController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<StatusResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends StatusResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Status status = statusService.read(id);
         StatusResponse statusResponse = returnObjectResponse(status, userPrincipal);
 
@@ -62,7 +62,7 @@ public class StatusController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<StatusResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody StatusRequest statusRequest) {
+    public ResponseEntity<? extends StatusResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody StatusRequest statusRequest) {
         Status status = statusService.create(statusRequest);
         StatusResponse statusResponse = returnObjectResponse(status, userPrincipal);
 
@@ -72,7 +72,7 @@ public class StatusController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<StatusResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody StatusRequest statusRequest) {
+    public ResponseEntity<? extends StatusResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody StatusRequest statusRequest) {
         Status status = statusService.update(id, statusRequest);
         StatusResponse statusResponse = returnObjectResponse(status, userPrincipal);
 

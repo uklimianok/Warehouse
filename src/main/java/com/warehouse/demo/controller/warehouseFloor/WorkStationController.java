@@ -67,7 +67,7 @@ public class WorkStationController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<WorkStationResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends WorkStationResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         WorkStation workStation = workStationService.read(id);
         WorkStationResponse workStationResponse = returnObjectResponse(workStation, userPrincipal);
 
@@ -77,7 +77,7 @@ public class WorkStationController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<WorkStationResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkStationRequest workStationRequest) {
+    public ResponseEntity<? extends WorkStationResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkStationRequest workStationRequest) {
         WorkStation workStation = workStationService.create(workStationRequest);
         WorkStationResponse workStationResponse = returnObjectResponse(workStation, userPrincipal);
 
@@ -87,7 +87,7 @@ public class WorkStationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<WorkStationResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkStationRequest workStationRequest) {
+    public ResponseEntity<? extends WorkStationResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkStationRequest workStationRequest) {
         WorkStation workStation = workStationService.update(id, workStationRequest);
         WorkStationResponse workStationResponse = returnObjectResponse(workStation, userPrincipal);
 

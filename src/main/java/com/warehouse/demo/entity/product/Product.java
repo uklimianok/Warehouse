@@ -2,6 +2,7 @@ package com.warehouse.demo.entity.product;
 
 import java.math.BigDecimal;
 
+import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.employee.Organization;
 
 import jakarta.persistence.Column;
@@ -25,7 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Product {
+public class Product implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
     @SequenceGenerator(name = "product_seq", sequenceName = "product_seq", allocationSize = 50)

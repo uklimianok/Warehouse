@@ -81,7 +81,7 @@ public class ProductPalletController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<ProductPalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends ProductPalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         ProductPallet productPallet = productPalletService.read(id);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
 
@@ -91,7 +91,7 @@ public class ProductPalletController {
 
     @PostMapping
     @PreAuthorize(CREATE_ACCESS_ROLES)
-    public ResponseEntity<ProductPalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductPalletRequest productPalletRequest) {
+    public ResponseEntity<? extends ProductPalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductPalletRequest productPalletRequest) {
         ProductPallet productPallet = productPalletService.create(productPalletRequest);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
 
@@ -101,7 +101,7 @@ public class ProductPalletController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<ProductPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductPalletRequest productPalletRequest) {
+    public ResponseEntity<? extends ProductPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductPalletRequest productPalletRequest) {
         ProductPallet productPallet = productPalletService.update(id, productPalletRequest);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
 

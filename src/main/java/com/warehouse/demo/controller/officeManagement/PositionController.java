@@ -59,7 +59,7 @@ public class PositionController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<PositionResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends PositionResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Position position = positionService.read(id);
         PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
 
@@ -69,7 +69,7 @@ public class PositionController {
     
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<PositionResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PositionRequest positionRequest) {
+    public ResponseEntity<? extends PositionResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PositionRequest positionRequest) {
         Position position = positionService.create(positionRequest);
         PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
         
@@ -79,7 +79,7 @@ public class PositionController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<PositionResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PositionRequest positionRequest) {
+    public ResponseEntity<? extends PositionResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PositionRequest positionRequest) {
         Position position = positionService.update(id, positionRequest);
         PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
         
@@ -102,7 +102,8 @@ public class PositionController {
             positionResponse = new FullPositionResponse(
                 from.getId(), 
                 from.getName(), 
-                from.getCodeName()
+                from.getCodeName(),
+                from.isHasDatabaseAccess()
             );
         } else {
             positionResponse = new PositionResponse(

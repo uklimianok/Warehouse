@@ -56,7 +56,7 @@ public class OrganizationController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<OrganizationResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends OrganizationResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Organization organization = organizationService.read(id);
         OrganizationResponse organizationResponse = returnObjectResponse(organization, userPrincipal);
 
@@ -66,7 +66,7 @@ public class OrganizationController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<OrganizationResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrganizationRequest organizationRequest) {
+    public ResponseEntity<? extends OrganizationResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrganizationRequest organizationRequest) {
         Organization organization = organizationService.create(organizationRequest);
         OrganizationResponse organizationResponse = returnObjectResponse(organization, userPrincipal);
         
@@ -76,7 +76,7 @@ public class OrganizationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<OrganizationResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrganizationRequest organizationRequest) {
+    public ResponseEntity<? extends OrganizationResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrganizationRequest organizationRequest) {
         Organization organization = organizationService.update(id, organizationRequest);
         OrganizationResponse organizationResponse = returnObjectResponse(organization, userPrincipal);
 

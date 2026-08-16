@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeRequest;
 import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.entity.employee.OrganizationType;
+import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.OrganizationTypeService;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,11 +38,11 @@ public class OrganizationTypeController {
     
     @GetMapping
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<List<? extends OrganizationTypeResponse>> readAll() {
+    public ResponseEntity<List<? extends OrganizationTypeResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<OrganizationType> organizationTypes = organizationTypeService.readAll();
         List<? extends OrganizationTypeResponse> organizationTypeResponses = organizationTypes
             .stream()
-            .map(ot -> new OrganizationTypeResponse(ot.getId(), ot.getName()))
+            .map(ot -> returnObjectResponse(ot, userPrincipal))
             .toList();
 
         ResponseEntity<List<? extends OrganizationTypeResponse>> response = new ResponseEntity<>(organizationTypeResponses, HttpStatus.OK);
@@ -49,12 +51,9 @@ public class OrganizationTypeController {
     
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<OrganizationTypeResponse> readById(@PathVariable long id) {
+    public ResponseEntity<? extends OrganizationTypeResponse> readById(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         OrganizationType organizationType = organizationTypeService.read(id);
-        OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
-            organizationType.getId(), 
-            organizationType.getName()
-        );
+        OrganizationTypeResponse organizationTypeResponse = returnObjectResponse(organizationType, userPrincipal);
 
         ResponseEntity<OrganizationTypeResponse> response = new ResponseEntity<>(organizationTypeResponse, HttpStatus.OK);
         return response;
@@ -62,12 +61,9 @@ public class OrganizationTypeController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<OrganizationTypeResponse> create(@RequestBody OrganizationTypeRequest organizationTypeRequest) {
+    public ResponseEntity<? extends OrganizationTypeResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrganizationTypeRequest organizationTypeRequest) {
         OrganizationType organizationType = organizationTypeService.create(organizationTypeRequest);
-        OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
-            organizationType.getId(), 
-            organizationType.getName()
-        );
+        OrganizationTypeResponse organizationTypeResponse = returnObjectResponse(organizationType, userPrincipal);
 
         ResponseEntity<OrganizationTypeResponse> response = new ResponseEntity<>(organizationTypeResponse, HttpStatus.CREATED);
         return response;
@@ -75,12 +71,9 @@ public class OrganizationTypeController {
     
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<OrganizationTypeResponse> update(@PathVariable long id, @RequestBody OrganizationTypeRequest organizationTypeRequest) {
+    public ResponseEntity<? extends OrganizationTypeResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrganizationTypeRequest organizationTypeRequest) {
         OrganizationType organizationType = organizationTypeService.update(id, organizationTypeRequest);
-        OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
-            organizationType.getId(),
-            organizationType.getName()
-        );
+        OrganizationTypeResponse organizationTypeResponse = returnObjectResponse(organizationType, userPrincipal);
 
         ResponseEntity<OrganizationTypeResponse> response = new ResponseEntity<>(organizationTypeResponse, HttpStatus.OK);
         return response;
@@ -93,5 +86,14 @@ public class OrganizationTypeController {
 
         ResponseEntity<String> response = new ResponseEntity<>("Organization type is deleted.", HttpStatus.OK);
         return response;
+    }
+
+    private OrganizationTypeResponse returnObjectResponse(OrganizationType from, UserPrincipal userPrincipal) {
+        OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
+            from.getId(),
+            from.getName()
+        );
+
+        return organizationTypeResponse;
     }
 }

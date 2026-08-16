@@ -46,6 +46,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
         Position position = new Position();
         position.setName(positionRequest.getName());
         position.setCodeName(position.getName().replace(' ', '_').toUpperCase());
+        position.setHasDatabaseAccess(positionRequest.isHasDatabaseAccess());
 
         return positionRepository.save(position);
     }

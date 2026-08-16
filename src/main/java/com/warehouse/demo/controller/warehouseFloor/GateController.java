@@ -54,7 +54,7 @@ public class GateController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<GateResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends GateResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Gate gate = gateService.read(id);
         GateResponse gateResponse = returnObjectResponse(gate, userPrincipal);
 
@@ -64,7 +64,7 @@ public class GateController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<GateResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody GateRequest gateRequest) {
+    public ResponseEntity<? extends GateResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody GateRequest gateRequest) {
         Gate gate = gateService.create(gateRequest);
         GateResponse gateResponse = returnObjectResponse(gate, userPrincipal);
 
@@ -74,7 +74,7 @@ public class GateController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<GateResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody GateRequest gateRequest) {
+    public ResponseEntity<? extends GateResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody GateRequest gateRequest) {
         Gate gate = gateService.update(id, gateRequest);
         GateResponse gateResponse = returnObjectResponse(gate, userPrincipal);
 

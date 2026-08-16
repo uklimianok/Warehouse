@@ -1,11 +1,14 @@
 package com.warehouse.demo.service.employee.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.EmployeeRequest;
 import com.warehouse.demo.entity.employee.Employee;
+import com.warehouse.demo.entity.user.User;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
@@ -19,11 +22,13 @@ import com.warehouse.demo.util.OutputMessage;
 import com.warehouse.demo.util.Utility;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl extends AbstractService<Employee, Long> implements EmployeeService {
+    private final PasswordEncoder passwordEncoder;
     private final EmployeeRepository employeeRepository;
     private final OrganizationRepository organizationRepository;
     private final PositionRepository positionRepository;
@@ -31,19 +36,24 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final UserRepository userRepository;
     private final ActionLogRepository actionLogRepository;
 
+    @Value("${warehouse.shared-password}")
+    private String password;
+
     @Override
+    @Transactional
     public Employee create(EmployeeRequest employeeRequest) {
         Employee employee = new Employee();
-        
-        String employeeNumber = generateEmployeeNumber(0, employeeRequest);
-        int counter = 0;
-        while (employeeRepository.existsByEmployeeNumber(employeeNumber) && counter < 1000000) 
-            employeeNumber = generateEmployeeNumber(counter++, employeeRequest);
-            
-        if (counter < 1000000) employee.setEmployeeNumber(employeeNumber);
-        else throw new DataIntegrityViolationException("Impossible to create employee number.");
+        employee.setEmployeeNumber(generateEmployeeNumber(employeeRequest));
 
-        return modifyAndSave(employee, employeeRequest);
+        Employee savedEmployee = modifyAndSave(employee, employeeRequest);
+        if (savedEmployee.getPosition().isHasDatabaseAccess()) {
+            User user = new User();
+            user.setEmployee(savedEmployee);
+            user.setPassword(passwordEncoder.encode(password));
+            userRepository.save(user);
+        }
+
+        return savedEmployee;
     }
 
     @Override
@@ -69,19 +79,18 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         return activeInUser || activeInActionLog;
     }
 
-    private String generateEmployeeNumber(int counter, EmployeeRequest from) {  // fix method later
-        return counter > 0 ?
-        String.format(
-            "%02d%06d",
-            from.getPositionId(),
-            counter
-        ) :
-        String.format(
-            "%02d%01d%05d", 
-            from.getPositionId(), 
-            from.getBirthDate().getDayOfMonth() % 10,
-            (employeeRepository.count() + 1)
-        );
+    private String generateEmployeeNumber(EmployeeRequest employee) {
+        long positionId = employee.getPositionId();
+        if (positionId < 0 || positionId > 99)
+            throw new DataIntegrityViolationException("Impossible to create employee number.");
+
+        int lastBirthDigit = employee.getBirthDate().getDayOfMonth() % 10;
+
+        long count = employeeRepository.count() + 1;
+        if (count > 99999)
+            throw new DataIntegrityViolationException("Impossible to create employee number.");
+
+        return String.format("%02d%01d%05d", positionId, lastBirthDigit, count);
     }
 
     private Employee modifyAndSave(Employee target, EmployeeRequest from) {

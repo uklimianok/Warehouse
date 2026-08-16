@@ -58,7 +58,7 @@ public class PalletController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<PalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends PalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Pallet pallet = palletService.read(id);
         PalletResponse palletResponse = returnObjectResponse(pallet, userPrincipal);
 
@@ -68,7 +68,7 @@ public class PalletController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<PalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PalletRequest palletRequest) {
+    public ResponseEntity<? extends PalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PalletRequest palletRequest) {
         Pallet pallet = palletService.create(palletRequest);
         PalletResponse palletResponse = returnObjectResponse(pallet, userPrincipal);
 
@@ -78,7 +78,7 @@ public class PalletController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<PalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PalletRequest palletRequest) {
+    public ResponseEntity<? extends PalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PalletRequest palletRequest) {
         Pallet pallet = palletService.update(id, palletRequest);
         PalletResponse palletResponse = returnObjectResponse(pallet, userPrincipal);
 

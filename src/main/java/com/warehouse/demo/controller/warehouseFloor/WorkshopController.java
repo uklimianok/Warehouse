@@ -53,7 +53,7 @@ public class WorkshopController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<WorkshopResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends WorkshopResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Workshop workshop = workshopService.read(id);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
 
@@ -63,7 +63,7 @@ public class WorkshopController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<WorkshopResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkshopRequest workshopRequest) {
+    public ResponseEntity<? extends WorkshopResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkshopRequest workshopRequest) {
         Workshop workshop = workshopService.create(workshopRequest);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
 
@@ -73,7 +73,7 @@ public class WorkshopController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<WorkshopResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkshopRequest workshopRequest) {
+    public ResponseEntity<? extends WorkshopResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkshopRequest workshopRequest) {
         Workshop workshop = workshopService.update(id, workshopRequest);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
 

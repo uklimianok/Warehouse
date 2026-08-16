@@ -61,7 +61,7 @@ public class TrackController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<TrackResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends TrackResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Track track = trackService.read(id);
         TrackResponse trackResponse = returnObjectResponse(track, userPrincipal);
 
@@ -71,7 +71,7 @@ public class TrackController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<TrackResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody TrackRequest trackRequest) {
+    public ResponseEntity<? extends TrackResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody TrackRequest trackRequest) {
         Track track = trackService.create(trackRequest);
         TrackResponse trackResponse = returnObjectResponse(track, userPrincipal);
 
@@ -81,7 +81,7 @@ public class TrackController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<TrackResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody TrackRequest trackRequest) {
+    public ResponseEntity<? extends TrackResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody TrackRequest trackRequest) {
         Track track = trackService.update(id, trackRequest);
         TrackResponse trackResponse = returnObjectResponse(track, userPrincipal);
 

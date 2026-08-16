@@ -60,7 +60,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<ProductResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends ProductResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Product product = productService.read(id);
         ProductResponse productResponse = returnObjectResponse(product, userPrincipal);
 
@@ -70,7 +70,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<ProductResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<? extends ProductResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductRequest productRequest) {
         Product product = productService.create(productRequest);
         ProductResponse productResponse = returnObjectResponse(product, userPrincipal);
 
@@ -80,7 +80,7 @@ public class ProductController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<ProductResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<? extends ProductResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductRequest productRequest) {
         Product product = productService.update(id, productRequest);
         ProductResponse productResponse = returnObjectResponse(product, userPrincipal);
 

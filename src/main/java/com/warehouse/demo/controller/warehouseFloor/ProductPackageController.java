@@ -61,7 +61,7 @@ public class ProductPackageController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<ProductPackageResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends ProductPackageResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         ProductPackage productPackage = productPackageService.read(id);
         ProductPackageResponse productPackageResponse = returnObjectResponse(productPackage, userPrincipal);
 
@@ -71,7 +71,7 @@ public class ProductPackageController {
 
     @PostMapping
     @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<ProductPackageResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductPackageRequest productPackageRequest) {
+    public ResponseEntity<? extends ProductPackageResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductPackageRequest productPackageRequest) {
         ProductPackage productPackage = productPackageService.create(productPackageRequest);
         ProductPackageResponse productPackageResponse = returnObjectResponse(productPackage, userPrincipal);
 
@@ -81,7 +81,7 @@ public class ProductPackageController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<ProductPackageResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductPackageRequest productPackageRequest) {
+    public ResponseEntity<? extends ProductPackageResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductPackageRequest productPackageRequest) {
         ProductPackage productPackage = productPackageService.update(id, productPackageRequest);
         ProductPackageResponse productPackageResponse = returnObjectResponse(productPackage, userPrincipal);
 

@@ -27,4 +27,5 @@ public class Position {
     private String name;
     @Column(unique = true)
     private String codeName;
+    private boolean hasDatabaseAccess;
 }

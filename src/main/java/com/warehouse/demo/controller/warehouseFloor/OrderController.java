@@ -74,7 +74,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<OrderResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends OrderResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Order order = orderService.read(id);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 
@@ -84,7 +84,7 @@ public class OrderController {
 
     @PostMapping
     @PreAuthorize(CREATE_READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<OrderResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<? extends OrderResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderRequest orderRequest) {
         Order order = orderService.create(orderRequest);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 
@@ -94,7 +94,7 @@ public class OrderController {
 
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<OrderResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<? extends OrderResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderRequest orderRequest) {
         Order order = orderService.update(id, orderRequest);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 

@@ -1,4 +1,4 @@
-package com.warehouse.demo.dto.employee.position;
+package com.warehouse.demo.dto.item.paperCard;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PositionRequest {
-    private String name;
-    private boolean hasDatabaseAccess;
+public class PaperCardRequest {
+    private String code;
+    private long orderPalletId;
 }
