@@ -2,6 +2,8 @@ package com.warehouse.demo.entity.employee;
 
 import java.time.LocalDate;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Employee {
+public class Employee implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq")
     @SequenceGenerator(name = "employee_seq", sequenceName = "employee_seq", allocationSize = 50)

@@ -2,6 +2,8 @@ package com.warehouse.demo.entity.workplace;
 
 import java.math.BigDecimal;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Track {
+public class Track implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "track_seq")
     @SequenceGenerator(name = "track_seq", sequenceName = "track_seq", allocationSize = 1)

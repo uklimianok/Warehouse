@@ -1,5 +1,7 @@
 package com.warehouse.demo.entity.employee;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Position {
+public class Position implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "position_seq")
     @SequenceGenerator(name = "position_seq", sequenceName = "position_seq", allocationSize = 1)

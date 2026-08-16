@@ -2,6 +2,8 @@ package com.warehouse.demo.entity.item;
 
 import java.math.BigDecimal;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,7 +21,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Pallet {
+public class Pallet implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pallet_seq")
     @SequenceGenerator(name = "pallet_seq", sequenceName = "pallet_seq", allocationSize = 1)

@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.order;
 
+import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.product.Product;
 
 import jakarta.persistence.Entity;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ReturnProduct {
+public class ReturnProduct implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "return_products_seq")
     @SequenceGenerator(name = "return_products_seq", sequenceName = "return_products_seq", allocationSize = 50)

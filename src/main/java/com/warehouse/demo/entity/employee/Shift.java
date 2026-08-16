@@ -1,5 +1,7 @@
 package com.warehouse.demo.entity.employee;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Shift {
+public class Shift implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shift_seq")
     @SequenceGenerator(name = "shift_seq", sequenceName = "shift_seq", allocationSize = 1)

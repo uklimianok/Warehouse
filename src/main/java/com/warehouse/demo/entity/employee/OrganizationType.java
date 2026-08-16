@@ -1,5 +1,7 @@
 package com.warehouse.demo.entity.employee;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor 
 @Getter
 @Setter
-public class OrganizationType {
+public class OrganizationType implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_type_seq")
     @SequenceGenerator(name = "organization_type_seq", sequenceName = "organization_type_seq", allocationSize = 1)

@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.item;
 
+import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.order.OrderPallet;
 
 import jakarta.persistence.Entity;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PaperCard {
+public class PaperCard implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paper_cards_seq")
     @SequenceGenerator(name = "paper_cards_seq", sequenceName = "paper_cards_seq", allocationSize = 50)

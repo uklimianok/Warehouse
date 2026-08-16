@@ -1,5 +1,6 @@
 package com.warehouse.demo.entity.order;
 
+import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.item.Pallet;
 import com.warehouse.demo.entity.service.Status;
 
@@ -23,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class OrderPallet {
+public class OrderPallet implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_pallets_seq")
     @SequenceGenerator(name = "order_pallets_seq", sequenceName = "order_pallets_seq", allocationSize = 50)

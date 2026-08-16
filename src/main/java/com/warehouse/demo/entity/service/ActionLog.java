@@ -2,6 +2,7 @@ package com.warehouse.demo.entity.service;
 
 import java.time.LocalDateTime;
 
+import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.employee.Employee;
 
 import jakarta.persistence.Entity;
@@ -24,7 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ActionLog {
+public class ActionLog implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "action_logs_seq")
     @SequenceGenerator(name = "action_logs_seq", sequenceName = "action_logs_seq", allocationSize = 50)

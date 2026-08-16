@@ -1,5 +1,7 @@
 package com.warehouse.demo.entity.workplace;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Gate {
+public class Gate implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gate_seq")
     @SequenceGenerator(name = "gate_seq", sequenceName = "gate_seq", allocationSize = 1)

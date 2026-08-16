@@ -1,5 +1,7 @@
 package com.warehouse.demo.entity.service;
 
+import com.warehouse.demo.entity.Identifiable;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Status {
+public class Status implements Identifiable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "status_seq")
     @SequenceGenerator(name = "status_seq", sequenceName = "status_seq", allocationSize = 1)
