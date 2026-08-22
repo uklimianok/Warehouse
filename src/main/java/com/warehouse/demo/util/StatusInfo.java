@@ -8,7 +8,7 @@ public class StatusInfo {
     @Getter
     public static enum ProductPalletStatus {
         ORDERED("Ordered"),
-        UPLOADED("Uploaded"),
+        UNLOADED("Unloaded"),
         STORED("Stored"),
         ACTIVE("Active"),
         OUT_OF_USE("Out-of-use");

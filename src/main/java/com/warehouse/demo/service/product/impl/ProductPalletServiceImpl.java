@@ -73,7 +73,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (productPalletRequest.getNextWorkStationId() == null)
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.NEXT_WORK_STATION_REQUIRED));
                 break;
-            case UPLOADED, STORED:
+            case UNLOADED, STORED:
                 if (productPalletRequest.getWorkStationId() == null || productPalletRequest.getNextWorkStationId() == null)
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.WORK_STATIONS_REQUIRED));
                 break;
