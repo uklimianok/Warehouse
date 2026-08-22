@@ -41,21 +41,31 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     @Override
     public Position create(PositionRequest positionRequest) {
         if (positionRepository.existsByName(positionRequest.getName())) 
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.POSITION, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         Position position = new Position();
         position.setName(positionRequest.getName());
         position.setCodeName(position.getName().replace(' ', '_').toUpperCase());
-        position.setHasDatabaseAccess(positionRequest.isHasDatabaseAccess());
 
-        return positionRepository.save(position);
+        return modifyAndSave(position, positionRequest);
     }
 
     @Override
     public Position update(long id, PositionRequest positionRequest) {
         Position position = read(id);
+        boolean nameChanged = !position.getName().equals(positionRequest.getName());
+        boolean nameExists = positionRepository.existsByName(positionRequest.getName());
+        if (nameChanged && nameExists)
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
         position.setName(positionRequest.getName());
 
-        return positionRepository.save(position);
+        return modifyAndSave(position, positionRequest);
+    }
+
+    private Position modifyAndSave(Position target, PositionRequest from) {
+        target.setHasDatabaseAccess(from.isHasDatabaseAccess());
+
+        return positionRepository.save(target);
     }
 }

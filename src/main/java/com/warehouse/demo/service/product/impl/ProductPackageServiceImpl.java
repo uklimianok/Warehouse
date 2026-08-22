@@ -65,7 +65,7 @@ public class ProductPackageServiceImpl extends AbstractService<ProductPackage, L
         target.setProduct(
             productRepository.findById(from.getProductId())
                 .orElseThrow(() -> 
-                    new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND))
+                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.PRODUCT, OutputMessage.NOT_FOUND))
                 )
         );
 

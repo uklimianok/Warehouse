@@ -113,7 +113,7 @@ public class OrderedProductController {
                     from.getOrder().getStore().getName(),
                     from.getOrder().getStore().getOrganizationNumber()
                 ),
-                from.getOrder() != null ? new GateResponse(
+                from.getOrder().getGate() != null ? new GateResponse(
                     from.getOrder().getGate().getId(),
                     from.getOrder().getGate().getSymbol()
                 ) : null,

@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.product.impl;
 
+import java.util.Arrays;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -59,7 +61,12 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             statusRepository.findByIdAndType(productPalletRequest.getStatusId(), EntityName.PRODUCT_PALLET.getName())
             .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))
         );
-        switch (StatusInfo.ProductPalletStatus.valueOf(productPallet.getStatus().getName())) {
+
+        StatusInfo.ProductPalletStatus status = Arrays.stream(StatusInfo.ProductPalletStatus.values())
+            .filter(s -> s.getName().equals(productPallet.getStatus().getName()))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)));
+        switch (status) {
             case ORDERED:
                 if (productPalletRequest.getWorkStationId() != null)
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.WORK_STATION_NOT_REQUIRED));

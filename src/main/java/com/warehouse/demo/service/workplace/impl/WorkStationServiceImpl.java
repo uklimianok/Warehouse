@@ -58,8 +58,9 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
 
     @Override
     protected boolean isUsed(Long id) {
-        boolean activeInProductPallet = productPalletRepository.existsByWorkStationId(id);
-        return activeInProductPallet;
+        boolean activeInProductPalletWorkStationId = productPalletRepository.existsByWorkStationId(id);
+        boolean activeInProductPalletNextWorkStationId = productPalletRepository.existsByNextWorkStationId(id);
+        return activeInProductPalletWorkStationId || activeInProductPalletNextWorkStationId;
     }
 
     private WorkStation modifyAndSave(WorkStation target, WorkStationRequest from) {

@@ -38,8 +38,8 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     private static final String READ_ACCESS_ROLES = 
-        "hasAnyRole('GOODS_LOADER', 'GOODS_PICKER', 'SET_GOODS_EXPORTER', " +
-        "'SET_GOODS_LOADER', 'OPERATOR', 'RETURN_GOODS_CONTROLLER', " +
+        "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'SET_GOODS_EXPORTER', " +
+        "'SET_GOODS_LOADER', 'OPERATOR', 'RETURN_GOODS_CONTROLLER', 'COORDINATOR', " +
         "'DATA_CONTROLLER', 'SHIFT_SUPERVISOR', 'DIRECTOR', 'MAJOR_HR', " +
         "'WAREHOUSE_EMPLOYEES_HR', 'OFFICE_EMPLOYEES_HR', 'STATISTICS_PROCEEDER', " +
         "'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";

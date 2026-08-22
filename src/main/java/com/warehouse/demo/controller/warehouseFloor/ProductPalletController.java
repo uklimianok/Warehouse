@@ -39,7 +39,7 @@ import com.warehouse.demo.util.Utility;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/product_pallets")
+@RequestMapping("/product-pallets")
 @RequiredArgsConstructor
 public class ProductPalletController {
     private final ProductPalletService productPalletService;

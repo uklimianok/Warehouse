@@ -42,19 +42,27 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
     @Override
     public OrganizationType create(OrganizationTypeRequest organizationTypeRequest) {
         if (organizationTypeRepository.existsByName(organizationTypeRequest.getName()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION_TYPE, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         OrganizationType organizationType = new OrganizationType();
-        organizationType.setName(organizationTypeRequest.getName());
 
-        return organizationTypeRepository.save(organizationType);
+        return modifyAndSave(organizationType, organizationTypeRequest);
     }
 
     @Override
     public OrganizationType update(long id, OrganizationTypeRequest organizationTypeRequest) {
         OrganizationType organizationType = read(id);
-        organizationType.setName(organizationTypeRequest.getName());
+        boolean nameChanged = !organizationType.getName().equals(organizationTypeRequest.getName());
+        boolean nameExists = organizationTypeRepository.existsByName(organizationTypeRequest.getName());
+        if (nameChanged && nameExists)
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
-        return organizationTypeRepository.save(organizationType);
+        return modifyAndSave(organizationType, organizationTypeRequest);
+    }
+
+    private OrganizationType modifyAndSave(OrganizationType target, OrganizationTypeRequest from) {
+        target.setName(from.getName());
+
+        return organizationTypeRepository.save(target);
     }
 }

@@ -53,7 +53,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
     @Override
     public Organization create(OrganizationRequest organizationRequest) {
         if (organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(new Organization(), organizationRequest);
     }

@@ -30,7 +30,7 @@ import com.warehouse.demo.util.Utility;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/work_stations")
+@RequestMapping("/work-stations")
 @RequiredArgsConstructor
 public class WorkStationController {
     private final WorkStationService workStationService;

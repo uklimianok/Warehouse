@@ -62,56 +62,74 @@ INSERT INTO employees (id, first_name, last_name, employer_organization_id, empl
 
 
 INSERT INTO users (id, password, enabled, employee_id)
-SELECT nextval('user_seq'), 'password', true, id
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '01000001';
 INSERT INTO users (id, password, enabled, employee_id)
-SELECT nextval('user_seq'), 'password', true, id
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '02000001';
 INSERT INTO users (id, password, enabled, employee_id)
-SELECT nextval('user_seq'), 'password', true, id
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '03000001';
 INSERT INTO users (id, password, enabled, employee_id)
-SELECT nextval('user_seq'), 'password', true, id
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '04000001';
 INSERT INTO users (id, password, enabled, employee_id)
-SELECT nextval('user_seq'), 'password', true, id
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '05000001';
 INSERT INTO users (id, password, enabled, employee_id)
-SELECT nextval('user_seq'), 'password', true, id
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '06000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '07000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '08000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '09000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '10000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '11000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '12000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '13000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '14000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '15000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '16000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '17000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '18000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '19000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '20000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '21000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '22000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '23000001';
-SELECT nextval('user_seq'), 'password', true, id
+INSERT INTO users (id, password, enabled, employee_id)
+SELECT nextval('user_seq'), '$2a$10$zLoD5QL9ULMjbL0paai5nerNUh1Y4B6Plx5sIzXATGIWYHI2ajXqa', true, id
 FROM employees WHERE employee_number = '24000001';

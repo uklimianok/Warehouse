@@ -10,4 +10,5 @@ public interface ProductPalletRepository extends JpaRepository<ProductPallet, Lo
     boolean existsByStatusId(long id);
     boolean existsByWorkStationId(long id);
     boolean existsByPalletNumber(String palletNumber);
+    boolean existsByNextWorkStationId(long id);
 }

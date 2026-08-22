@@ -57,9 +57,25 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     }
 
     @Override
+    @Transactional
     public Employee update(long id, EmployeeRequest employeeRequest) {
         Employee employee = read(id);
-        return modifyAndSave(employee, employeeRequest);
+        boolean DBAccessModeBefore = employee.getPosition().isHasDatabaseAccess();
+
+        Employee savedEmployee = modifyAndSave(employee, employeeRequest);
+        boolean DBAccessModeAfter = savedEmployee.getPosition().isHasDatabaseAccess();
+
+        boolean DBAccessChanged = DBAccessModeBefore != DBAccessModeAfter;
+        if (DBAccessChanged) {
+            if (savedEmployee.getPosition().isHasDatabaseAccess()) {
+                User user = new User();
+                user.setEmployee(employee);
+                user.setPassword(passwordEncoder.encode(password));
+                userRepository.save(user);
+            } else userRepository.deleteByEmployeeId(id);
+        }
+
+        return savedEmployee;
     }
 
     @Override

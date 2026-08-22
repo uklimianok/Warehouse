@@ -11,4 +11,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.employee e LEFT JOIN FETCH e.position WHERE e.employeeNumber = :employeeNumber") // evade LazyInitializationException
     Optional<User> findByEmployee_EmployeeNumber(String employeeNumber); 
     boolean existsByEmployeeId(long id);
+    void deleteByEmployeeId(long id);
 }
