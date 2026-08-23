@@ -48,11 +48,6 @@ public class OrderedProductServiceImpl extends AbstractService<OrderedProduct, L
         return EntityName.ORDERED_PRODUCT;
     }
 
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
-    }
-
     private OrderedProduct modifyAndSave(OrderedProduct target, OrderedProductRequest from) {
         target.setOrderedVolume(from.getOrderedVolume());
 

@@ -48,11 +48,6 @@ public class ReturnProductServiceImpl extends AbstractService<ReturnProduct, Lon
         return EntityName.RETURN_PRODUCT;
     }
 
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
-    }
-
     private ReturnProduct modifyAndSave(ReturnProduct target, ReturnProductRequest from) {
         target.setProductsAmount(from.getProductsAmount());
 

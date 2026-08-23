@@ -42,9 +42,4 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
     protected EntityName getEntityName() {
         return EntityName.ACTION_LOG;
     }
-
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
-    }
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
 import com.warehouse.demo.dto.order.OrderResponse;
 import com.warehouse.demo.dto.order.orderedProduct.OrderedProductRequest;
-import com.warehouse.demo.dto.order.orderedProduct.OrderPalletResponse;
+import com.warehouse.demo.dto.order.orderedProduct.OrderedProductResponse;
 import com.warehouse.demo.dto.product.ProductResponse;
 import com.warehouse.demo.dto.product.productPackage.ProductPackageResponse;
 import com.warehouse.demo.dto.workplace.gate.GateResponse;
@@ -52,44 +52,44 @@ public class OrderedProductController {
 
     @GetMapping
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<List<? extends OrderPalletResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<List<? extends OrderedProductResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<OrderedProduct> orderedProducts = orderedProductService.readAll();
-        List<? extends OrderPalletResponse> orderedProductsResponse = orderedProducts
+        List<? extends OrderedProductResponse> orderedProductsResponse = orderedProducts
             .stream()
             .map(op -> returnObjectResponse(op, userPrincipal))
             .toList();
         
-        ResponseEntity<List<? extends OrderPalletResponse>> response = new ResponseEntity<>(orderedProductsResponse, HttpStatus.OK);
+        ResponseEntity<List<? extends OrderedProductResponse>> response = new ResponseEntity<>(orderedProductsResponse, HttpStatus.OK);
         return response;
     }
 
     @GetMapping("/{id}")
     @PreAuthorize(READ_ACCESS_ROLES)
-    public ResponseEntity<? extends OrderPalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+    public ResponseEntity<? extends OrderedProductResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         OrderedProduct orderedProduct = orderedProductService.read(id);
-        OrderPalletResponse orderedProductResponse = returnObjectResponse(orderedProduct, userPrincipal);
+        OrderedProductResponse orderedProductResponse = returnObjectResponse(orderedProduct, userPrincipal);
 
-        ResponseEntity<? extends OrderPalletResponse> response = new ResponseEntity<>(orderedProductResponse, HttpStatus.OK);
+        ResponseEntity<? extends OrderedProductResponse> response = new ResponseEntity<>(orderedProductResponse, HttpStatus.OK);
         return response;
     }
 
     @PostMapping
     @PreAuthorize(CREATE_READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<? extends OrderPalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderedProductRequest orderedProductRequest) {
+    public ResponseEntity<? extends OrderedProductResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderedProductRequest orderedProductRequest) {
         OrderedProduct orderedProduct = orderedProductService.create(orderedProductRequest);
-        OrderPalletResponse orderedProductResponse = returnObjectResponse(orderedProduct, userPrincipal);
+        OrderedProductResponse orderedProductResponse = returnObjectResponse(orderedProduct, userPrincipal);
 
-        ResponseEntity<? extends OrderPalletResponse> response = new ResponseEntity<>(orderedProductResponse, HttpStatus.CREATED);
+        ResponseEntity<? extends OrderedProductResponse> response = new ResponseEntity<>(orderedProductResponse, HttpStatus.CREATED);
         return response;
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
-    public ResponseEntity<? extends OrderPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderedProductRequest orderedProductRequest) {
+    public ResponseEntity<? extends OrderedProductResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderedProductRequest orderedProductRequest) {
         OrderedProduct orderedProduct = orderedProductService.update(id, orderedProductRequest);
-        OrderPalletResponse orderedProductResponse = returnObjectResponse(orderedProduct, userPrincipal);
+        OrderedProductResponse orderedProductResponse = returnObjectResponse(orderedProduct, userPrincipal);
 
-        ResponseEntity<? extends OrderPalletResponse> response = new ResponseEntity<>(orderedProductResponse, HttpStatus.OK);
+        ResponseEntity<? extends OrderedProductResponse> response = new ResponseEntity<>(orderedProductResponse, HttpStatus.OK);
         return response;
     }
 
@@ -103,8 +103,8 @@ public class OrderedProductController {
         return response;
     }
 
-    private OrderPalletResponse returnObjectResponse(OrderedProduct from, UserPrincipal userPrincipal) {
-        OrderPalletResponse orderedProductResponse = new OrderPalletResponse(
+    private OrderedProductResponse returnObjectResponse(OrderedProduct from, UserPrincipal userPrincipal) {
+        OrderedProductResponse orderedProductResponse = new OrderedProductResponse(
             from.getId(),
             new OrderResponse(
                 from.getOrder().getId(),

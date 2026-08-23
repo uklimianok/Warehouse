@@ -32,6 +32,13 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     private final StatusRepository statusRepository;
     private final WorkStationRepository workStationRepository;
 
+    private static final String WORK_STATION_NOT_REQUIRED = "must not contain current position.";
+    private static final String WORK_STATION_REQUIRED = "must contain current position.";
+    private static final String NEXT_WORK_STATION_REQUIRED = "must contain next position.";
+    private static final String NEXT_WORK_STATION_NOT_REQUIRED = "must not contain next position.";
+    private static final String WORK_STATIONS_REQUIRED = "must contain current and next position.";
+    private static final String WORK_STATIONS_NOT_REQUIRED = "must not contain any position.";
+
     @Override
     public ProductPallet create(ProductPalletRequest productPalletRequest) {
         if (productPalletRepository.existsByPalletNumber(productPalletRequest.getPalletNumber()))
@@ -69,23 +76,23 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         switch (status) {
             case ORDERED:
                 if (productPalletRequest.getWorkStationId() != null)
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.WORK_STATION_NOT_REQUIRED));
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), WORK_STATION_NOT_REQUIRED));
                 if (productPalletRequest.getNextWorkStationId() == null)
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.NEXT_WORK_STATION_REQUIRED));
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), NEXT_WORK_STATION_REQUIRED));
                 break;
             case UNLOADED, STORED:
                 if (productPalletRequest.getWorkStationId() == null || productPalletRequest.getNextWorkStationId() == null)
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.WORK_STATIONS_REQUIRED));
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), WORK_STATIONS_REQUIRED));
                 break;
             case ACTIVE:
                 if (productPalletRequest.getWorkStationId() == null)
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.WORK_STATION_REQUIRED));
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), WORK_STATION_REQUIRED));
                 if (productPalletRequest.getNextWorkStationId() != null)
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.NEXT_WORK_STATION_NOT_REQUIRED));
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), NEXT_WORK_STATION_NOT_REQUIRED));
                 break;
             case OUT_OF_USE:
                 if (productPalletRequest.getWorkStationId() != null || productPalletRequest.getNextWorkStationId() != null) 
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.WORK_STATIONS_NOT_REQUIRED));
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), WORK_STATIONS_NOT_REQUIRED));
                 break;
         }
 
@@ -120,11 +127,6 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     @Override
     protected EntityName getEntityName() {
         return EntityName.PRODUCT_PALLET;
-    }
-
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
     }
 
     private ProductPallet modifyAndSave(ProductPallet target, ProductPalletRequest from) {

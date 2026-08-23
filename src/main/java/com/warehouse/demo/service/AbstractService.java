@@ -14,7 +14,6 @@ import jakarta.persistence.EntityNotFoundException;
 public abstract class AbstractService<T, ID> {
     protected abstract JpaRepository<T, ID> getRepository();
     protected abstract EntityName getEntityName();
-    protected abstract boolean isUsed(ID id);
 
     private void throwIfNotExists(ID id) {
         if (!getRepository().existsById(id)) 
@@ -39,5 +38,9 @@ public abstract class AbstractService<T, ID> {
         throwIfNotExists(id);
         throwIfActive(id);
         getRepository().deleteById(id);
+    }
+
+    protected boolean isUsed(ID id) {
+        return false;
     }
 }

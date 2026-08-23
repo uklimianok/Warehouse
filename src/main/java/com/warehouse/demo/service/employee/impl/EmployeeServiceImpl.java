@@ -46,12 +46,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         employee.setEmployeeNumber(generateEmployeeNumber(employeeRequest));
 
         Employee savedEmployee = modifyAndSave(employee, employeeRequest);
-        if (savedEmployee.getPosition().isHasDatabaseAccess()) {
-            User user = new User();
-            user.setEmployee(savedEmployee);
-            user.setPassword(passwordEncoder.encode(password));
-            userRepository.save(user);
-        }
+        if (savedEmployee.getPosition().isHasDatabaseAccess()) configureUser(savedEmployee);
 
         return savedEmployee;
     }
@@ -67,12 +62,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
         boolean DBAccessChanged = DBAccessModeBefore != DBAccessModeAfter;
         if (DBAccessChanged) {
-            if (savedEmployee.getPosition().isHasDatabaseAccess()) {
-                User user = new User();
-                user.setEmployee(employee);
-                user.setPassword(passwordEncoder.encode(password));
-                userRepository.save(user);
-            } else userRepository.deleteByEmployeeId(id);
+            if (savedEmployee.getPosition().isHasDatabaseAccess()) configureUser(savedEmployee);
+            else userRepository.deleteByEmployeeId(id);
         }
 
         return savedEmployee;
@@ -107,6 +98,14 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             throw new DataIntegrityViolationException("Impossible to create employee number.");
 
         return String.format("%02d%01d%05d", positionId, lastBirthDigit, count);
+    }
+
+    private void configureUser(Employee target) {
+        User user = new User();
+        user.setEmployee(target);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 
     private Employee modifyAndSave(Employee target, EmployeeRequest from) {

@@ -47,11 +47,6 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
     protected EntityName getEntityName() {
         return EntityName.PICKED_PRODUCT;
     }
-
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
-    }
     
     private PickedProduct modifyAndSave(PickedProduct target, PickedProductRequest from) {
         target.setPickedVolume(from.getPickedVolume());

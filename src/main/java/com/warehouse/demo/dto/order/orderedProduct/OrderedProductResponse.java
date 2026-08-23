@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class OrderPalletResponse {
+public class OrderedProductResponse {
     private long id;
     private OrderResponse order;
     private ProductPackageResponse productPackage;

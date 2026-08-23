@@ -46,11 +46,6 @@ public class PaperCardServiceImpl extends AbstractService<PaperCard, Long> imple
         return EntityName.PAPER_CARD;
     }
 
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
-    }
-
     private PaperCard modifyAndSave(PaperCard target, PaperCardRequest from) {
         target.setCode(from.getCode());
 

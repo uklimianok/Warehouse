@@ -54,11 +54,6 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
         return EntityName.TRACK;
     }
 
-    @Override
-    protected boolean isUsed(Long id) {
-        return false;
-    }
-
     private Track modifyAndSave(Track target, TrackRequest from) {
         target.setSymbol(from.getSymbol());
         target.setLength(from.getLength());

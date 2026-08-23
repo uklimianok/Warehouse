@@ -36,6 +36,8 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     private final ShiftRepository shiftRepository;
     private final StatusRepository statusRepository;
 
+    public static final String GATE_REQUIRED = "must contain any gate.";
+
     @Override
     public Order create(OrderRequest orderRequest) {
         Order order = new Order();
@@ -43,7 +45,6 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
             .findByNameAndType(StatusInfo.OrderStatus.ACCEPTED.getName(), EntityName.ORDER.getName())
             .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))  
         );
-        order.setGate(null);
 
         return modifyAndSave(order, orderRequest);
     }
@@ -64,7 +65,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
             order.setGate(null);
 
         if (!order.getStatus().getName().equals(StatusInfo.OrderStatus.ACCEPTED.getName()) && order.getGate() == null)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.GATE_REQUIRED));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
         return modifyAndSave(order, orderRequest);
     }
