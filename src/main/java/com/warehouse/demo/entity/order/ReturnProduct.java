@@ -26,8 +26,8 @@ import lombok.Setter;
 @Setter
 public class ReturnProduct implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "return_products_seq")
-    @SequenceGenerator(name = "return_products_seq", sequenceName = "return_products_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "return_product_seq")
+    @SequenceGenerator(name = "return_product_seq", sequenceName = "return_product_seq", allocationSize = 50)
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", referencedColumnName = "id")

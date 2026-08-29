@@ -6,7 +6,7 @@ CREATE TABLE employees (
     id BIGINT PRIMARY KEY DEFAULT nextval('employee_seq'),
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
-    employee_organization_id BIGINT NOT NULL,
+    employer_organization_id BIGINT NOT NULL,
     employee_number VARCHAR(255) UNIQUE NOT NULL,
     position_id BIGINT NOT NULL,
     shift_id BIGINT NOT NULL,
@@ -14,8 +14,8 @@ CREATE TABLE employees (
     document_id VARCHAR(255),
     residence_address VARCHAR(255),
     phone_number VARCHAR(255),
-    CONSTRAINT fk_employee_organization
-        FOREIGN KEY (employee_organization_id)
+    CONSTRAINT fk_employer_organization
+        FOREIGN KEY (employer_organization_id)
         REFERENCES organizations(id),
     CONSTRAINT fk_position
         FOREIGN KEY (position_id)

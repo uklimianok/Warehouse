@@ -26,8 +26,8 @@ import lombok.Setter;
 @Setter
 public class PaperCard implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paper_cards_seq")
-    @SequenceGenerator(name = "paper_cards_seq", sequenceName = "paper_cards_seq", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paper_card_seq")
+    @SequenceGenerator(name = "paper_card_seq", sequenceName = "paper_card_seq", allocationSize = 50)
     private long id;
     @Column(unique = true, nullable = false)
     private String code;

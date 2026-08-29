@@ -1,4 +1,4 @@
-CREATE SEQUENCE organization_types_seq
+CREATE SEQUENCE organization_type_seq
     START WITH 1
     INCREMENT BY 1;
 

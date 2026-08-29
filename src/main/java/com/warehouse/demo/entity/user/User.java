@@ -2,6 +2,7 @@ package com.warehouse.demo.entity.user;
 
 import com.warehouse.demo.entity.employee.Employee;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,7 +28,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
     @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
     private long id;
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
     private boolean enabled;
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", referencedColumnName = "id", unique = true)

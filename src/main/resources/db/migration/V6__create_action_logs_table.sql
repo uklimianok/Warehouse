@@ -5,7 +5,7 @@ CREATE SEQUENCE action_logs_seq
 CREATE TABLE action_logs (
     id BIGINT PRIMARY KEY DEFAULT nextval('action_logs_seq'),
     employee_id BIGINT NOT NULL,
-    proceeded_at DATETIME(),
+    proceeded_at TIMESTAMP,
     entity_type VARCHAR(255) NOT NULL,
     entity_id BIGINT NOT NULL,
     action VARCHAR(255) NOT NULL,
