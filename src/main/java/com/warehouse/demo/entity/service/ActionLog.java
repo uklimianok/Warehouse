@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.employee.Employee;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -33,8 +34,12 @@ public class ActionLog implements Identifiable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", referencedColumnName="id")
     private Employee employee;
+    @Column(nullable = false)
     private LocalDateTime proceededAt;
+    @Column(nullable = false)
     private String entityType;
+    @Column(nullable = false)
     private long entityId;
+    @Column(nullable = false)
     private String action;
 }

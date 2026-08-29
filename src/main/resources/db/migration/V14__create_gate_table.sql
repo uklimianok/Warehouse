@@ -1,0 +1,10 @@
+CREATE SEQUENCE gate_seq
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE TABLE gates (
+    id BIGINT PRIMARY KEY DEFAULT nextval('gate_seq'),
+    symbol VARCHAR(255) UNIQUE NOT NULL
+);
+
+ALTER SEQUENCE gate_seq OWNED BY gates.id;

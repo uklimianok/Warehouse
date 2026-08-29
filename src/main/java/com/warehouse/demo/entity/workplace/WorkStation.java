@@ -28,8 +28,9 @@ public class WorkStation implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "work_station_seq")
     @SequenceGenerator(name = "work_station_seq", sequenceName = "work_station_seq", allocationSize = 1)
     private long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String stationNumber;
+    @Column(nullable = false)
     private String controlNumber;
     private String type;
     @ManyToOne(fetch = FetchType.LAZY)

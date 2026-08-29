@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.product.ProductPackage;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,7 +35,8 @@ public class PickedProduct implements Identifiable {
     @JoinColumn(name = "order_pallet_id", referencedColumnName = "id")
     private OrderPallet orderPallet;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_package_id", referencedColumnName = "id")
+    @JoinColumn(name = "package_id", referencedColumnName = "id")
     private ProductPackage productPackage;
+    @Column(nullable = false)
     private BigDecimal pickedVolume;
 }

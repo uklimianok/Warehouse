@@ -3,6 +3,7 @@ package com.warehouse.demo.entity.order;
 import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.product.Product;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -34,5 +35,6 @@ public class ReturnProduct implements Identifiable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
+    @Column(nullable = false)
     private int productsAmount;
 }

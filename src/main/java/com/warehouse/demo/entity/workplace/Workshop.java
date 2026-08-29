@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.warehouse.demo.entity.Identifiable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +27,8 @@ public class Workshop implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workshop_seq")
     @SequenceGenerator(name = "workshop_seq", sequenceName = "workshop_seq", allocationSize = 1)
     private long id;
+    @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
     private BigDecimal standard;
 }

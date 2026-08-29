@@ -25,6 +25,6 @@ public class Gate implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gate_seq")
     @SequenceGenerator(name = "gate_seq", sequenceName = "gate_seq", allocationSize = 1)
     private long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String symbol;
 }

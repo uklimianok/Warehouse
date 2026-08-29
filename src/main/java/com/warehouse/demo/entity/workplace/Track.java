@@ -30,9 +30,11 @@ public class Track implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "track_seq")
     @SequenceGenerator(name = "track_seq", sequenceName = "track_seq", allocationSize = 1)
     private long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String symbol;
+    @Column(nullable = false)
     private BigDecimal length;
+    @Column(nullable = false)
     private BigDecimal width;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gate_id", referencedColumnName = "id")

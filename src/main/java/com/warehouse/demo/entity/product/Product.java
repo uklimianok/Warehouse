@@ -31,9 +31,11 @@ public class Product implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
     @SequenceGenerator(name = "product_seq", sequenceName = "product_seq", allocationSize = 50)
     private long id;
+    @Column(nullable = false)
     private String name;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String barcodeNumber;
+    @Column(nullable = false)
     private BigDecimal cost;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "producer_id", referencedColumnName = "id")

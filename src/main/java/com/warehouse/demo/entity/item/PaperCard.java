@@ -3,6 +3,7 @@ package com.warehouse.demo.entity.item;
 import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.order.OrderPallet;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -28,6 +29,7 @@ public class PaperCard implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paper_cards_seq")
     @SequenceGenerator(name = "paper_cards_seq", sequenceName = "paper_cards_seq", allocationSize = 50)
     private long id;
+    @Column(unique = true, nullable = false)
     private String code;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_pallet_id", referencedColumnName = "id")

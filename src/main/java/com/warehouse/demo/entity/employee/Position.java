@@ -25,9 +25,10 @@ public class Position implements Identifiable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "position_seq")
     @SequenceGenerator(name = "position_seq", sequenceName = "position_seq", allocationSize = 1)
     private long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String codeName;
+    @Column(nullable = false)
     private boolean hasDatabaseAccess;
 }
