@@ -6,7 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeRequest;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeRequest;
 import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
 import com.warehouse.demo.service.AbstractService;

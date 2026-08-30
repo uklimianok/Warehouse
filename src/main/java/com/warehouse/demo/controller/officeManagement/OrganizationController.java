@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
 import com.warehouse.demo.dto.employee.organization.OrganizationRequest;
 import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.entity.employee.Organization;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.OrganizationService;

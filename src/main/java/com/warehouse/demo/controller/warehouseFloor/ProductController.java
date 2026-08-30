@@ -15,12 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
-import com.warehouse.demo.dto.product.FullProductResponse;
 import com.warehouse.demo.dto.product.ProductRequest;
 import com.warehouse.demo.dto.product.ProductResponse;
 import com.warehouse.demo.entity.product.Product;
+import com.warehouse.demo.mapper.product.ProductResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.product.ProductService;
 import com.warehouse.demo.util.EntityName;
@@ -34,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
+    private final ProductResponseMapper productMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'OPERATOR', " +
@@ -101,31 +100,10 @@ public class ProductController {
     private ProductResponse returnObjectResponse(Product from, UserPrincipal userPrincipal) {
         ProductResponse productResponse = null;
         if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            productResponse = new FullProductResponse(
-                from.getId(),
-                from.getName(),
-                from.getBarcodeNumber(),
-                from.getCost(),
-                new FullOrganizationResponse(
-                    from.getProducer().getId(),
-                    from.getProducer().getName(),
-                    from.getProducer().getOrganizationNumber(),
-                    new OrganizationTypeResponse(
-                        from.getProducer().getOrganizationType().getId(), 
-                        from.getProducer().getOrganizationType().getName()
-                    ),
-                    from.getProducer().getAddress(),
-                    from.getProducer().getPhoneNumber(),
-                    from.getProducer().getEmail(),
-                    from.getProducer().getUrl()
-                )
-            );
+            productResponse = productMapper.toFullResponse(from);
         else
-            productResponse = new ProductResponse(
-                from.getId(),
-                from.getName()
-            );
-        
+            productResponse = productMapper.toResponse(from);
+
         return productResponse;
     }
 }

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UtilityTest {  // JUnit 5 tests for light(simple) objects
+public class UtilityTest {  // JUnit 5 tests for light (simple) objects
     @Test
     void getOutputMessage_productAndNotFoundParams_returnsString() {
         String expected = "Product not found.";

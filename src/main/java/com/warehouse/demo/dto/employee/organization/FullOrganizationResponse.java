@@ -1,12 +1,14 @@
 package com.warehouse.demo.dto.employee.organization;
 
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
+@Setter
 public class FullOrganizationResponse extends OrganizationResponse {
     private OrganizationTypeResponse organizationType;
     private String address;

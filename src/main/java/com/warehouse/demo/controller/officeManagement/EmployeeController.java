@@ -21,7 +21,7 @@ import com.warehouse.demo.dto.employee.EmployeeResponse;
 import com.warehouse.demo.dto.employee.FullEmployeeResponse;
 import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
 import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.dto.employee.position.FullPositionResponse;
 import com.warehouse.demo.dto.employee.position.PositionResponse;
 import com.warehouse.demo.dto.employee.shift.ShiftResponse;

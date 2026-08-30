@@ -1,13 +1,14 @@
-package com.warehouse.demo.dto.employee.organization.organizationType;
+package com.warehouse.demo.dto.employee.organizationType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class OrganizationTypeResponse {
-    private long id;
+@Setter
+public class OrganizationTypeRequest {
     private String name;
 }

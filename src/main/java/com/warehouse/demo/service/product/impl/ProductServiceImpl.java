@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.product.ProductRequest;
 import com.warehouse.demo.entity.product.Product;
-import com.warehouse.demo.repository.employee.OrganizationRepository;
+import com.warehouse.demo.mapper.product.ProductRequestMapper;
 import com.warehouse.demo.repository.order.ReturnProductRepository;
 import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.repository.product.ProductRepository;
@@ -16,23 +16,24 @@ import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;
 import com.warehouse.demo.util.Utility;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl extends AbstractService<Product, Long> implements ProductService {
     private final ProductRepository productRepository;
-    private final OrganizationRepository organizationRepository;
     private final ProductPackageRepository productPackageRepository;
     private final ReturnProductRepository returnProductRepository;
+
+    private final ProductRequestMapper productRequestMapper;
 
     @Override
     public Product create(ProductRequest productRequest) {
         if (productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber()))
             throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.BARCODE_NUMBER, OutputMessage.EXISTS));
-
-        return modifyAndSave(new Product(), productRequest);
+        
+        Product product = new Product();
+        return modifyAndSave(product, productRequest);
     }
 
     @Override
@@ -64,16 +65,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     }
 
     private Product modifyAndSave(Product target, ProductRequest from) {
-        target.setName(from.getName());
-        target.setBarcodeNumber(from.getBarcodeNumber());
-        target.setCost(from.getCost());
-        target.setProducer(
-            organizationRepository.findById(from.getProducerId())
-            .orElseThrow(() ->
-                new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.NOT_FOUND))
-            )
-        );
-
+        productRequestMapper.updateProductFromRequest(from, target);
         return productRepository.save(target);
     }
 }

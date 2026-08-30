@@ -1,0 +1,1 @@
+ALTER TABLE orders ALTER COLUMN gate_id DROP NOT NULL;

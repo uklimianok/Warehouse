@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.dto.item.pallet.FullPalletResponse;
 import com.warehouse.demo.dto.item.pallet.PalletResponse;
 import com.warehouse.demo.dto.product.FullProductResponse;

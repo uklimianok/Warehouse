@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
+import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.dto.product.FullProductResponse;
 import com.warehouse.demo.dto.product.ProductResponse;
 import com.warehouse.demo.dto.product.productPackage.ProductPackageRequest;
@@ -108,10 +109,18 @@ public class ProductPackageController {
                     from.getProduct().getName(),
                     from.getProduct().getBarcodeNumber(),
                     from.getProduct().getCost(),
-                    new OrganizationResponse(
+                    new FullOrganizationResponse(
                         from.getProduct().getProducer().getId(),
                         from.getProduct().getProducer().getName(),
-                        from.getProduct().getProducer().getOrganizationNumber()
+                        from.getProduct().getProducer().getOrganizationNumber(), 
+                        new OrganizationTypeResponse(
+                            from.getProduct().getProducer().getOrganizationType().getId(), 
+                            from.getProduct().getProducer().getOrganizationType().getName()
+                        ), 
+                        from.getProduct().getProducer().getAddress(),
+                        from.getProduct().getProducer().getPhoneNumber(),
+                        from.getProduct().getProducer().getEmail(),
+                        from.getProduct().getProducer().getUrl()
                     )
                 ) : 
                 new ProductResponse(

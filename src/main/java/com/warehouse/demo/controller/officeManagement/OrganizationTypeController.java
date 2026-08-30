@@ -3,8 +3,8 @@ package com.warehouse.demo.controller.officeManagement;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeRequest;
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeRequest;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.OrganizationTypeService;

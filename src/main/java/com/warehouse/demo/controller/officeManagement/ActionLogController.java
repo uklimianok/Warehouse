@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.warehouse.demo.dto.employee.FullEmployeeResponse;
 import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.dto.employee.position.FullPositionResponse;
 import com.warehouse.demo.dto.employee.shift.ShiftResponse;
 import com.warehouse.demo.dto.service.actionLog.ActionLogResponse;

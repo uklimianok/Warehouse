@@ -1,6 +1,6 @@
 package com.warehouse.demo.service.employee;
 
-import com.warehouse.demo.dto.employee.organization.organizationType.OrganizationTypeRequest;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeRequest;
 import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.service.BaseService;
 
