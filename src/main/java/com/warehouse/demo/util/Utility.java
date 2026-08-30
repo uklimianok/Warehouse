@@ -6,6 +6,8 @@ public class Utility {
     }
 
     public static String getOutputMessage(EntityName entityName, String message) {
-        return entityName.getName() + " " + message;
+        return message.isEmpty() ? 
+            "Cannot perform operation on " + entityName.getName() + "." :
+            entityName.getName() + " " + message;
     }
 }

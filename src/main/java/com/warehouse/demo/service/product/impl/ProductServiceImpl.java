@@ -30,7 +30,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     @Override
     public Product create(ProductRequest productRequest) {
         if (productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.PRODUCT, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.BARCODE_NUMBER, OutputMessage.EXISTS));
 
         return modifyAndSave(new Product(), productRequest);
     }
