@@ -65,7 +65,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     }
 
     private Product modifyAndSave(Product target, ProductRequest from) {
-        productRequestMapper.updateProductFromRequest(from, target);
+        productRequestMapper.convertFromRequest(from, target);
         return productRepository.save(target);
     }
 }

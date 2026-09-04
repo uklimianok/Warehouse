@@ -97,9 +97,9 @@ public class ProductController {
         return response;
     }
 
-    private ProductResponse returnObjectResponse(Product from, UserPrincipal userPrincipal) {
+    private ProductResponse returnObjectResponse(Product from, UserPrincipal principal) {
         ProductResponse productResponse = null;
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
+        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
             productResponse = productMapper.toFullResponse(from);
         else
             productResponse = productMapper.toResponse(from);

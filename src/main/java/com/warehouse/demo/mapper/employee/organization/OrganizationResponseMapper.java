@@ -10,6 +10,6 @@ import com.warehouse.demo.mapper.employee.organizationType.OrganizationTypeRespo
 
 @Mapper(componentModel = "spring", uses = OrganizationTypeResponseMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface OrganizationResponseMapper {
-    OrganizationResponse toResponse(Organization organization);
-    FullOrganizationResponse toFullResponse(Organization organization);
+    OrganizationResponse convertToResponse(Organization organization);
+    FullOrganizationResponse convertToFullResponse(Organization organization);
 }

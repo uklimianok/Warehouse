@@ -7,5 +7,5 @@ import com.warehouse.demo.entity.employee.OrganizationType;
 
 @Mapper(componentModel = "spring")
 public interface OrganizationTypeResponseMapper {
-    OrganizationTypeResponse toResponse(OrganizationType organizationType);
+    OrganizationTypeResponse convertToResponse(OrganizationType organizationType);
 }

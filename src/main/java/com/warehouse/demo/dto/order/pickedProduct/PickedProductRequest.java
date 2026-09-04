@@ -13,6 +13,6 @@ import lombok.Setter;
 @Setter
 public class PickedProductRequest {
     private long orderPalletId;
-    private long productPackageId;
+    private long packageId;
     private BigDecimal pickedVolume;
 }

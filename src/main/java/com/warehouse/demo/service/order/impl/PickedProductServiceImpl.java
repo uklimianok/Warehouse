@@ -58,7 +58,7 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
             )
         );
         target.setProductPackage(
-            productPackageRepository.findById(from.getProductPackageId())
+            productPackageRepository.findById(from.getPackageId())
                 .orElseThrow(() ->
                     new EntityNotFoundException(Utility.getOutputMessage(EntityName.PRODUCT_PACKAGE, OutputMessage.NOT_FOUND))
             )

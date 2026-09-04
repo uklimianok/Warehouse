@@ -13,5 +13,5 @@ import com.warehouse.demo.mapper.employee.organization.OrganizationResolver;
 public interface ProductRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "producer", source = "productRequest.producerId")
-    void updateProductFromRequest(ProductRequest productRequest, @MappingTarget Product product);
+    void convertFromRequest(ProductRequest productRequest, @MappingTarget Product product);
 }

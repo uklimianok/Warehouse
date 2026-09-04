@@ -14,7 +14,7 @@ public class OrganizationRequest {
     private String organizationNumber;
     private long organizationTypeId;
     private String address;
-    private String phone;
+    private String phoneNumber;
     private String email;
     private String url;
 }

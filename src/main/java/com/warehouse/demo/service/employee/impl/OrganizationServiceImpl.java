@@ -73,7 +73,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
         target.setName(from.getName());
         target.setOrganizationNumber(from.getOrganizationNumber());
         target.setAddress(from.getAddress());
-        target.setPhoneNumber(from.getPhone());
+        target.setPhoneNumber(from.getPhoneNumber());
         target.setEmail(from.getEmail());
         target.setUrl(from.getUrl());
 
