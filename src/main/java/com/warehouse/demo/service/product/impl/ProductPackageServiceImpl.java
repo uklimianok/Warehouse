@@ -5,18 +5,14 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.product.productPackage.ProductPackageRequest;
 import com.warehouse.demo.entity.product.ProductPackage;
+import com.warehouse.demo.mapper.product.productPackage.ProductPackageRequestMapper;
 import com.warehouse.demo.repository.order.OrderedProductRepository;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
-import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductPackageService;
 import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
-
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,9 +20,10 @@ import lombok.RequiredArgsConstructor;
 public class ProductPackageServiceImpl extends AbstractService<ProductPackage, Long> implements ProductPackageService {
     private final ProductPackageRepository productPackageRepository;
     private final ProductPalletRepository productPalletRepository;
-    private final ProductRepository productRepository;
     private final OrderedProductRepository orderedProductRepository;
     private final PickedProductRepository pickedProductRepository;
+
+    private final ProductPackageRequestMapper productPackageRequestMapper;
 
     @Override
     public ProductPackage create(ProductPackageRequest productPackageRequest) {
@@ -59,16 +56,7 @@ public class ProductPackageServiceImpl extends AbstractService<ProductPackage, L
     }
 
     private ProductPackage modifyAndSave(ProductPackage target, ProductPackageRequest from) {
-        target.setProductsAmount(from.getProductsAmount());
-        target.setVolume(from.getVolume());
-        target.setWeight(from.getWeight());
-        target.setProduct(
-            productRepository.findById(from.getProductId())
-                .orElseThrow(() -> 
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.PRODUCT, OutputMessage.NOT_FOUND))
-                )
-        );
-
+        productPackageRequestMapper.convertFromRequest(from, target);
         return productPackageRepository.save(target);
     }
 }

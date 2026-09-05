@@ -13,5 +13,5 @@ import com.warehouse.demo.mapper.workplace.workshop.WorkshopResolver;
 public interface WorkStationRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "workshop", source = "workStationRequest.workshopId")
-    WorkStation convertFromRequest(WorkStationRequest workStationRequest, @MappingTarget WorkStation workStation);
+    void convertFromRequest(WorkStationRequest workStationRequest, @MappingTarget WorkStation workStation);
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.workplace.workshop.WorkshopRequest;
 import com.warehouse.demo.entity.workplace.Workshop;
+import com.warehouse.demo.mapper.workplace.workshop.WorkshopRequestMapper;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
@@ -18,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 public class WorkshopServiceImpl extends AbstractService<Workshop, Long> implements WorkshopService {
     private final WorkshopRepository workshopRepository;
     private final WorkStationRepository workStationRepository;
+
+    private final WorkshopRequestMapper workshopRequestMapper;
     
     @Override
     public Workshop create(WorkshopRequest workshopRequest) {
@@ -48,9 +51,7 @@ public class WorkshopServiceImpl extends AbstractService<Workshop, Long> impleme
     }
 
     private Workshop modifyAndSave(Workshop target, WorkshopRequest from) {
-        target.setName(from.getName());
-        target.setStandard(from.getStandard());
-
+        workshopRequestMapper.convertFromRequest(from, target);
         return workshopRepository.save(target);
     }
 }

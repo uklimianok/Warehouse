@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.shift.ShiftRequest;
 import com.warehouse.demo.entity.employee.Shift;
+import com.warehouse.demo.mapper.employee.shift.ShiftRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.ShiftRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
@@ -23,6 +24,8 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
     private final ShiftRepository shiftRepository;
     private final EmployeeRepository employeeRepository;
     private final OrderRepository orderRepository;
+
+    private final ShiftRequestMapper shiftRequestMapper;
 
     @Override
     protected JpaRepository<Shift, Long> getRepository() {
@@ -63,7 +66,7 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
     }
 
     private Shift modifyAndSave(Shift shift, ShiftRequest shiftRequest) {
-        shift.setSymbol(shiftRequest.getSymbol());
+        shiftRequestMapper.convertFromRequest(shiftRequest, shift);
         return shiftRepository.save(shift);
     }
 }

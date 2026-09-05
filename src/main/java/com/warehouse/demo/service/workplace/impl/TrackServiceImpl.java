@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.workplace.track.TrackRequest;
 import com.warehouse.demo.entity.workplace.Track;
-import com.warehouse.demo.repository.workplace.GateRepository;
+import com.warehouse.demo.mapper.workplace.track.TrackRequestMapper;
 import com.warehouse.demo.repository.workplace.TrackRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.TrackService;
@@ -14,14 +14,14 @@ import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;
 import com.warehouse.demo.util.Utility;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class TrackServiceImpl extends AbstractService<Track, Long> implements TrackService {
     private final TrackRepository trackRepository;
-    private final GateRepository gateRepository;
+
+    private final TrackRequestMapper trackRequestMapper;
     
     @Override
     public Track create(TrackRequest trackRequest) {
@@ -55,17 +55,7 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
     }
 
     private Track modifyAndSave(Track target, TrackRequest from) {
-        target.setSymbol(from.getSymbol());
-        target.setLength(from.getLength());
-        target.setWidth(from.getWidth());
-
-        target.setGate(
-            gateRepository.findById(from.getGateId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.GATE, OutputMessage.NOT_FOUND))
-            )
-        );
-
+        trackRequestMapper.convertFromRequest(from, target);
         return trackRepository.save(target);
     }
 }

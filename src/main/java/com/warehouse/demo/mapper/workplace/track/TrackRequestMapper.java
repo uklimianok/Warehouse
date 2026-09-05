@@ -13,5 +13,5 @@ import com.warehouse.demo.mapper.workplace.gate.GateResolver;
 public interface TrackRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "gate", source = "trackRequest.gateId")
-    Track convertFromRequest(TrackRequest trackRequest, @MappingTarget Track track);
+    void convertFromRequest(TrackRequest trackRequest, @MappingTarget Track track);
 }

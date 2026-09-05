@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.OrderRequest;
 import com.warehouse.demo.entity.order.Order;
-import com.warehouse.demo.repository.employee.OrganizationRepository;
-import com.warehouse.demo.repository.employee.ShiftRepository;
+import com.warehouse.demo.mapper.order.OrderRequestMapper;
 import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.order.OrderedProductRepository;
@@ -31,10 +30,10 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     private final OrderedProductRepository orderedProductRepository;
     private final OrderPalletRepository orderPalletRepository;
     private final ReturnProductRepository returnProductRepository;
-    private final OrganizationRepository organizationRepository;
     private final GateRepository gateRepository;
-    private final ShiftRepository shiftRepository;
     private final StatusRepository statusRepository;
+
+    private final OrderRequestMapper orderRequestMapper;
 
     public static final String GATE_REQUIRED = "must contain any gate.";
 
@@ -89,21 +88,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     }
 
     private Order modifyAndSave(Order target, OrderRequest from) {
-        target.setNote(from.getNote());
-
-        target.setStore(
-            organizationRepository.findById(from.getStoreId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.NOT_FOUND))
-            )
-        );
-        target.setShift(
-            shiftRepository.findById(from.getShiftId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.SHIFT, OutputMessage.NOT_FOUND))
-            )
-        );
-
+        orderRequestMapper.convertFromRequest(from, target);
         return orderRepository.save(target);
     }
 }

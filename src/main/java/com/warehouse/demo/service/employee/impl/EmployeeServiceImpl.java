@@ -9,19 +9,13 @@ import org.springframework.stereotype.Service;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.user.User;
+import com.warehouse.demo.mapper.employee.EmployeeRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
-import com.warehouse.demo.repository.employee.OrganizationRepository;
-import com.warehouse.demo.repository.employee.PositionRepository;
-import com.warehouse.demo.repository.employee.ShiftRepository;
 import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.repository.user.UserRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
 import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
-
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -30,11 +24,10 @@ import lombok.RequiredArgsConstructor;
 public class EmployeeServiceImpl extends AbstractService<Employee, Long> implements EmployeeService {
     private final PasswordEncoder passwordEncoder;
     private final EmployeeRepository employeeRepository;
-    private final OrganizationRepository organizationRepository;
-    private final PositionRepository positionRepository;
-    private final ShiftRepository shiftRepository;
     private final UserRepository userRepository;
     private final ActionLogRepository actionLogRepository;
+
+    private final EmployeeRequestMapper employeeRequestMapper;
 
     @Value("${warehouse.shared-password}")
     private String password;
@@ -86,6 +79,11 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         return activeInUser || activeInActionLog;
     }
 
+    private Employee modifyAndSave(Employee target, EmployeeRequest from) {
+        employeeRequestMapper.convertFromRequest(from, target);
+        return employeeRepository.save(target);
+    }
+
     private String generateEmployeeNumber(EmployeeRequest employee) {
         long positionId = employee.getPositionId();
         if (positionId < 0 || positionId > 99)
@@ -106,37 +104,5 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         user.setPassword(passwordEncoder.encode(password));
         user.setEnabled(true);
         userRepository.save(user);
-    }
-
-    private Employee modifyAndSave(Employee target, EmployeeRequest from) {
-        target.setFirstName(from.getFirstName());
-        target.setLastName(from.getLastName());
-        target.setBirthDate(from.getBirthDate());
-        target.setDocumentId(from.getDocumentId());
-        target.setResidenceAddress(from.getResidenceAddress());
-        target.setPhoneNumber(from.getPhoneNumber());
-        target.setEmployerOrganization(
-            organizationRepository.findById(
-                from.getEmployerOrganizationId()
-            ).orElseThrow(
-                () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.NOT_FOUND))
-            )
-        );
-        target.setPosition(
-            positionRepository.findById(
-                from.getPositionId()
-            ).orElseThrow(
-                () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.POSITION, OutputMessage.NOT_FOUND))
-            )
-        );
-        target.setShift(
-            shiftRepository.findById(
-                from.getShiftId()
-            ).orElseThrow(
-                () -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.SHIFT, OutputMessage.NOT_FOUND))
-            )
-        );
-
-        return employeeRepository.save(target);
     }
 }

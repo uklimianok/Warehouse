@@ -18,5 +18,5 @@ public interface EmployeeRequestMapper {
     @Mapping(target = "employerOrganization", source = "employeeRequest.employerOrganizationId")
     @Mapping(target = "position", source = "employeeRequest.positionId")
     @Mapping(target = "shift", source = "employeeRequest.shiftId")
-    Employee convertFromRequest(EmployeeRequest employeeRequest, @MappingTarget Employee employee);
+    void convertFromRequest(EmployeeRequest employeeRequest, @MappingTarget Employee employee);
 }

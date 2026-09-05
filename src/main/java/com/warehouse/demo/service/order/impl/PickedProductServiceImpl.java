@@ -5,24 +5,19 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.pickedProduct.PickedProductRequest;
 import com.warehouse.demo.entity.order.PickedProduct;
-import com.warehouse.demo.repository.order.OrderPalletRepository;
+import com.warehouse.demo.mapper.order.pickedProduct.PickedProductRequestMapper;
 import com.warehouse.demo.repository.order.PickedProductRepository;
-import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.PickedProductService;
 import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
-
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PickedProductServiceImpl extends AbstractService<PickedProduct, Long> implements PickedProductService {
     private final PickedProductRepository pickedProductRepository;
-    private final OrderPalletRepository orderPalletRepository;
-    private final ProductPackageRepository productPackageRepository;
+
+    private final PickedProductRequestMapper pickedProductRequestMapper;
 
     @Override
     public PickedProduct create(PickedProductRequest pickedProductRequest) {
@@ -49,21 +44,7 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
     }
     
     private PickedProduct modifyAndSave(PickedProduct target, PickedProductRequest from) {
-        target.setPickedVolume(from.getPickedVolume());
-
-        target.setOrderPallet(
-            orderPalletRepository.findById(from.getOrderPalletId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORDER_PALLET, OutputMessage.NOT_FOUND))
-            )
-        );
-        target.setProductPackage(
-            productPackageRepository.findById(from.getPackageId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.PRODUCT_PACKAGE, OutputMessage.NOT_FOUND))
-            )
-        );
-
+        pickedProductRequestMapper.convertFromRequest(from, target);
         return pickedProductRepository.save(target);
     }
 }

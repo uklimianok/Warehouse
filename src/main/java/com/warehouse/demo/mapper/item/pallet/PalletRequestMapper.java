@@ -10,5 +10,5 @@ import com.warehouse.demo.entity.item.Pallet;
 @Mapper(componentModel = "spring")
 public interface PalletRequestMapper {
     @Mapping(target = "id", ignore = true)
-    Pallet convertFromRequest(PalletRequest palletRequest, @MappingTarget Pallet pallet);
+    void convertFromRequest(PalletRequest palletRequest, @MappingTarget Pallet pallet);
 }

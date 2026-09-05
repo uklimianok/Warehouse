@@ -10,5 +10,5 @@ import com.warehouse.demo.entity.workplace.Gate;
 @Mapper(componentModel = "spring")
 public interface GateRequestMapper {
     @Mapping(target = "id", ignore = true)
-    Gate convertFromRequest(GateRequest gateRequest, @MappingTarget Gate gate);
+    void convertFromRequest(GateRequest gateRequest, @MappingTarget Gate gate);
 }

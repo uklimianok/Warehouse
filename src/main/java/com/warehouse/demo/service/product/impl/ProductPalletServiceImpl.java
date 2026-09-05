@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.product.productPallet.ProductPalletRequest;
 import com.warehouse.demo.entity.product.ProductPallet;
-import com.warehouse.demo.repository.item.PalletRepository;
-import com.warehouse.demo.repository.product.ProductPackageRepository;
+import com.warehouse.demo.mapper.product.productPallet.ProductPalletRequestMapper;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
@@ -27,10 +26,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Long> implements ProductPalletService {
     private final ProductPalletRepository productPalletRepository;
-    private final ProductPackageRepository productPackageRepository;
-    private final PalletRepository palletRepository;
     private final StatusRepository statusRepository;
     private final WorkStationRepository workStationRepository;
+
+    private final ProductPalletRequestMapper productPalletRequestMapper;
 
     private static final String WORK_STATION_NOT_REQUIRED = "must not contain current position.";
     private static final String WORK_STATION_REQUIRED = "must contain current position.";
@@ -130,24 +129,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     }
 
     private ProductPallet modifyAndSave(ProductPallet target, ProductPalletRequest from) {
-        target.setPackageAmount(from.getPackageAmount());
-        target.setPalletNumber(from.getPalletNumber());
-        target.setGroupNumber(from.getGroupNumber());
-
-        if (from.getPalletId() != null)
-            target.setPallet(palletRepository.findById(from.getPalletId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.PALLET, OutputMessage.NOT_FOUND))
-                )   
-            );
-
-        target.setProductPackage(
-            productPackageRepository.findById(from.getProductPackageId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.PRODUCT_PACKAGE, OutputMessage.NOT_FOUND))
-            )  
-        );
-
+        productPalletRequestMapper.convertFromRequest(from, target);
         return productPalletRepository.save(target);
     }
 }

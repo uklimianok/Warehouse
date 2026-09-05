@@ -11,5 +11,5 @@ import com.warehouse.demo.entity.employee.Position;
 public interface PositionRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "codeName", ignore = true)
-    Position convertFromRequest(PositionRequest positionRequest, @MappingTarget Position position);
+    void convertFromRequest(PositionRequest positionRequest, @MappingTarget Position position);
 }

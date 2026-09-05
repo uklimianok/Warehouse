@@ -10,5 +10,5 @@ import com.warehouse.demo.entity.employee.Shift;
 @Mapper(componentModel = "spring")
 public interface ShiftRequestMapper {
     @Mapping(target = "id", ignore = true)
-    Shift convertFromRequest(ShiftRequest shiftRequest, @MappingTarget Shift shift);
+    void convertFromRequest(ShiftRequest shiftRequest, @MappingTarget Shift shift);
 }

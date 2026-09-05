@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.service.status.StatusRequest;
 import com.warehouse.demo.entity.service.Status;
+import com.warehouse.demo.mapper.service.status.StatusRequestMapper;
 import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
@@ -25,6 +26,8 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     private final ProductPalletRepository productPalletRepository;
     private final OrderRepository orderRepository;
     private final OrderPalletRepository orderPalletRepository;
+
+    private final StatusRequestMapper statusRequestMapper;
     
     @Override
     public Status create(StatusRequest statusRequest) {
@@ -67,9 +70,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     }
 
     private Status modifyAndSave(Status target, StatusRequest from) {
-        target.setName(from.getName());
-        target.setType(from.getType());
-
+        statusRequestMapper.convertFromRequest(from, target);
         return statusRepository.save(target);
     }
 }

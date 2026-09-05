@@ -19,5 +19,5 @@ public interface OrderRequestMapper {
     @Mapping(target = "gate", source = "orderRequest.gateId")
     @Mapping(target = "shift", source = "orderRequest.shiftId")
     @Mapping(target = "status", source = "orderRequest.statusId")
-    Order convertFromRequest(OrderRequest orderRequest, @MappingTarget Order order);
+    void convertFromRequest(OrderRequest orderRequest, @MappingTarget Order order);
 }

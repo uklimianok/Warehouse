@@ -6,24 +6,24 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.workplace.workStation.WorkStationRequest;
 import com.warehouse.demo.entity.workplace.WorkStation;
+import com.warehouse.demo.mapper.workplace.workStation.WorkStationRequestMapper;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
-import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.WorkStationService;
 import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;
 import com.warehouse.demo.util.Utility;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> implements WorkStationService {
     private final WorkStationRepository workStationRepository;
-    private final WorkshopRepository workshopRepository;
     private final ProductPalletRepository productPalletRepository;
+
+    private final WorkStationRequestMapper workStationRequestMapper;
     
     @Override
     public WorkStation create(WorkStationRequest workStationRequest) {
@@ -64,18 +64,7 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     }
 
     private WorkStation modifyAndSave(WorkStation target, WorkStationRequest from) {
-        target.setStationNumber(from.getStationNumber());
-        target.setControlNumber(from.getControlNumber());
-        target.setType(from.getType());
-        target.setWorkshop(
-            workshopRepository
-                .findById(from.getWorkshopId())
-                .orElseThrow(() -> 
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.WORKSHOP, OutputMessage.NOT_FOUND))
-                )
-
-        );
-
+        workStationRequestMapper.convertFromRequest(from, target);
         return workStationRepository.save(target);
     }
 }

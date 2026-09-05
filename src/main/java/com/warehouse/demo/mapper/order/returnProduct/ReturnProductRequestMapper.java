@@ -15,5 +15,5 @@ public interface ReturnProductRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "order", source = "returnProductRequest.orderId")
     @Mapping(target = "product", source = "returnProductRequest.productId")
-    ReturnProduct convertFromRequest(ReturnProductRequest returnProductRequest, @MappingTarget ReturnProduct returnProduct);
+    void convertFromRequest(ReturnProductRequest returnProductRequest, @MappingTarget ReturnProduct returnProduct);
 }

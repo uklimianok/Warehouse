@@ -10,5 +10,5 @@ import com.warehouse.demo.entity.workplace.Workshop;
 @Mapper(componentModel = "spring")
 public interface WorkshopRequestMapper {
     @Mapping(target = "id", ignore = true)
-    Workshop convertFromRequest(WorkshopRequest workshopRequest, @MappingTarget Workshop workshop);
+    void convertFromRequest(WorkshopRequest workshopRequest, @MappingTarget Workshop workshop);
 }

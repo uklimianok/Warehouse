@@ -10,5 +10,5 @@ import com.warehouse.demo.entity.employee.OrganizationType;
 @Mapper(componentModel = "spring")
 public interface OrganizationTypeRequestMapper {
     @Mapping(target = "id", ignore = true)
-    OrganizationType convertFromRequest(OrganizationTypeRequest organizationTypeRequest, @MappingTarget OrganizationType organizationType);
+    void convertFromRequest(OrganizationTypeRequest organizationTypeRequest, @MappingTarget OrganizationType organizationType);
 }

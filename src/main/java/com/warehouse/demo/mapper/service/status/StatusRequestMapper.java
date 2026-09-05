@@ -10,5 +10,5 @@ import com.warehouse.demo.entity.service.Status;
 @Mapper(componentModel = "spring")
 public interface StatusRequestMapper {
     @Mapping(target = "id", ignore = true)
-    Status convertFromRequest(StatusRequest statusRequest, @MappingTarget Status status);
+    void convertFromRequest(StatusRequest statusRequest, @MappingTarget Status status);
 }

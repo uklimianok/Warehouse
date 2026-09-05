@@ -13,5 +13,5 @@ import com.warehouse.demo.mapper.order.orderPallet.OrderPalletResolver;
 public interface PaperCardRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderPallet", source = "paperCardRequest.orderPalletId")
-    PaperCard convertFromRequest(PaperCardRequest paperCardRequest, @MappingTarget PaperCard paperCard);
+    void convertFromRequest(PaperCardRequest paperCardRequest, @MappingTarget PaperCard paperCard);
 }

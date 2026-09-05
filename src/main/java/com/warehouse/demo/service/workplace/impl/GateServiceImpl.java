@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.workplace.gate.GateRequest;
 import com.warehouse.demo.entity.workplace.Gate;
+import com.warehouse.demo.mapper.workplace.gate.GateRequestMapper;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.repository.workplace.TrackRepository;
@@ -23,6 +24,8 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
     private final GateRepository gateRepository;
     private final TrackRepository trackRepository;
     private final OrderRepository orderRepository;
+
+    private final GateRequestMapper gateRequestMapper;
     
     @Override
     public Gate create(GateRequest gateRequest) {
@@ -62,8 +65,7 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
     }
 
     private Gate modifyAndSave(Gate target, GateRequest from) {
-        target.setSymbol(from.getSymbol());
-
+        gateRequestMapper.convertFromRequest(from, target);
         return gateRepository.save(target);
     }
 }

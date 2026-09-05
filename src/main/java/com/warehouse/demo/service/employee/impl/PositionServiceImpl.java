@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.entity.employee.Position;
+import com.warehouse.demo.mapper.employee.position.PositionRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.service.AbstractService;
@@ -21,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class PositionServiceImpl extends AbstractService<Position, Long> implements PositionService {
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
+
+    private final PositionRequestMapper positionRequestMapper;
 
     @Override
     protected JpaRepository<Position, Long> getRepository() {
@@ -64,8 +67,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     }
 
     private Position modifyAndSave(Position target, PositionRequest from) {
-        target.setHasDatabaseAccess(from.isHasDatabaseAccess());
-
+        positionRequestMapper.convertFromRequest(from, target);
         return positionRepository.save(target);
     }
 }

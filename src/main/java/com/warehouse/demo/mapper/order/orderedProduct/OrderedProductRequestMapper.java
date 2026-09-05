@@ -15,5 +15,5 @@ public interface OrderedProductRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "order", source = "orderedProductRequest.orderId")
     @Mapping(target = "productPackage", source = "orderedProductRequest.packageId")
-    OrderedProduct convertFromRequest(OrderedProductRequest orderedProductRequest, @MappingTarget OrderedProduct orderedProduct);
+    void convertFromRequest(OrderedProductRequest orderedProductRequest, @MappingTarget OrderedProduct orderedProduct);
 }

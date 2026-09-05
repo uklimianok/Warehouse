@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeRequest;
 import com.warehouse.demo.entity.employee.OrganizationType;
+import com.warehouse.demo.mapper.employee.organizationType.OrganizationTypeRequestMapper;
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationTypeService;
@@ -22,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class OrganizationTypeServiceImpl extends AbstractService<OrganizationType, Long> implements OrganizationTypeService {
     private final OrganizationTypeRepository organizationTypeRepository;
     private final OrganizationRepository organizationRepository;
+
+    private final OrganizationTypeRequestMapper organizationTypeRequestMapper;
 
     @Override
     protected JpaRepository<OrganizationType, Long> getRepository() {
@@ -61,8 +64,7 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
     }
 
     private OrganizationType modifyAndSave(OrganizationType target, OrganizationTypeRequest from) {
-        target.setName(from.getName());
-
+        organizationTypeRequestMapper.convertFromRequest(from, target);
         return organizationTypeRepository.save(target);
     }
 }

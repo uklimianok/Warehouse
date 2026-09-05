@@ -17,5 +17,5 @@ public interface OrderPalletRequestMapper {
     @Mapping(target = "order", source = "orderPalletRequest.orderId")
     @Mapping(target = "pallet", source = "orderPalletRequest.palletId")
     @Mapping(target = "status", source = "orderPalletRequest.statusId")
-    OrderPallet convertFromRequest(OrderPalletRequest orderPalletRequest, @MappingTarget OrderPallet orderPallet);
+    void convertFromRequest(OrderPalletRequest orderPalletRequest, @MappingTarget OrderPallet orderPallet);
 }

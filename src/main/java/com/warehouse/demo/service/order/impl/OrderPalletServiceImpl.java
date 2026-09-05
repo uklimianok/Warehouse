@@ -6,10 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
 import com.warehouse.demo.entity.order.OrderPallet;
-import com.warehouse.demo.repository.item.PalletRepository;
+import com.warehouse.demo.mapper.order.orderPallet.OrderPalletRequestMapper;
 import com.warehouse.demo.repository.item.PaperCardRepository;
 import com.warehouse.demo.repository.order.OrderPalletRepository;
-import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderPalletService;
@@ -28,8 +27,8 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     private final OrderPalletRepository orderPalletRepository;
     private final PaperCardRepository paperCardRepository;
     private final PickedProductRepository pickedProductRepository;
-    private final OrderRepository orderRepository;
-    private final PalletRepository palletRepository;
+
+    private final OrderPalletRequestMapper orderPalletRequestMapper;
 
     @Override
     public OrderPallet create(OrderPalletRequest orderPalletRequest) {
@@ -75,19 +74,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     }
 
     private OrderPallet modifyAndSave(OrderPallet target, OrderPalletRequest from) {
-        target.setOrder(
-            orderRepository.findById(from.getOrderId())
-                .orElseThrow(() -> 
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORDER, OutputMessage.NOT_FOUND))
-            )
-        );
-        target.setPallet(
-            palletRepository.findById(from.getPalletId())
-                .orElseThrow(() -> 
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.PALLET, OutputMessage.NOT_FOUND))
-            )
-        );
-
+        orderPalletRequestMapper.convertFromRequest(from, target);
         return orderPalletRepository.save(target);
     }
 }

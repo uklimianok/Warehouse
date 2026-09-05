@@ -13,5 +13,5 @@ import com.warehouse.demo.mapper.product.ProductResolver;
 public interface ProductPackageRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "product", source = "productPackageRequest.productId")
-    ProductPackage convertFromProductPackage(ProductPackageRequest productPackageRequest, @MappingTarget ProductPackage productPackage);
+    void convertFromRequest(ProductPackageRequest productPackageRequest, @MappingTarget ProductPackage productPackage);
 }

@@ -13,5 +13,5 @@ import com.warehouse.demo.mapper.employee.organizationType.OrganizationTypeResol
 public interface OrganizationRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "organizationType", source = "organizationRequest.organizationTypeId")
-    Organization convertFromRequest(OrganizationRequest organizationRequest, @MappingTarget Organization organization);
+    void convertFromRequest(OrganizationRequest organizationRequest, @MappingTarget Organization organization);
 }

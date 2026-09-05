@@ -1,17 +1,14 @@
 package com.warehouse.demo.service.employee.impl;
 
-import java.util.Optional;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.organization.OrganizationRequest;
 import com.warehouse.demo.entity.employee.Organization;
-import com.warehouse.demo.entity.employee.OrganizationType;
+import com.warehouse.demo.mapper.employee.organization.OrganizationRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
-import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
@@ -20,17 +17,17 @@ import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;
 import com.warehouse.demo.util.Utility;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class OrganizationServiceImpl extends AbstractService<Organization, Long> implements OrganizationService {
     private final OrganizationRepository organizationRepository;
-    private final OrganizationTypeRepository organizationTypeRepository;
     private final EmployeeRepository employeeRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+
+    private final OrganizationRequestMapper organizationRequestMapper;
 
     @Override
     protected JpaRepository<Organization, Long> getRepository() {
@@ -70,17 +67,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
     }
 
     private Organization modifyAndSave(Organization target, OrganizationRequest from) {
-        target.setName(from.getName());
-        target.setOrganizationNumber(from.getOrganizationNumber());
-        target.setAddress(from.getAddress());
-        target.setPhoneNumber(from.getPhoneNumber());
-        target.setEmail(from.getEmail());
-        target.setUrl(from.getUrl());
-
-        Optional<OrganizationType> organizationType = organizationTypeRepository.findById(from.getOrganizationTypeId());
-        if (organizationType.isPresent()) target.setOrganizationType(organizationType.get());
-        else throw new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORGANIZATION_TYPE, OutputMessage.NOT_FOUND));
-
+        organizationRequestMapper.convertFromRequest(from, target);
         return organizationRepository.save(target);
     }
 }

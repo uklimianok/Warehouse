@@ -20,5 +20,5 @@ public interface ProductPalletRequestMapper {
     @Mapping(target = "status", source = "productPalletRequest.statusId")
     @Mapping(target = "workStation", source = "productPalletRequest.workStationId")
     @Mapping(target = "nextWorkStation", source = "productPalletRequest.nextWorkStationId")
-    ProductPallet convertFromProductPallet(ProductPalletRequest productPalletRequest, @MappingTarget ProductPallet productPallet);
+    void convertFromRequest(ProductPalletRequest productPalletRequest, @MappingTarget ProductPallet productPallet);
 }

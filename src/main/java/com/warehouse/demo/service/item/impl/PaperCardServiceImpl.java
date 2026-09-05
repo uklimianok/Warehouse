@@ -5,22 +5,19 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.item.paperCard.PaperCardRequest;
 import com.warehouse.demo.entity.item.PaperCard;
+import com.warehouse.demo.mapper.item.paperCard.PaperCardRequestMapper;
 import com.warehouse.demo.repository.item.PaperCardRepository;
-import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.item.PaperCardService;
 import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
-
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PaperCardServiceImpl extends AbstractService<PaperCard, Long> implements PaperCardService {
     private final PaperCardRepository paperCardRepository;
-    private final OrderPalletRepository orderPalletRepository;
+
+    private final PaperCardRequestMapper paperCardRequestMapper;
 
     @Override
     public PaperCard create(PaperCardRequest paperCardRequest) {
@@ -47,15 +44,7 @@ public class PaperCardServiceImpl extends AbstractService<PaperCard, Long> imple
     }
 
     private PaperCard modifyAndSave(PaperCard target, PaperCardRequest from) {
-        target.setCode(from.getCode());
-
-        target.setOrderPallet(
-            orderPalletRepository.findById(from.getOrderPalletId())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.ORDER_PALLET, OutputMessage.NOT_FOUND))
-            )
-        );
-
+        paperCardRequestMapper.convertFromRequest(from, target);
         return paperCardRepository.save(target);
     }
 }
