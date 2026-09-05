@@ -12,9 +12,9 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +22,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import com.warehouse.demo.dto.product.ProductRequest;
 import com.warehouse.demo.entity.employee.Organization;
 import com.warehouse.demo.entity.product.Product;
+import com.warehouse.demo.mapper.employee.organization.OrganizationResolver;
+import com.warehouse.demo.mapper.product.ProductRequestMapper;
+import com.warehouse.demo.mapper.product.ProductRequestMapperImpl;
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 import com.warehouse.demo.repository.order.ReturnProductRepository;
 import com.warehouse.demo.repository.product.ProductPackageRepository;
@@ -33,8 +36,16 @@ public class ProductServiceImplTest {   // Mockito tests of services
     @Mock private OrganizationRepository organizationRepository;
     @Mock private ProductPackageRepository productPackageRepository;
     @Mock private ReturnProductRepository returnProductRepository;
+    @Mock private OrganizationResolver organizationResolver;
 
-    @InjectMocks ProductServiceImpl productServiceImpl;
+    private ProductRequestMapper productRequestMapper;
+    private ProductServiceImpl productServiceImpl;
+
+    @BeforeEach 
+    void init() {
+        productRequestMapper = new ProductRequestMapperImpl(organizationResolver);
+        productServiceImpl = new ProductServiceImpl(productRepository, productPackageRepository, returnProductRepository, productRequestMapper);
+    }
 
     @Test
     public void create_duplicateBarcodeNumber_throwsDataIntegrityViolationException() {
@@ -58,8 +69,6 @@ public class ProductServiceImplTest {   // Mockito tests of services
         request.setCost(new BigDecimal(5.));
         request.setProducerId(1);
 
-        Organization producer = new Organization();
-        when(organizationRepository.findById(1L)).thenReturn(Optional.of(producer));
         when(productRepository.existsByBarcodeNumber("123456789")).thenReturn(false);   // Optionally
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -102,13 +111,15 @@ public class ProductServiceImplTest {   // Mockito tests of services
         when(productRepository.existsById(1L)).thenReturn(true);
         when(productRepository.findById(1L)).thenReturn(Optional.of(oldProduct));
         when(productRepository.existsByBarcodeNumber("123456789")).thenReturn(false);   // Barcode available
-        when(organizationRepository.findById(1L)).thenReturn(Optional.of(producer));               // Producer exists, avoid NotFound
+        when(organizationResolver.mapOrganization(1)).thenReturn(producer);
         when(productRepository.save(any(Product.class))).thenAnswer(inv -> inv.getArgument(0));        // Return saved fake object
 
         Product newProduct = productServiceImpl.update(1, request);
         assertNotNull(newProduct);
         assertEquals("123456789", newProduct.getBarcodeNumber());                                      // Check fake saving
+        assertNotNull(newProduct.getProducer());                                                        // Contain producer
         verify(productRepository).save(any(Product.class));                                            // Verify if save() was ever called
+        verify(organizationResolver).mapOrganization(1);                                        
     }
 
     @Test
@@ -126,7 +137,7 @@ public class ProductServiceImplTest {   // Mockito tests of services
         when(productRepository.existsById(1L)).thenReturn(true);
         when(productRepository.findById(1L)).thenReturn(Optional.of(oldProduct));
         when(productRepository.existsByBarcodeNumber("123456789")).thenReturn(true);
-        when(organizationRepository.findById(2L)).thenReturn(Optional.of(producer));
+        when(organizationResolver.mapOrganization(2L)).thenReturn(producer);
         when(productRepository.save(any(Product.class))).thenAnswer(inv -> inv.getArgument(0));
 
         Product newProduct = productServiceImpl.update(1, request);

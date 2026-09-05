@@ -12,6 +12,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
+import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
+import com.warehouse.demo.dto.product.FullProductResponse;
 import com.warehouse.demo.dto.product.ProductRequest;
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Organization;
@@ -19,6 +22,7 @@ import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.product.Product;
 import com.warehouse.demo.entity.user.User;
+import com.warehouse.demo.mapper.product.ProductResponseMapper;
 import com.warehouse.demo.security.ApplicationConfiguration;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.product.ProductService;
@@ -53,6 +57,7 @@ public class ProductControllerTest {    // @WebMvcTest/MockMvc tests of controll
     }
 
     @MockitoBean private ProductService productService;
+    @MockitoBean private ProductResponseMapper productResponseMapper;
     @Autowired private ObjectMapper objectMapper;
 
     @Test
@@ -67,8 +72,10 @@ public class ProductControllerTest {    // @WebMvcTest/MockMvc tests of controll
     void read_dataControllerRole_returnsFullProductResponse() throws Exception {
         UserPrincipal principal = generatePrincipal("DATA_CONTROLLER");
         Product product = generateProduct();
+        FullProductResponse productResponse = generateProductResponse(product);
 
         when(productService.read(1L)).thenReturn(product);
+        when(productResponseMapper.convertToFullResponse(product)).thenReturn(productResponse);
 
         mockMvc.perform(get("/products/1").with(user(principal)))
             .andDo(print())
@@ -88,8 +95,10 @@ public class ProductControllerTest {    // @WebMvcTest/MockMvc tests of controll
 
         UserPrincipal principal = generatePrincipal("DATA_CONTROLLER");
         Product product = generateProduct();
+        FullProductResponse productResponse = generateProductResponse(product);
 
         when(productService.create(any(ProductRequest.class))).thenReturn(product);
+        when(productResponseMapper.convertToFullResponse(product)).thenReturn(productResponse);
 
         mockMvc.perform(post("/products")
                 .with(user(principal))
@@ -150,5 +159,27 @@ public class ProductControllerTest {    // @WebMvcTest/MockMvc tests of controll
         product.setProducer(producer);
 
         return product;
+    }
+
+    private FullProductResponse generateProductResponse(Product product) {
+        OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse();
+        organizationTypeResponse.setName(product.getProducer().getOrganizationType().getName());
+
+        FullOrganizationResponse organizationResponse = new FullOrganizationResponse();
+        organizationResponse.setName(product.getProducer().getName());
+        organizationResponse.setOrganizationNumber(product.getProducer().getOrganizationNumber());
+        organizationResponse.setOrganizationType(organizationTypeResponse);
+        organizationResponse.setAddress(product.getProducer().getAddress());
+        organizationResponse.setEmail(product.getProducer().getEmail());
+        organizationResponse.setPhoneNumber(product.getProducer().getPhoneNumber());
+        organizationResponse.setUrl(product.getProducer().getUrl());
+
+        FullProductResponse productResponse = new FullProductResponse();
+        productResponse.setName(product.getName());
+        productResponse.setBarcodeNumber(product.getBarcodeNumber());
+        productResponse.setCost(product.getCost());
+        productResponse.setProducer(organizationResponse);
+
+        return productResponse;
     }
 }
