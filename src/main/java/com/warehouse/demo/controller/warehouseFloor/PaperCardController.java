@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.item.pallet.PalletResponse;
 import com.warehouse.demo.dto.item.paperCard.PaperCardRequest;
 import com.warehouse.demo.dto.item.paperCard.PaperCardResponse;
-import com.warehouse.demo.dto.order.OrderResponse;
-import com.warehouse.demo.dto.order.orderPallet.OrderPalletResponse;
-import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.item.PaperCard;
+import com.warehouse.demo.mapper.item.paperCard.PaperCardResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.item.PaperCardService;
 import com.warehouse.demo.util.EntityName;
@@ -36,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PaperCardController {
     private final PaperCardService paperCardService;
+    private final PaperCardResponseMapper paperCardResponseMapper;
 
     private static final String READ_ACCESS_ROLES =
         "hasAnyRole('GOODS_PICKER', 'SET_GOODS_EXPORTER', " +
@@ -100,33 +97,8 @@ public class PaperCardController {
         return response;
     }
 
-    private PaperCardResponse returnObjectResponse(PaperCard from, UserPrincipal userPrincipal) {
-        PaperCardResponse paperCardResponse = new PaperCardResponse(
-            from.getId(),
-            from.getCode(),
-            new OrderPalletResponse(
-                from.getOrderPallet().getId(),
-                new OrderResponse(
-                    from.getOrderPallet().getOrder().getId(),
-                    new OrganizationResponse(
-                        from.getOrderPallet().getOrder().getStore().getId(),
-                        from.getOrderPallet().getOrder().getStore().getName(),
-                        from.getOrderPallet().getOrder().getStore().getOrganizationNumber()
-                    ),
-                    from.getOrderPallet().getOrder().getGate() != null ? new GateResponse(
-                        from.getOrderPallet().getOrder().getGate().getId(),
-                        from.getOrderPallet().getOrder().getGate().getSymbol()
-                    ) : null,
-                    from.getOrderPallet().getOrder().getNote()
-                ),
-                new PalletResponse(
-                    from.getOrderPallet().getPallet().getId(),
-                    from.getOrderPallet().getPallet().getName(),
-                    from.getOrderPallet().getPallet().getColor()
-                )
-            )
-        );
-
-        return paperCardResponse;
+    private PaperCardResponse returnObjectResponse(PaperCard from, UserPrincipal principal) {
+        PaperCardResponse response = paperCardResponseMapper.convertToResponse(from);
+        return response;
     }
 }

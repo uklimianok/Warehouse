@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeRequest;
 import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.entity.employee.OrganizationType;
+import com.warehouse.demo.mapper.employee.organizationType.OrganizationTypeResponseMapperImpl;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.OrganizationTypeService;
 
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class OrganizationTypeController {
     private final OrganizationTypeService organizationTypeService;
+    private final OrganizationTypeResponseMapperImpl organizationTypeResponseMapperImpl;
 
     private final static String READ_ACCESS_ROLES =
         "hasAnyRole('DIRECTOR', 'MAJOR_HR', 'WAREHOUSE_EMPLOYEES_HR', " +
@@ -88,12 +90,8 @@ public class OrganizationTypeController {
         return response;
     }
 
-    private OrganizationTypeResponse returnObjectResponse(OrganizationType from, UserPrincipal userPrincipal) {
-        OrganizationTypeResponse organizationTypeResponse = new OrganizationTypeResponse(
-            from.getId(),
-            from.getName()
-        );
-
-        return organizationTypeResponse;
+    private OrganizationTypeResponse returnObjectResponse(OrganizationType from, UserPrincipal principal) {
+        OrganizationTypeResponse response = organizationTypeResponseMapperImpl.convertToResponse(from);
+        return response;
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.service.status.StatusRequest;
 import com.warehouse.demo.dto.service.status.StatusResponse;
 import com.warehouse.demo.entity.service.Status;
+import com.warehouse.demo.mapper.service.status.StatusResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.warehouseService.StatusService;
 import com.warehouse.demo.util.EntityName;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StatusController {
     private final StatusService statusService;
+    private final StatusResponseMapper statusResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
@@ -90,13 +92,8 @@ public class StatusController {
         return response;
     }
 
-    private StatusResponse returnObjectResponse(Status from, UserPrincipal userPrincipal) {
-        StatusResponse statusResponse = new StatusResponse(
-            from.getId(),
-            from.getName(),
-            from.getType()
-        );
-
-        return statusResponse;
+    private StatusResponse returnObjectResponse(Status from, UserPrincipal principal) {
+        StatusResponse response = statusResponseMapper.convertToResponse(from);
+        return response;
     }
 }

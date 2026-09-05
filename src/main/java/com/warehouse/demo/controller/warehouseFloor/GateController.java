@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.workplace.gate.GateRequest;
 import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.workplace.Gate;
+import com.warehouse.demo.mapper.workplace.gate.GateResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.workplace.GateService;
 import com.warehouse.demo.util.EntityName;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GateController {
     private final GateService gateService;
+    private final GateResponseMapper gateResponseMapper;
 
     private static final String READ_ACCESS_ROLES =
         "hasAnyRole('GOODS_PICKER', 'SET_GOODS_EXPORTER', 'SET_GOODS_LOADER', " +
@@ -92,12 +94,8 @@ public class GateController {
         return response;
     }
 
-    private GateResponse returnObjectResponse(Gate from, UserPrincipal userPrincipal) {
-        GateResponse palletResponse = new GateResponse(
-            from.getId(),
-            from.getSymbol()
-        );
-
-        return palletResponse;
+    private GateResponse returnObjectResponse(Gate from, UserPrincipal principal) {
+        GateResponse response = gateResponseMapper.convertToResponse(from);
+        return response;
     }
 }

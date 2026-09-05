@@ -15,12 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.workplace.workStation.FullWorkStationResponse;
-import com.warehouse.demo.dto.workplace.workStation.OperatorWorkStationResponse;
 import com.warehouse.demo.dto.workplace.workStation.WorkStationRequest;
 import com.warehouse.demo.dto.workplace.workStation.WorkStationResponse;
-import com.warehouse.demo.dto.workplace.workshop.WorkshopResponse;
 import com.warehouse.demo.entity.workplace.WorkStation;
+import com.warehouse.demo.mapper.workplace.workStation.WorkStationResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.workplace.WorkStationService;
 import com.warehouse.demo.util.EntityName;
@@ -34,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkStationController {
     private final WorkStationService workStationService;
+    private final WorkStationResponseMapper workStationResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'OPERATOR', " + 
@@ -105,35 +104,15 @@ public class WorkStationController {
         return response;
     }
 
-    private WorkStationResponse returnObjectResponse(WorkStation from, UserPrincipal userPrincipal) {
-        WorkStationResponse workStationResponse = null;
-        if (userPrincipal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
-            workStationResponse = new FullWorkStationResponse(
-                from.getId(),
-                from.getStationNumber(),
-                from.getControlNumber(),
-                from.getType(),
-                new WorkshopResponse(
-                    from.getWorkshop().getId(),
-                    from.getWorkshop().getName(),
-                    from.getWorkshop().getStandard()
-                )
-            );
-        else if (userPrincipal.hasAnyRole(OPERATOR_RESPONSE_ROLES_ARR))
-            workStationResponse = new OperatorWorkStationResponse(
-                from.getId(),
-                from.getStationNumber(),
-                from.getControlNumber(),
-                from.getType()
-            );
+    private WorkStationResponse returnObjectResponse(WorkStation from, UserPrincipal principal) {
+        WorkStationResponse response = null;
+        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
+            response = workStationResponseMapper.convertToFullResponse(from);
+        else if (principal.hasAnyRole(OPERATOR_RESPONSE_ROLES_ARR))
+            response = workStationResponseMapper.convertToOperatorResponse(from);
         else
-            workStationResponse = new WorkStationResponse(
-                from.getId(),
-                from.getStationNumber(),
-                from.getControlNumber()
-            );
+            response = workStationResponseMapper.convertToResponse(from);
 
-
-        return workStationResponse;
+        return response;
     }
 }

@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.item.pallet.FullPalletResponse;
 import com.warehouse.demo.dto.item.pallet.PalletRequest;
 import com.warehouse.demo.dto.item.pallet.PalletResponse;
 import com.warehouse.demo.entity.item.Pallet;
+import com.warehouse.demo.mapper.item.pallet.PalletResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.item.PalletService;
 import com.warehouse.demo.util.EntityName;
@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PalletController {
     private final PalletService palletService;
+    private final PalletResponseMapper palletResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'SET_GOODS_EXPORTER', " +
@@ -96,25 +97,13 @@ public class PalletController {
         return response;
     }
 
-    private PalletResponse returnObjectResponse(Pallet from, UserPrincipal userPrincipal) {
-        PalletResponse palletResponse = null;
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            palletResponse = new FullPalletResponse(
-                from.getId(),
-                from.getName(),
-                from.getColor(),
-                from.getLength(),
-                from.getWidth(),
-                from.getHeight(),
-                from.getWeight()
-            );
+    private PalletResponse returnObjectResponse(Pallet from, UserPrincipal principal) {
+        PalletResponse response = null;
+        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
+            response = palletResponseMapper.convertToFullResponse(from);
         else
-            palletResponse = new PalletResponse(
-                from.getId(),
-                from.getName(),
-                from.getColor()
-            );
+            response = palletResponseMapper.convertToResponse(from);
 
-        return palletResponse;
+        return response;
     }
 }

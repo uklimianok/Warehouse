@@ -15,16 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.item.pallet.PalletResponse;
-import com.warehouse.demo.dto.order.OrderResponse;
-import com.warehouse.demo.dto.order.orderPallet.OrderPalletResponse;
 import com.warehouse.demo.dto.order.pickedProduct.PickedProductRequest;
 import com.warehouse.demo.dto.order.pickedProduct.PickedProductResponse;
-import com.warehouse.demo.dto.product.ProductResponse;
-import com.warehouse.demo.dto.product.productPackage.ProductPackageResponse;
-import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.order.PickedProduct;
+import com.warehouse.demo.mapper.order.pickedProduct.PickedProductResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.order.PickedProductService;
 import com.warehouse.demo.util.EntityName;
@@ -38,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PickedProductController {
     private final PickedProductService pickedProductService;
+    private final PickedProductResponseMapper pickedProductResponseMapper;
 
     private static final String READ_ACCESS_ROLES =
         "hasAnyRole('GOODS_PICKER', 'COORDINATOR', 'DATA_CONTROLLER', " + 
@@ -105,43 +100,8 @@ public class PickedProductController {
         return response;
     }
 
-    private PickedProductResponse returnObjectResponse(PickedProduct from, UserPrincipal userPrincipal) {
-        PickedProductResponse pickedProductResponse = new PickedProductResponse(
-            from.getId(),
-            new OrderPalletResponse(
-                from.getOrderPallet().getId(),
-                new OrderResponse(
-                    from.getOrderPallet().getOrder().getId(),
-                    new OrganizationResponse(
-                        from.getOrderPallet().getOrder().getStore().getId(),
-                        from.getOrderPallet().getOrder().getStore().getName(),
-                        from.getOrderPallet().getOrder().getStore().getOrganizationNumber()
-                    ),
-                    from.getOrderPallet().getOrder().getGate() != null ? new GateResponse(
-                        from.getOrderPallet().getOrder().getGate().getId(),
-                        from.getOrderPallet().getOrder().getGate().getSymbol()
-                    ) : null,
-                    from.getOrderPallet().getOrder().getNote()
-                ),
-                new PalletResponse(
-                    from.getOrderPallet().getPallet().getId(),
-                    from.getOrderPallet().getPallet().getName(),
-                    from.getOrderPallet().getPallet().getColor()
-                )
-            ),
-            new ProductPackageResponse(
-                from.getProductPackage().getId(),
-                new ProductResponse(
-                    from.getProductPackage().getProduct().getId(),
-                    from.getProductPackage().getProduct().getName()
-                ),
-                from.getProductPackage().getProductsAmount(),
-                from.getProductPackage().getVolume(),
-                from.getProductPackage().getWeight()
-            ),
-            from.getPickedVolume()
-        );
-
-        return pickedProductResponse;
+    private PickedProductResponse returnObjectResponse(PickedProduct from, UserPrincipal principal) {
+        PickedProductResponse response = pickedProductResponseMapper.convertToResponse(from);
+        return response;
     }
 }

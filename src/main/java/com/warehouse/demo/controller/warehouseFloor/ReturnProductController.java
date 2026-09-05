@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.order.OrderResponse;
 import com.warehouse.demo.dto.order.returnProduct.ReturnProductRequest;
 import com.warehouse.demo.dto.order.returnProduct.ReturnProductResponse;
-import com.warehouse.demo.dto.product.ProductResponse;
-import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.order.ReturnProduct;
+import com.warehouse.demo.mapper.order.returnProduct.ReturnProductResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.order.ReturnProductService;
 import com.warehouse.demo.util.EntityName;
@@ -35,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReturnProductController {
     private final ReturnProductService returnProductService;
+    private final ReturnProductResponseMapper returnProductResponseMapper;
 
     private static final String READ_ACCESS_ROLES =
         "hasAnyRole('RETURN_GOODS_CONTROLLER', 'COORDINATOR', " +
@@ -102,29 +100,8 @@ public class ReturnProductController {
         return response;
     }
     
-    private ReturnProductResponse returnObjectResponse(ReturnProduct from, UserPrincipal userPrincipal) {
-        ReturnProductResponse returnProductResponse = new ReturnProductResponse(
-            from.getId(),
-            new OrderResponse(
-                from.getOrder().getId(),
-                new OrganizationResponse(
-                    from.getOrder().getStore().getId(),
-                    from.getOrder().getStore().getName(),
-                    from.getOrder().getStore().getOrganizationNumber()
-                ),
-                from.getOrder().getGate() != null ? new GateResponse(   // null safe
-                    from.getOrder().getGate().getId(),
-                    from.getOrder().getGate().getSymbol()
-                ) : null,
-                from.getOrder().getNote()
-            ),
-            new ProductResponse(
-                from.getProduct().getId(),
-                from.getProduct().getName()
-            ),
-            from.getProductsAmount()
-        );
-
-        return returnProductResponse;
+    private ReturnProductResponse returnObjectResponse(ReturnProduct from, UserPrincipal principal) {
+        ReturnProductResponse response = returnProductResponseMapper.convertToResponse(from);
+        return response;
     }
 }

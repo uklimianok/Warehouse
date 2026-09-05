@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.order.OrderResponse;
 import com.warehouse.demo.dto.order.orderedProduct.OrderedProductRequest;
 import com.warehouse.demo.dto.order.orderedProduct.OrderedProductResponse;
-import com.warehouse.demo.dto.product.ProductResponse;
-import com.warehouse.demo.dto.product.productPackage.ProductPackageResponse;
-import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.order.OrderedProduct;
+import com.warehouse.demo.mapper.order.orderedProduct.OrderedProductResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.order.OrderedProductService;
 import com.warehouse.demo.util.EntityName;
@@ -36,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderedProductController {
     private final OrderedProductService orderedProductService;
+    private final OrderedProductResponseMapper orderedProductResponseMapper;
 
     private static final String READ_ACCESS_ROLES =
         "hasAnyRole('GOODS_PICKER', 'COORDINATOR', " + 
@@ -103,35 +100,8 @@ public class OrderedProductController {
         return response;
     }
 
-    private OrderedProductResponse returnObjectResponse(OrderedProduct from, UserPrincipal userPrincipal) {
-        OrderedProductResponse orderedProductResponse = new OrderedProductResponse(
-            from.getId(),
-            new OrderResponse(
-                from.getOrder().getId(),
-                new OrganizationResponse(
-                    from.getOrder().getStore().getId(),
-                    from.getOrder().getStore().getName(),
-                    from.getOrder().getStore().getOrganizationNumber()
-                ),
-                from.getOrder().getGate() != null ? new GateResponse(
-                    from.getOrder().getGate().getId(),
-                    from.getOrder().getGate().getSymbol()
-                ) : null,
-                from.getOrder().getNote()
-            ),
-            new ProductPackageResponse(
-                from.getProductPackage().getId(),
-                new ProductResponse(
-                    from.getProductPackage().getProduct().getId(),
-                    from.getProductPackage().getProduct().getName()
-                ),
-                from.getProductPackage().getProductsAmount(),
-                from.getProductPackage().getVolume(),
-                from.getProductPackage().getWeight()
-            ),
-            from.getOrderedVolume()
-        );
-
-        return orderedProductResponse;
+    private OrderedProductResponse returnObjectResponse(OrderedProduct from, UserPrincipal principal) {
+        OrderedProductResponse response = orderedProductResponseMapper.convertToResponse(from);
+        return response;
     }
 }

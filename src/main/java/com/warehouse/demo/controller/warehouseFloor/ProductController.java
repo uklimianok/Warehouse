@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
-    private final ProductResponseMapper productMapper;
+    private final ProductResponseMapper productResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'OPERATOR', " +
@@ -100,9 +100,9 @@ public class ProductController {
     private ProductResponse returnObjectResponse(Product from, UserPrincipal principal) {
         ProductResponse productResponse = null;
         if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            productResponse = productMapper.toFullResponse(from);
+            productResponse = productResponseMapper.toFullResponse(from);
         else
-            productResponse = productMapper.toResponse(from);
+            productResponse = productResponseMapper.toResponse(from);
 
         return productResponse;
     }

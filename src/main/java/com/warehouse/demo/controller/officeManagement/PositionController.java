@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.position.FullPositionResponse;
 import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.dto.employee.position.PositionResponse;
 import com.warehouse.demo.entity.employee.Position;
+import com.warehouse.demo.mapper.employee.position.PositionResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.PositionService;
 
@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class PositionController {
     private final PositionService positionService;
+    private final PositionResponseMapper positionResponseMapper;
     
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'SET_GOODS_EXPORTER', 'SET_GOODS_LOADER', " +
@@ -96,22 +97,13 @@ public class PositionController {
         return response;
     }
 
-    private PositionResponse returnPositionResponse(Position from, UserPrincipal userPrincipal) {
-        PositionResponse positionResponse = null;
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR)) {
-            positionResponse = new FullPositionResponse(
-                from.getId(), 
-                from.getName(), 
-                from.getCodeName(),
-                from.isHasDatabaseAccess()
-            );
-        } else {
-            positionResponse = new PositionResponse(
-                from.getId(), 
-                from.getName()
-            );
-        }
+    private PositionResponse returnPositionResponse(Position from, UserPrincipal principal) {
+        PositionResponse response = null;
+        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
+            response = positionResponseMapper.convertToFullResponse(from);
+        else
+            response = positionResponseMapper.convertToResponse(from);
 
-        return positionResponse;
+        return response;
     }
 }

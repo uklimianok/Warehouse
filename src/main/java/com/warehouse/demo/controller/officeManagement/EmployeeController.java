@@ -15,17 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.DataControllerEmployeeResponse;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
 import com.warehouse.demo.dto.employee.EmployeeResponse;
-import com.warehouse.demo.dto.employee.FullEmployeeResponse;
-import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
-import com.warehouse.demo.dto.employee.position.FullPositionResponse;
-import com.warehouse.demo.dto.employee.position.PositionResponse;
-import com.warehouse.demo.dto.employee.shift.ShiftResponse;
 import com.warehouse.demo.entity.employee.Employee;
+import com.warehouse.demo.mapper.employee.EmployeeResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.EmployeeService;
 
@@ -36,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmployeeController {
     private final EmployeeService employeeService;
+    private final EmployeeResponseMapper employeeResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'SET_GOODS_EXPORTER', " +
@@ -115,80 +109,15 @@ public class EmployeeController {
         return response;
     }
 
-    private EmployeeResponse returnObjectResponse(Employee from, UserPrincipal userPrincipal) {
-        EmployeeResponse employeeResponse = null;
-        if (userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR)) {
-            employeeResponse = new FullEmployeeResponse(
-                from.getId(),
-                from.getFirstName(),
-                from.getLastName(),
-                new FullOrganizationResponse(
-                    from.getEmployerOrganization().getId(), 
-                    from.getEmployerOrganization().getName(), 
-                    from.getEmployerOrganization().getOrganizationNumber(),
-                    new OrganizationTypeResponse(
-                        from.getEmployerOrganization().getOrganizationType().getId(),
-                        from.getEmployerOrganization().getOrganizationType().getName()
-                    ),
-                    from.getEmployerOrganization().getAddress(),
-                    from.getEmployerOrganization().getPhoneNumber(),
-                    from.getEmployerOrganization().getEmail(),
-                    from.getEmployerOrganization().getUrl()
-                ),
-                from.getEmployeeNumber(),
-                new FullPositionResponse(
-                    from.getPosition().getId(), 
-                    from.getPosition().getName(),
-                    from.getPosition().getCodeName(),
-                    from.getPosition().isHasDatabaseAccess()
-                ),
-                new ShiftResponse(
-                    from.getShift().getId(), 
-                    from.getShift().getSymbol()
-                ), 
-                from.getBirthDate(), 
-                from.getDocumentId(), 
-                from.getResidenceAddress(), 
-                from.getPhoneNumber()
-            );
-        } else if (userPrincipal.hasAnyRole(READ_UPDATE_ACCESS_ROLES_ARR)) {
-            employeeResponse = new DataControllerEmployeeResponse(
-                from.getId(),
-                from.getFirstName(),
-                from.getLastName(),
-                new OrganizationResponse(
-                    from.getEmployerOrganization().getId(), 
-                    from.getEmployerOrganization().getName(), 
-                    from.getEmployerOrganization().getOrganizationNumber()
-                ),
-                from.getEmployeeNumber(),
-                new PositionResponse(
-                    from.getPosition().getId(), 
-                    from.getPosition().getName()
-                ),
-                new ShiftResponse(
-                    from.getShift().getId(), 
-                    from.getShift().getSymbol()
-                )
-            );
-        } else {
-            employeeResponse = new EmployeeResponse(
-                from.getId(), 
-                from.getFirstName(), 
-                from.getLastName(), 
-                new OrganizationResponse(
-                    from.getEmployerOrganization().getId(), 
-                    from.getEmployerOrganization().getName(), 
-                    from.getEmployerOrganization().getOrganizationNumber()
-                ),
-                from.getEmployeeNumber(),
-                new PositionResponse(
-                    from.getPosition().getId(), 
-                    from.getPosition().getName()
-                )
-            );
-        }
+    private EmployeeResponse returnObjectResponse(Employee from, UserPrincipal principal) {
+        EmployeeResponse response = null;
+        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
+            response = employeeResponseMapper.convertToFullResponse(from);
+        else if (principal.hasAnyRole(READ_UPDATE_ACCESS_ROLES_ARR))
+            response = employeeResponseMapper.convertToDataControllerResponse(from);
+        else
+            response = employeeResponseMapper.convertToResponse(from);
 
-        return employeeResponse;
+        return response;
     }
 }

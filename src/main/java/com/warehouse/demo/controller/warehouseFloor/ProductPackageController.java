@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
-import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
-import com.warehouse.demo.dto.product.FullProductResponse;
-import com.warehouse.demo.dto.product.ProductResponse;
 import com.warehouse.demo.dto.product.productPackage.ProductPackageRequest;
 import com.warehouse.demo.dto.product.productPackage.ProductPackageResponse;
 import com.warehouse.demo.entity.product.ProductPackage;
+import com.warehouse.demo.mapper.product.productPackage.ProductPackageResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.product.ProductPackageService;
 import com.warehouse.demo.util.EntityName;
@@ -35,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductPackageController {
     private final ProductPackageService productPackageService;
+    private final ProductPackageResponseMapper productPackageResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('GOODS_PICKER', 'COORDINATOR', 'DATA_CONTROLLER', " +
@@ -43,9 +41,6 @@ public class ProductPackageController {
         "hasAnyRole('COORDINATOR', 'DATA_CONTROLLER', 'SYSTEM_ADMINISTRATOR')";
     private static final String FULL_ACCESS_ROLES = 
         "hasAnyRole('DATA_CONTROLLER', 'SYSTEM_ADMINISTRATOR')";
-
-    private static final String[] READ_UPDATE_ACCESS_ROLES_ARR = 
-        {"COORDINATOR", "DATA_CONTROLLER", "SYSTEM_ADMINISTRATOR"};
 
     @GetMapping
     @PreAuthorize(READ_ACCESS_ROLES)
@@ -100,38 +95,8 @@ public class ProductPackageController {
         return response;
     }
 
-    private ProductPackageResponse returnObjectResponse(ProductPackage from, UserPrincipal userPrincipal) {
-        ProductPackageResponse productPackageResponse = new ProductPackageResponse(
-            from.getId(),
-            userPrincipal.hasAnyRole(READ_UPDATE_ACCESS_ROLES_ARR) ? 
-                new FullProductResponse(
-                    from.getProduct().getId(),
-                    from.getProduct().getName(),
-                    from.getProduct().getBarcodeNumber(),
-                    from.getProduct().getCost(),
-                    new FullOrganizationResponse(
-                        from.getProduct().getProducer().getId(),
-                        from.getProduct().getProducer().getName(),
-                        from.getProduct().getProducer().getOrganizationNumber(), 
-                        new OrganizationTypeResponse(
-                            from.getProduct().getProducer().getOrganizationType().getId(), 
-                            from.getProduct().getProducer().getOrganizationType().getName()
-                        ), 
-                        from.getProduct().getProducer().getAddress(),
-                        from.getProduct().getProducer().getPhoneNumber(),
-                        from.getProduct().getProducer().getEmail(),
-                        from.getProduct().getProducer().getUrl()
-                    )
-                ) : 
-                new ProductResponse(
-                    from.getProduct().getId(),
-                    from.getProduct().getName()
-                ),
-                from.getProductsAmount(),
-                from.getVolume(),
-                from.getWeight()
-            );
-
-        return productPackageResponse;
+    private ProductPackageResponse returnObjectResponse(ProductPackage from, UserPrincipal principal) {
+        ProductPackageResponse response = productPackageResponseMapper.convertToResponse(from);
+        return response;
     }
 }

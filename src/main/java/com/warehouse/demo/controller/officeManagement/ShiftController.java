@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.employee.shift.ShiftRequest;
 import com.warehouse.demo.dto.employee.shift.ShiftResponse;
 import com.warehouse.demo.entity.employee.Shift;
+import com.warehouse.demo.mapper.employee.shift.ShiftResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.ShiftService;
 
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ShiftController {
     private final ShiftService shiftService;
+    private final ShiftResponseMapper shiftResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('SHIFT_SUPERVISOR', 'DIRECTOR', 'MAJOR_HR', " +
@@ -89,12 +91,8 @@ public class ShiftController {
         return response;
     }
 
-    private ShiftResponse returnObjectResponse(Shift from, UserPrincipal userPrincipal) {
-        ShiftResponse shiftResponse = new ShiftResponse(
-            from.getId(),
-            from.getSymbol()
-        );
-
-        return shiftResponse;
+    private ShiftResponse returnObjectResponse(Shift from, UserPrincipal principal) {
+        ShiftResponse response = shiftResponseMapper.convertToResponse(from);
+        return response;
     }
 }

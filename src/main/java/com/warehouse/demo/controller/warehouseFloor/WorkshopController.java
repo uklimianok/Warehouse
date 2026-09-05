@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.warehouse.demo.dto.workplace.workshop.WorkshopRequest;
 import com.warehouse.demo.dto.workplace.workshop.WorkshopResponse;
 import com.warehouse.demo.entity.workplace.Workshop;
+import com.warehouse.demo.mapper.workplace.workshop.WorkshopResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.workplace.WorkshopService;
 import com.warehouse.demo.util.EntityName;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkshopController {
     private final WorkshopService workshopService;
+    private final WorkshopResponseMapper workshopResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('DATA_CONTROLLER', 'DIRECTOR'," +
@@ -91,13 +93,8 @@ public class WorkshopController {
         return response;
     }
 
-    private WorkshopResponse returnObjectResponse(Workshop from, UserPrincipal userPrincipal) {
-        WorkshopResponse workshopResponse = new WorkshopResponse(
-            from.getId(),
-            from.getName(),
-            from.getStandard()
-        );
-
-        return workshopResponse;
+    private WorkshopResponse returnObjectResponse(Workshop from, UserPrincipal principal) {
+        WorkshopResponse response = workshopResponseMapper.convertToResponse(from);
+        return response;
     }
 }

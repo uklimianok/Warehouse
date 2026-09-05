@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
 import com.warehouse.demo.dto.employee.organization.OrganizationRequest;
 import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.entity.employee.Organization;
+import com.warehouse.demo.mapper.employee.organization.OrganizationResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.OrganizationService;
 
@@ -30,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrganizationController {
     private final OrganizationService organizationService;
+    private final OrganizationResponseMapper organizationResponseMapper;
 
     private static final String READ_ACCESS_ROLES = 
         "hasAnyRole('COORDINATOR', 'DATA_CONTROLLER', 'DIRECTOR', " +
@@ -93,22 +93,13 @@ public class OrganizationController {
         return response;
     }
 
-    private OrganizationResponse returnObjectResponse(Organization from, UserPrincipal userPrincipal) {
-        return userPrincipal.hasAnyRole(FULL_ACCESS_ROLES_ARR) ?
-            new FullOrganizationResponse(
-                from.getId(),
-                from.getName(),
-                from.getOrganizationNumber(),
-                new OrganizationTypeResponse(from.getOrganizationType().getId(), from.getOrganizationType().getName()),
-                from.getAddress(),
-                from.getPhoneNumber(),
-                from.getEmail(),
-                from.getUrl()
-            ) :
-            new OrganizationResponse(
-                from.getId(),
-                from.getName(),
-                from.getOrganizationNumber()
-            );
+    private OrganizationResponse returnObjectResponse(Organization from, UserPrincipal principal) {
+        OrganizationResponse response = null;
+        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
+            response = organizationResponseMapper.convertToFullResponse(from);
+        else
+            response = organizationResponseMapper.convertToResponse(from);
+
+        return response;
     }
 }

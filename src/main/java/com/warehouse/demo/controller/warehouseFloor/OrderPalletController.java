@@ -15,20 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
-import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
-import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
-import com.warehouse.demo.dto.employee.shift.ShiftResponse;
-import com.warehouse.demo.dto.item.pallet.FullPalletResponse;
-import com.warehouse.demo.dto.item.pallet.PalletResponse;
-import com.warehouse.demo.dto.order.FullOrderResponse;
-import com.warehouse.demo.dto.order.OrderResponse;
-import com.warehouse.demo.dto.order.orderPallet.FullOrderPalletResponse;
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletResponse;
-import com.warehouse.demo.dto.service.status.StatusResponse;
-import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.order.OrderPallet;
+import com.warehouse.demo.mapper.order.orderPallet.OrderPalletResponseMapper;
 import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.order.OrderPalletService;
 import com.warehouse.demo.util.EntityName;
@@ -42,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderPalletController {
     private final OrderPalletService orderPalletService;
+    private final OrderPalletResponseMapper orderPalletResponseMapper;
 
     private static final String CREATE_ACCESS_ROLES = 
         "hasAnyRole('GOODS_PICKER', 'COORDINATOR', 'SYSTEM_ADMINISTRATOR')";
@@ -113,79 +104,13 @@ public class OrderPalletController {
         return response;
     }
 
-    private OrderPalletResponse returnObjectResponse(OrderPallet from, UserPrincipal userPrincipal) {
-        OrderPalletResponse orderPalletResponse = null;
-        if (userPrincipal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
-            orderPalletResponse = new FullOrderPalletResponse(
-                from.getId(),
-                new FullOrderResponse(
-                    from.getOrder().getId(),
-                    new FullOrganizationResponse(
-                        from.getOrder().getStore().getId(),
-                        from.getOrder().getStore().getName(),
-                        from.getOrder().getStore().getOrganizationNumber(),
-                        new OrganizationTypeResponse(
-                            from.getOrder().getStore().getOrganizationType().getId(),
-                            from.getOrder().getStore().getOrganizationType().getName()
-                        ),
-                        from.getOrder().getStore().getAddress(),
-                        from.getOrder().getStore().getPhoneNumber(),
-                        from.getOrder().getStore().getEmail(),
-                        from.getOrder().getStore().getUrl()
-                    ),
-                    from.getOrder().getGate() != null ? new GateResponse(
-                        from.getOrder().getGate().getId(),
-                        from.getOrder().getGate().getSymbol()
-                    ) : null,
-                    new ShiftResponse(
-                        from.getOrder().getShift().getId(),
-                        from.getOrder().getShift().getSymbol()
-                    ),
-                    new StatusResponse(
-                        from.getOrder().getStatus().getId(),
-                        from.getOrder().getStatus().getName(),
-                        from.getOrder().getStatus().getType()
-                    ),
-                    from.getOrder().getNote()
-                ),
-                new FullPalletResponse(
-                    from.getPallet().getId(),
-                    from.getPallet().getName(),
-                    from.getPallet().getColor(),
-                    from.getPallet().getLength(),
-                    from.getPallet().getWidth(),
-                    from.getPallet().getHeight(),
-                    from.getPallet().getWeight()
-                ),
-                new StatusResponse(
-                    from.getStatus().getId(),
-                    from.getStatus().getName(),
-                    from.getStatus().getType()
-                )
-            );
+    private OrderPalletResponse returnObjectResponse(OrderPallet from, UserPrincipal principal) {
+        OrderPalletResponse response = null;
+        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
+            response = orderPalletResponseMapper.convertToFullResponse(from);
         else
-            orderPalletResponse = new OrderPalletResponse(
-                from.getId(),
-                new OrderResponse(
-                    from.getOrder().getId(),
-                    new OrganizationResponse(
-                        from.getOrder().getStore().getId(),
-                        from.getOrder().getStore().getName(),
-                        from.getOrder().getStore().getOrganizationNumber()
-                    ),
-                    from.getOrder().getGate() != null ? new GateResponse(
-                        from.getOrder().getGate().getId(),
-                        from.getOrder().getGate().getSymbol()
-                    ) : null,
-                    from.getOrder().getNote()
-                ),
-                new PalletResponse(
-                    from.getPallet().getId(),
-                    from.getPallet().getName(),
-                    from.getPallet().getColor()
-                )
-            );
-
-        return orderPalletResponse;
+            response = orderPalletResponseMapper.convertToResponse(from);
+        
+        return response;
     }
 }
