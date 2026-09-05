@@ -17,6 +17,7 @@ import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;
 import com.warehouse.demo.util.Utility;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +30,15 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
 
     private final StatusRequestMapper statusRequestMapper;
     
+    @Override 
+    public Status readByNameAndType(String name, String type) {
+        boolean pairExists = statusRepository.existsByNameAndType(name, type);
+        if (!pairExists)
+            throw new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND));
+
+        return statusRepository.findByNameAndType(name, type).get();
+    }
+
     @Override
     public Status create(StatusRequest statusRequest) {
         boolean pairExists = statusRepository.existsByNameAndType(statusRequest.getName(), statusRequest.getType());

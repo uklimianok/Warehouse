@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.warehouse.demo.dto.service.status.StatusRequest;
@@ -56,6 +57,16 @@ public class StatusController {
     @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<? extends StatusResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
         Status status = statusService.read(id);
+        StatusResponse statusResponse = returnObjectResponse(status, userPrincipal);
+
+        ResponseEntity<StatusResponse> response = new ResponseEntity<>(statusResponse, HttpStatus.OK);
+        return response;
+    }
+
+    @GetMapping(params = {"name", "type"})
+    @PreAuthorize(READ_ACCESS_ROLES)
+    public ResponseEntity<? extends StatusResponse> readByNameAndType(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam String name, @RequestParam String type) {
+        Status status = statusService.readByNameAndType(name, type);
         StatusResponse statusResponse = returnObjectResponse(status, userPrincipal);
 
         ResponseEntity<StatusResponse> response = new ResponseEntity<>(statusResponse, HttpStatus.OK);

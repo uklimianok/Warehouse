@@ -5,6 +5,7 @@ import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.service.BaseService;
 
 public interface StatusService extends BaseService<Status, Long> {
+    Status readByNameAndType(String name, String type);
     Status create(StatusRequest statusRequest);
     Status update(long id, StatusRequest statusRequest);
 }
