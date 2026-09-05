@@ -6,9 +6,11 @@ import com.warehouse.demo.dto.workplace.workStation.WorkStationResponse;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
+@Setter 
 public class TransferProductPalletResponse extends ProductPalletResponse {
     private PalletResponse pallet;
     private WorkStationResponse nextWorkStation;

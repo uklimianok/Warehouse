@@ -8,9 +8,11 @@ import com.warehouse.demo.dto.employee.shift.ShiftResponse;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
+@Setter 
 public class FullEmployeeResponse extends DataControllerEmployeeResponse {
     private LocalDate birthDate;
     private String documentId;

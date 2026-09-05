@@ -7,9 +7,11 @@ import com.warehouse.demo.dto.workplace.gate.GateResponse;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
+@Setter 
 public class FullOrderResponse extends OrderResponse {
     private ShiftResponse shift;
     private StatusResponse status;

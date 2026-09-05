@@ -6,10 +6,12 @@ import com.warehouse.demo.dto.employee.position.PositionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter 
 public class EmployeeResponse {
     private long id;
     private String firstName;

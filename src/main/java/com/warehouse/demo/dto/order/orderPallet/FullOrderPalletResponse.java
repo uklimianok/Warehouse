@@ -6,9 +6,11 @@ import com.warehouse.demo.dto.service.status.StatusResponse;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Getter
+@Setter 
 public class FullOrderPalletResponse extends OrderPalletResponse {
     private StatusResponse status;
 
