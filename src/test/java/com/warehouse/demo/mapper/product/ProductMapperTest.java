@@ -23,7 +23,7 @@ public class ProductMapperTest {
     @Test
     void toResponse_product_returnsProductResponse() {
         Product product = create();
-        FullProductResponse fullResponse = productMapper.toFullResponse(product);
+        FullProductResponse fullResponse = productMapper.convertToFullResponse(product);
         assertEquals("ORG1", fullResponse.getProducer().getOrganizationNumber());
         assertEquals("Producer", fullResponse.getProducer().getOrganizationType().getName());
     }

@@ -10,6 +10,6 @@ import com.warehouse.demo.mapper.employee.organization.OrganizationResponseMappe
 
 @Mapper(componentModel = "spring", uses = OrganizationResponseMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface ProductResponseMapper {
-    ProductResponse toResponse(Product product);
-    FullProductResponse toFullResponse(Product product);
+    ProductResponse convertToResponse(Product product);
+    FullProductResponse convertToFullResponse(Product product);
 }
