@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletResponse;
 import com.warehouse.demo.entity.order.OrderPallet;
 import com.warehouse.demo.mapper.order.orderPallet.OrderPalletResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.order.OrderPalletService;
 import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;

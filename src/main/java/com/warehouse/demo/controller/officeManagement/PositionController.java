@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.dto.employee.position.PositionResponse;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.mapper.employee.position.PositionResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.PositionService;
 
 import lombok.RequiredArgsConstructor;

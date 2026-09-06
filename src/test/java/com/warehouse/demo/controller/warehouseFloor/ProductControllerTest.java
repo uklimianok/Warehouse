@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import com.warehouse.demo.configuration.security.ApplicationConfiguration;
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
 import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse;
 import com.warehouse.demo.dto.product.FullProductResponse;
@@ -23,8 +25,6 @@ import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.product.Product;
 import com.warehouse.demo.entity.user.User;
 import com.warehouse.demo.mapper.product.ProductResponseMapper;
-import com.warehouse.demo.security.ApplicationConfiguration;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.product.ProductService;
 
 import tools.jackson.databind.ObjectMapper;

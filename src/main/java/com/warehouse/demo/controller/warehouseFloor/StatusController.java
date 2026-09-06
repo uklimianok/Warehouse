@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.service.status.StatusRequest;
 import com.warehouse.demo.dto.service.status.StatusResponse;
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.mapper.service.status.StatusResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.warehouseService.StatusService;
 import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;

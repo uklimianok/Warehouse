@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.workplace.workshop.WorkshopRequest;
 import com.warehouse.demo.dto.workplace.workshop.WorkshopResponse;
 import com.warehouse.demo.entity.workplace.Workshop;
 import com.warehouse.demo.mapper.workplace.workshop.WorkshopResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.workplace.WorkshopService;
 import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;

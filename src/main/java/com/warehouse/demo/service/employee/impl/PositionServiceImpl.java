@@ -1,5 +1,6 @@
 package com.warehouse.demo.service.employee.impl;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,12 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     protected boolean isUsed(Long id) {
         boolean activeInEmployee = employeeRepository.existsByPositionId(id);
         return activeInEmployee;
+    }
+
+    @Override
+    @Cacheable(value = "positions", key = "#id")
+    public Position read(Long id) {
+        return super.read(id);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.warehouse.demo.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.warehouse.demo.security.UserPrincipal;
+import com.warehouse.demo.configuration.security.UserPrincipal;
 
 import java.util.Map;
 

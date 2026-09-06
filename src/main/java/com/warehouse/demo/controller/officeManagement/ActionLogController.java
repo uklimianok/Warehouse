@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.service.actionLog.ActionLogResponse;
 import com.warehouse.demo.entity.service.ActionLog;
 import com.warehouse.demo.mapper.service.actionLog.ActionLogResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.warehouseService.ActionLogService;
 
 import lombok.RequiredArgsConstructor;

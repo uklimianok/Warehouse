@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.workplace.gate.GateRequest;
 import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.workplace.Gate;
 import com.warehouse.demo.mapper.workplace.gate.GateResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.workplace.GateService;
 import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;

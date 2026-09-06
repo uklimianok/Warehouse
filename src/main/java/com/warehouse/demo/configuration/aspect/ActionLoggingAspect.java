@@ -1,4 +1,4 @@
-package com.warehouse.demo.aspect;
+package com.warehouse.demo.configuration.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -6,9 +6,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.entity.employee.Employee;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.warehouseService.ActionLogService;
 import lombok.RequiredArgsConstructor;
 

@@ -15,16 +15,6 @@ public abstract class AbstractService<T, ID> {
     protected abstract JpaRepository<T, ID> getRepository();
     protected abstract EntityName getEntityName();
 
-    private void throwIfNotExists(ID id) {
-        if (!getRepository().existsById(id)) 
-            throw new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND));
-    }
-
-    private void throwIfActive(ID id) {
-        if (isUsed(id))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.ACTIVE));
-    }
-
     public List<T> readAll() {
         return getRepository().findAll();
     }
@@ -42,5 +32,15 @@ public abstract class AbstractService<T, ID> {
 
     protected boolean isUsed(ID id) {
         return false;
+    }
+
+    protected void throwIfActive(ID id) {
+        if (isUsed(id))
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.ACTIVE));
+    }
+
+    protected void throwIfNotExists(ID id) {
+        if (!getRepository().existsById(id)) 
+            throw new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND));
     }
 }

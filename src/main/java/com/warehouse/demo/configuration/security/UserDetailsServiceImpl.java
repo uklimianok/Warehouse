@@ -1,4 +1,4 @@
-package com.warehouse.demo.security;
+package com.warehouse.demo.configuration.security;
 
 import java.util.Optional;
 

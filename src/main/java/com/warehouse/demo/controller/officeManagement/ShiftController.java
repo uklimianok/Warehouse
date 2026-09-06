@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.employee.shift.ShiftRequest;
 import com.warehouse.demo.dto.employee.shift.ShiftResponse;
 import com.warehouse.demo.entity.employee.Shift;
 import com.warehouse.demo.mapper.employee.shift.ShiftResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.ShiftService;
 
 import lombok.RequiredArgsConstructor;

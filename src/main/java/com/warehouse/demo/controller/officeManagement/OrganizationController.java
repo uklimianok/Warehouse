@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.employee.organization.OrganizationRequest;
 import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
 import com.warehouse.demo.entity.employee.Organization;
 import com.warehouse.demo.mapper.employee.organization.OrganizationResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.employee.OrganizationService;
 
 import lombok.RequiredArgsConstructor;

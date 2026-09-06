@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.order.returnProduct.ReturnProductRequest;
 import com.warehouse.demo.dto.order.returnProduct.ReturnProductResponse;
 import com.warehouse.demo.entity.order.ReturnProduct;
 import com.warehouse.demo.mapper.order.returnProduct.ReturnProductResponseMapper;
-import com.warehouse.demo.security.UserPrincipal;
 import com.warehouse.demo.service.order.ReturnProductService;
 import com.warehouse.demo.util.EntityName;
 import com.warehouse.demo.util.OutputMessage;
