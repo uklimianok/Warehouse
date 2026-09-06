@@ -77,20 +77,20 @@ public class ProductRepositoryIT {
 
     private Product create() {
         Product product = new Product();
-        product.setName("Product 1");
+        product.setName("Product 2");
         product.setBarcodeNumber("123456789");
         product.setCost(new BigDecimal("4.99"));
         
         Organization producer = new Organization();
-        producer.setName("Organization 1");
-        producer.setOrganizationNumber("ORG1");
+        producer.setName("Organization 2");
+        producer.setOrganizationNumber("ORG2");
         producer.setAddress("Address 1");
         producer.setPhoneNumber("+123456789");
         producer.setEmail("org1@ex.com");
         producer.setUrl("org1.com");
 
         OrganizationType organizationType = new OrganizationType();
-        organizationType.setName("Producer");
+        organizationType.setName("Producer 2");
 
         producer.setOrganizationType(organizationType);
         product.setProducer(producer);
