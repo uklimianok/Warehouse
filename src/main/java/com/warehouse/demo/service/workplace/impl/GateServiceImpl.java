@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.workplace.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -26,17 +28,23 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
     private final OrderRepository orderRepository;
 
     private final GateRequestMapper gateRequestMapper;
+
+    @Override 
+    @Cacheable(value = "gates", key = "#id")
+    public Gate read(Long id) {
+        return super.read(id);
+    }
     
     @Override
     public Gate create(GateRequest gateRequest) {
         if (gateRepository.existsBySymbol(gateRequest.getSymbol()))
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
-        Gate gate = new Gate();
-        return modifyAndSave(gate, gateRequest);
+        return modifyAndSave(new Gate(), gateRequest);
     }
 
     @Override
+    @CacheEvict(value = "gates", key = "#id")
     public Gate update(long id, GateRequest gateRequest) {
         Gate gate = read(id);
         boolean gateChanged = !gate.getSymbol().equals(gateRequest.getSymbol());
@@ -45,6 +53,17 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(gate, gateRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "gates", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private Gate modifyAndSave(Gate target, GateRequest from) {
+        gateRequestMapper.convertFromRequest(from, target);
+        return gateRepository.save(target);
     }
 
     @Override
@@ -62,10 +81,5 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
         boolean activeInTrack = trackRepository.existsByGateId(id);
         boolean activeInOrder = orderRepository.existsByGateId(id);
         return activeInTrack || activeInOrder;
-    }
-
-    private Gate modifyAndSave(Gate target, GateRequest from) {
-        gateRequestMapper.convertFromRequest(from, target);
-        return gateRepository.save(target);
     }
 }

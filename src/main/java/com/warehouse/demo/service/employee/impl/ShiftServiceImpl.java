@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.employee.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,43 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
     private final ShiftRequestMapper shiftRequestMapper;
 
     @Override
+    @Cacheable(value = "shifts", key = "#id")
+    public Shift read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
+    public Shift create(ShiftRequest shiftRequest) {
+        if (shiftRepository.existsBySymbol(shiftRequest.getSymbol()))
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        return modifyAndSave(new Shift(), shiftRequest);
+    }
+
+    @Override
+    @CacheEvict(value = "shifts", key = "#id")
+    public Shift update(long id, ShiftRequest shiftRequest) {
+        Shift shift = read(id);
+        boolean shiftChanged = !shift.getSymbol().equals(shiftRequest.getSymbol());
+        boolean shiftExists = shiftRepository.existsBySymbol(shiftRequest.getSymbol());
+        if (shiftChanged && shiftExists)
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        return modifyAndSave(shift, shiftRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "shifts", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private Shift modifyAndSave(Shift target, ShiftRequest from) {
+        shiftRequestMapper.convertFromRequest(from, target);
+        return shiftRepository.save(target);
+    }
+
+    @Override
     protected JpaRepository<Shift, Long> getRepository() {
         return shiftRepository;
     }
@@ -42,31 +81,5 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
         boolean activeInEmployee = employeeRepository.existsByShiftId(id);
         boolean activeInOrder = orderRepository.existsByShiftId(id);
         return activeInEmployee || activeInOrder;
-    }
-
-    @Override
-    public Shift create(ShiftRequest shiftRequest) {
-        if (shiftRepository.existsBySymbol(shiftRequest.getSymbol()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
-
-        Shift shift = new Shift();
-        
-        return modifyAndSave(shift, shiftRequest);
-    }
-
-    @Override
-    public Shift update(long id, ShiftRequest shiftRequest) {
-        Shift shift = read(id);
-        boolean shiftChanged = !shift.getSymbol().equals(shiftRequest.getSymbol());
-        boolean shiftExists = shiftRepository.existsBySymbol(shiftRequest.getSymbol());
-        if (shiftChanged && shiftExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
-
-        return modifyAndSave(shift, shiftRequest);
-    }
-
-    private Shift modifyAndSave(Shift shift, ShiftRequest shiftRequest) {
-        shiftRequestMapper.convertFromRequest(shiftRequest, shift);
-        return shiftRepository.save(shift);
     }
 }

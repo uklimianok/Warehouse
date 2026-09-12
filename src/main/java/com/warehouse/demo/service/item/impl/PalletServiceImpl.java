@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.item.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +26,32 @@ public class PalletServiceImpl extends AbstractService<Pallet, Long> implements 
 
     private final PalletRequestMapper palletRequestMapper;
 
-    @Override
-    public Pallet create(PalletRequest palletRequest) {
-        Pallet pallet = new Pallet();
-        return modifyAndSave(pallet, palletRequest);
+    @Override 
+    @Cacheable(value = "pallets", key = "#id")
+    public Pallet read(Long id) {
+        return super.read(id);
     }
 
     @Override
+    public Pallet create(PalletRequest palletRequest) {
+        return modifyAndSave(new Pallet(), palletRequest);
+    }
+
+    @Override
+    @CacheEvict(value = "pallets", key = "#id")
     public Pallet update(long id, PalletRequest palletRequest) {
-        Pallet pallet = read(id);
-        return modifyAndSave(pallet, palletRequest);
+        return modifyAndSave(read(id), palletRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "pallets", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private Pallet modifyAndSave(Pallet target, PalletRequest from) {
+        palletRequestMapper.convertFromRequest(from, target);
+        return palletRepository.save(target);
     }
 
     @Override
@@ -51,10 +69,5 @@ public class PalletServiceImpl extends AbstractService<Pallet, Long> implements 
         boolean activeInProductPallet = productPalletRepository.existsByPalletId(id);
         boolean activeInOrderPallet = orderPalletRepository.existsByPalletId(id);
         return activeInProductPallet || activeInOrderPallet;
-    }
-
-    private Pallet modifyAndSave(Pallet target, PalletRequest from) {
-        palletRequestMapper.convertFromRequest(from, target);
-        return palletRepository.save(target);
     }
 }

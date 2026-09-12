@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.workplace.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -26,16 +28,22 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     private final WorkStationRequestMapper workStationRequestMapper;
     
     @Override
+    @Cacheable(value = "workStations", key = "#id")
+    public WorkStation read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
     public WorkStation create(WorkStationRequest workStationRequest) {
         boolean stationNameExists = workStationRepository.existsByStationNumber(workStationRequest.getStationNumber());
         if (stationNameExists) 
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
         
-        WorkStation workStation = new WorkStation();
-        return modifyAndSave(workStation, workStationRequest);
+        return modifyAndSave(new WorkStation(), workStationRequest);
     }
 
     @Override
+    @CacheEvict(value = "workStations", key = "#id")
     public WorkStation update(long id, WorkStationRequest workStationRequest) {
         WorkStation workStation = read(id);
         boolean stationNumberChanged = !workStation.getStationNumber().equals(workStationRequest.getStationNumber());
@@ -44,6 +52,17 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(workStation, workStationRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "workStations", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private WorkStation modifyAndSave(WorkStation target, WorkStationRequest from) {
+        workStationRequestMapper.convertFromRequest(from, target);
+        return workStationRepository.save(target);
     }
 
     @Override
@@ -61,10 +80,5 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
         boolean activeInProductPalletWorkStationId = productPalletRepository.existsByWorkStationId(id);
         boolean activeInProductPalletNextWorkStationId = productPalletRepository.existsByNextWorkStationId(id);
         return activeInProductPalletWorkStationId || activeInProductPalletNextWorkStationId;
-    }
-
-    private WorkStation modifyAndSave(WorkStation target, WorkStationRequest from) {
-        workStationRequestMapper.convertFromRequest(from, target);
-        return workStationRepository.save(target);
     }
 }

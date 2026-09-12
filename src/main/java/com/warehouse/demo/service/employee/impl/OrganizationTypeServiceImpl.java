@@ -2,6 +2,8 @@ package com.warehouse.demo.service.employee.impl;
 
 import com.warehouse.demo.repository.employee.OrganizationRepository;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,45 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
 
     private final OrganizationTypeRequestMapper organizationTypeRequestMapper;
 
+    @Override 
+    @Cacheable(value = "organizationTypes", key = "#id")
+    public OrganizationType read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
+    public OrganizationType create(OrganizationTypeRequest organizationTypeRequest) {
+        if (organizationTypeRepository.existsByName(organizationTypeRequest.getName()))
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        OrganizationType organizationType = new OrganizationType();
+
+        return modifyAndSave(organizationType, organizationTypeRequest);
+    }
+
+    @Override
+    @CacheEvict(value = "organizationTypes", key = "#id")
+    public OrganizationType update(long id, OrganizationTypeRequest organizationTypeRequest) {
+        OrganizationType organizationType = read(id);
+        boolean nameChanged = !organizationType.getName().equals(organizationTypeRequest.getName());
+        boolean nameExists = organizationTypeRepository.existsByName(organizationTypeRequest.getName());
+        if (nameChanged && nameExists)
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        return modifyAndSave(organizationType, organizationTypeRequest);
+    }
+
+    @Override
+    @CacheEvict(value = "organizationTypes", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private OrganizationType modifyAndSave(OrganizationType target, OrganizationTypeRequest from) {
+        organizationTypeRequestMapper.convertFromRequest(from, target);
+        return organizationTypeRepository.save(target);
+    }
+
     @Override
     protected JpaRepository<OrganizationType, Long> getRepository() {
         return organizationTypeRepository;
@@ -40,31 +81,5 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
     protected boolean isUsed(Long id) {
         boolean activeInOrganization = organizationRepository.existsByOrganizationTypeId(id);
         return activeInOrganization;
-    }
-
-    @Override
-    public OrganizationType create(OrganizationTypeRequest organizationTypeRequest) {
-        if (organizationTypeRepository.existsByName(organizationTypeRequest.getName()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
-
-        OrganizationType organizationType = new OrganizationType();
-
-        return modifyAndSave(organizationType, organizationTypeRequest);
-    }
-
-    @Override
-    public OrganizationType update(long id, OrganizationTypeRequest organizationTypeRequest) {
-        OrganizationType organizationType = read(id);
-        boolean nameChanged = !organizationType.getName().equals(organizationTypeRequest.getName());
-        boolean nameExists = organizationTypeRepository.existsByName(organizationTypeRequest.getName());
-        if (nameChanged && nameExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
-
-        return modifyAndSave(organizationType, organizationTypeRequest);
-    }
-
-    private OrganizationType modifyAndSave(OrganizationType target, OrganizationTypeRequest from) {
-        organizationTypeRequestMapper.convertFromRequest(from, target);
-        return organizationTypeRepository.save(target);
     }
 }

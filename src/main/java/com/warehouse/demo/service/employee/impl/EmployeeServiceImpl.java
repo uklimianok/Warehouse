@@ -1,6 +1,8 @@
 package com.warehouse.demo.service.employee.impl;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl extends AbstractService<Employee, Long> implements EmployeeService {
-    private final PasswordEncoder passwordEncoder;
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
     private final ActionLogRepository actionLogRepository;
@@ -31,6 +32,13 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     @Value("${warehouse.shared-password}")
     private String password;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override 
+    @Cacheable(value = "employees", key = "#id")
+    public Employee read(Long id) {
+        return super.read(id);
+    }
 
     @Override
     @Transactional
@@ -46,6 +54,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     @Override
     @Transactional
+    @CacheEvict(value = "employees", key = "#id")
     public Employee update(long id, EmployeeRequest employeeRequest) {
         Employee employee = read(id);
         boolean DBAccessModeBefore = employee.getPosition().isHasDatabaseAccess();
@@ -60,6 +69,12 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         }
 
         return savedEmployee;
+    }
+
+    @Override 
+    @CacheEvict(value = "employees", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
     }
 
     @Override

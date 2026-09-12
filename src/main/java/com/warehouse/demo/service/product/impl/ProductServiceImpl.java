@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.product.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -27,16 +29,22 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
 
     private final ProductRequestMapper productRequestMapper;
 
+    @Override 
+    @Cacheable(value = "products", key = "#id")
+    public Product read(Long id) {
+        return super.read(id);
+    }
+
     @Override
     public Product create(ProductRequest productRequest) {
         if (productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber()))
             throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.BARCODE_NUMBER, OutputMessage.EXISTS));
         
-        Product product = new Product();
-        return modifyAndSave(product, productRequest);
+        return modifyAndSave(new Product(), productRequest);
     }
 
     @Override
+    @CacheEvict(value = "products", key = "#id")
     public Product update(long id, ProductRequest productRequest) {
         Product product = read(id);
         boolean barcodeNumberChanged = !product.getBarcodeNumber().equals(productRequest.getBarcodeNumber());
@@ -45,6 +53,17 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
             throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.BARCODE_NUMBER, OutputMessage.EXISTS));
 
         return modifyAndSave(product, productRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "products", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private Product modifyAndSave(Product target, ProductRequest from) {
+        productRequestMapper.convertFromRequest(from, target);
+        return productRepository.save(target);
     }
 
     @Override
@@ -62,10 +81,5 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
         boolean activeInProductPackage = productPackageRepository.existsByProductId(id);
         boolean activeInReturnProduct = returnProductRepository.existsByProductId(id);
         return activeInProductPackage || activeInReturnProduct;
-    }
-
-    private Product modifyAndSave(Product target, ProductRequest from) {
-        productRequestMapper.convertFromRequest(from, target);
-        return productRepository.save(target);
     }
 }

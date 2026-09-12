@@ -21,16 +21,17 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
 
     @Override
     public PickedProduct create(PickedProductRequest pickedProductRequest) {
-        PickedProduct pickedProduct = new PickedProduct();
-
-        return modifyAndSave(pickedProduct, pickedProductRequest);
+        return modifyAndSave(new PickedProduct(), pickedProductRequest);
     }
 
     @Override
     public PickedProduct update(long id, PickedProductRequest pickedProductRequest) {
-        PickedProduct pickedProduct = read(id);
+        return modifyAndSave(read(id), pickedProductRequest);
+    }
 
-        return modifyAndSave(pickedProduct, pickedProductRequest);
+    private PickedProduct modifyAndSave(PickedProduct target, PickedProductRequest from) {
+        pickedProductRequestMapper.convertFromRequest(from, target);
+        return pickedProductRepository.save(target);
     }
 
     @Override
@@ -41,10 +42,5 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
     @Override
     protected EntityName getEntityName() {
         return EntityName.PICKED_PRODUCT;
-    }
-    
-    private PickedProduct modifyAndSave(PickedProduct target, PickedProductRequest from) {
-        pickedProductRequestMapper.convertFromRequest(from, target);
-        return pickedProductRepository.save(target);
     }
 }

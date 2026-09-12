@@ -21,16 +21,17 @@ public class ReturnProductServiceImpl extends AbstractService<ReturnProduct, Lon
 
     @Override
     public ReturnProduct create(ReturnProductRequest returnProductRequest) {
-        ReturnProduct returnProduct = new ReturnProduct();
-
-        return modifyAndSave(returnProduct, returnProductRequest);
+        return modifyAndSave(new ReturnProduct(), returnProductRequest);
     }
 
     @Override
     public ReturnProduct update(long id, ReturnProductRequest returnProductRequest) {
-        ReturnProduct returnProduct = read(id);
+        return modifyAndSave(read(id), returnProductRequest);
+    }
 
-        return modifyAndSave(returnProduct, returnProductRequest);
+    private ReturnProduct modifyAndSave(ReturnProduct target, ReturnProductRequest from) {
+        returnProductRequestMapper.convertFromRequest(from, target);
+        return returnProductRepository.save(target);
     }
 
     @Override
@@ -41,10 +42,5 @@ public class ReturnProductServiceImpl extends AbstractService<ReturnProduct, Lon
     @Override
     protected EntityName getEntityName() {
         return EntityName.RETURN_PRODUCT;
-    }
-
-    private ReturnProduct modifyAndSave(ReturnProduct target, ReturnProductRequest from) {
-        returnProductRequestMapper.convertFromRequest(from, target);
-        return returnProductRepository.save(target);
     }
 }

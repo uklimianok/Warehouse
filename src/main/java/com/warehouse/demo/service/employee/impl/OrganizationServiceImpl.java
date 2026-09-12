@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.employee.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,43 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
 
     private final OrganizationRequestMapper organizationRequestMapper;
 
+    @Override 
+    @Cacheable(value = "organizations", key = "#id")
+    public Organization read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
+    public Organization create(OrganizationRequest organizationRequest) {
+        if (organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber()))
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+
+        return modifyAndSave(new Organization(), organizationRequest);
+    }
+
+    @Override
+    @CacheEvict(value = "organizations", key = "#id")
+    public Organization update(long id, OrganizationRequest organizationRequest) {
+        Organization organization = read(id);
+        boolean organizationNumberChanged = !organization.getOrganizationNumber().equals(organizationRequest.getOrganizationNumber());
+        boolean organizationNumberExists = organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber());
+        if (organizationNumberChanged && organizationNumberExists)
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.EXISTS));
+
+        return modifyAndSave(organization, organizationRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "organizations", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private Organization modifyAndSave(Organization target, OrganizationRequest from) {
+        organizationRequestMapper.convertFromRequest(from, target);
+        return organizationRepository.save(target);
+    }
+
     @Override
     protected JpaRepository<Organization, Long> getRepository() {
         return organizationRepository;
@@ -45,29 +84,5 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
         boolean activeInProduct = productRepository.existsByProducerId(id);
         boolean activeInOrder = orderRepository.existsByStoreId(id);
         return activeInOrganization || activeInProduct || activeInOrder;
-    }
-
-    @Override
-    public Organization create(OrganizationRequest organizationRequest) {
-        if (organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
-
-        return modifyAndSave(new Organization(), organizationRequest);
-    }
-
-    @Override
-    public Organization update(long id, OrganizationRequest organizationRequest) {
-        Organization organization = read(id);
-        boolean organizationNumberChanged = !organization.getOrganizationNumber().equals(organizationRequest.getOrganizationNumber());
-        boolean organizationNumberExists = organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber());
-        if (organizationNumberChanged && organizationNumberExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.EXISTS));
-
-        return modifyAndSave(organization, organizationRequest);
-    }
-
-    private Organization modifyAndSave(Organization target, OrganizationRequest from) {
-        organizationRequestMapper.convertFromRequest(from, target);
-        return organizationRepository.save(target);
     }
 }

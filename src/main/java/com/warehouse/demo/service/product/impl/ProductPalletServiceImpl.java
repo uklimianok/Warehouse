@@ -2,6 +2,9 @@ package com.warehouse.demo.service.product.impl;
 
 import java.util.Arrays;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -20,11 +23,11 @@ import com.warehouse.demo.util.StatusInfo;
 import com.warehouse.demo.util.Utility;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Long> implements ProductPalletService {
+    private final ProductPalletService self;
+
     private final ProductPalletRepository productPalletRepository;
     private final StatusRepository statusRepository;
     private final WorkStationRepository workStationRepository;
@@ -37,6 +40,20 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     private static final String NEXT_WORK_STATION_NOT_REQUIRED = "must not contain next position.";
     private static final String WORK_STATIONS_REQUIRED = "must contain current and next position.";
     private static final String WORK_STATIONS_NOT_REQUIRED = "must not contain any position.";
+
+    public ProductPalletServiceImpl(@Lazy ProductPalletService self, ProductPalletRepository productPalletRepository, StatusRepository statusRepository, WorkStationRepository workStationRepository, ProductPalletRequestMapper productPalletRequestMapper) {
+        this.self = self;
+        this.productPalletRepository = productPalletRepository;
+        this.statusRepository = statusRepository;
+        this.workStationRepository = workStationRepository;
+        this.productPalletRequestMapper = productPalletRequestMapper;
+    }
+
+    @Override 
+    @Cacheable(value = "productPallets", key = "#id")
+    public ProductPallet read(Long id) {
+        return super.read(id);
+    }
 
     @Override
     public ProductPallet create(ProductPalletRequest productPalletRequest) {
@@ -55,8 +72,9 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     }
 
     @Override
+    @CacheEvict(value = "productPallets", key = "#id")
     public ProductPallet update(long id, ProductPalletRequest productPalletRequest) {
-        ProductPallet productPallet = read(id);
+        ProductPallet productPallet = self.read(id);
         
         boolean productPalletChanged = !productPallet.getPalletNumber().equals(productPalletRequest.getPalletNumber());
         boolean productPalletExists = productPalletRepository.existsByPalletNumber(productPalletRequest.getPalletNumber());
@@ -116,6 +134,12 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             productPallet.setNextWorkStation(null);
 
         return modifyAndSave(productPallet, productPalletRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "productPallets", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
     }
 
     @Override

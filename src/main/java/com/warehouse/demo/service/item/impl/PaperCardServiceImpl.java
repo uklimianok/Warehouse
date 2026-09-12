@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.item.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,18 +21,32 @@ public class PaperCardServiceImpl extends AbstractService<PaperCard, Long> imple
 
     private final PaperCardRequestMapper paperCardRequestMapper;
 
-    @Override
-    public PaperCard create(PaperCardRequest paperCardRequest) {
-        PaperCard paperCard = new PaperCard();
-
-        return modifyAndSave(paperCard, paperCardRequest);
+    @Override 
+    @Cacheable(value = "paperCards", key = "#id")
+    public PaperCard read(Long id) {
+        return super.read(id);
     }
 
     @Override
-    public PaperCard update(long id, PaperCardRequest paperCardRequest) {
-        PaperCard paperCard = read(id);
+    public PaperCard create(PaperCardRequest paperCardRequest) {
+        return modifyAndSave(new PaperCard(), paperCardRequest);
+    }
 
-        return modifyAndSave(paperCard, paperCardRequest);
+    @Override
+    @CacheEvict(value = "paperCards", key = "#id")
+    public PaperCard update(long id, PaperCardRequest paperCardRequest) {
+        return modifyAndSave(read(id), paperCardRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "paperCards", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private PaperCard modifyAndSave(PaperCard target, PaperCardRequest from) {
+        paperCardRequestMapper.convertFromRequest(from, target);
+        return paperCardRepository.save(target);
     }
 
     @Override
@@ -41,10 +57,5 @@ public class PaperCardServiceImpl extends AbstractService<PaperCard, Long> imple
     @Override
     protected EntityName getEntityName() {
         return EntityName.PAPER_CARD;
-    }
-
-    private PaperCard modifyAndSave(PaperCard target, PaperCardRequest from) {
-        paperCardRequestMapper.convertFromRequest(from, target);
-        return paperCardRepository.save(target);
     }
 }

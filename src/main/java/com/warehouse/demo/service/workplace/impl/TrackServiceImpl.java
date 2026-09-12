@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.workplace.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -22,18 +24,23 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
     private final TrackRepository trackRepository;
 
     private final TrackRequestMapper trackRequestMapper;
+
+    @Override 
+    @Cacheable(value = "tracks", key = "#id")
+    public Track read(Long id) {
+        return super.read(id);
+    }
     
     @Override
     public Track create(TrackRequest trackRequest) {
         if (trackRepository.existsBySymbol(trackRequest.getSymbol()))
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
-        Track track = new Track();
-
-        return modifyAndSave(track, trackRequest);
+        return modifyAndSave(new Track(), trackRequest);
     }
 
     @Override
+    @CacheEvict(value = "tracks", key = "#id")
     public Track update(long id, TrackRequest trackRequest) {
         Track track = read(id);
         boolean trackChanged = !track.getSymbol().equals(trackRequest.getSymbol());
@@ -44,6 +51,17 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
         return modifyAndSave(track, trackRequest);
     }
 
+    @Override 
+    @CacheEvict(value = "tracks", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    private Track modifyAndSave(Track target, TrackRequest from) {
+        trackRequestMapper.convertFromRequest(from, target);
+        return trackRepository.save(target);
+    }
+
     @Override
     protected JpaRepository<Track, Long> getRepository() {
         return trackRepository;
@@ -52,10 +70,5 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
     @Override
     protected EntityName getEntityName() {
         return EntityName.TRACK;
-    }
-
-    private Track modifyAndSave(Track target, TrackRequest from) {
-        trackRequestMapper.convertFromRequest(from, target);
-        return trackRepository.save(target);
     }
 }

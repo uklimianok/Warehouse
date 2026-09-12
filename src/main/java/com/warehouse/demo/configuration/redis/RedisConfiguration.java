@@ -22,11 +22,11 @@ public class RedisConfiguration {
 
     @Bean 
     RedisCacheManager redisCacheManager() {
-        RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration
+        RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration
             .defaultCacheConfig()
             .serializeValuesWith(SerializationPair
-                .fromSerializer(GenericJacksonJsonRedisSerializer.
-                    builder()
+                .fromSerializer(GenericJacksonJsonRedisSerializer
+                    .builder()
                     .enableDefaultTyping(BasicPolymorphicTypeValidator
                         .builder()
                         .allowIfSubType("com.warehouse.demo.entity")
@@ -35,10 +35,26 @@ public class RedisConfiguration {
                     .build()))
             .entryTtl(Duration.ofDays(1));
 
+        RedisCacheConfiguration activeCacheConfiguration = RedisCacheConfiguration  // for Order-like entities
+            .defaultCacheConfig()
+            .serializeValuesWith(SerializationPair
+                .fromSerializer(GenericJacksonJsonRedisSerializer
+                    .builder()
+                    .enableDefaultTyping(BasicPolymorphicTypeValidator
+                        .builder()
+                        .allowIfSubType("com.warehouse.demo.entity")
+                        .build()
+                    )
+                    .build()))
+            .entryTtl(Duration.ofMinutes(20));
+
         RedisCacheManager cacheManager = RedisCacheManager
-                .builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfiguration)
-                .build();
+            .builder(redisConnectionFactory)
+            .withCacheConfiguration("orders", activeCacheConfiguration)
+            .withCacheConfiguration("orderPallets", activeCacheConfiguration)
+            .withCacheConfiguration("productPallets", activeCacheConfiguration)
+            .cacheDefaults(defaultCacheConfiguration)
+            .build();
 
         return cacheManager;
     }

@@ -1,5 +1,8 @@
 package com.warehouse.demo.service.order.impl;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -21,11 +24,11 @@ import com.warehouse.demo.util.StatusInfo;
 import com.warehouse.demo.util.Utility;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class OrderServiceImpl extends AbstractService<Order, Long> implements OrderService {
+    private final OrderService self;
+
     private final OrderRepository orderRepository;
     private final OrderedProductRepository orderedProductRepository;
     private final OrderPalletRepository orderPalletRepository;
@@ -36,6 +39,23 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     private final OrderRequestMapper orderRequestMapper;
 
     public static final String GATE_REQUIRED = "must contain any gate.";
+
+    public OrderServiceImpl(@Lazy OrderService self, OrderRepository orderRepository, OrderedProductRepository orderedProductRepository, OrderPalletRepository orderPalletRepository, ReturnProductRepository returnProductRepository, GateRepository gateRepository, StatusRepository statusRepository, OrderRequestMapper orderRequestMapper) {
+        this.self = self;   // Set only when it is used, not when declared
+        this.orderRepository = orderRepository;
+        this.orderedProductRepository = orderedProductRepository;
+        this.orderPalletRepository = orderPalletRepository;
+        this.returnProductRepository = returnProductRepository;
+        this.gateRepository = gateRepository;
+        this.statusRepository = statusRepository;
+        this.orderRequestMapper = orderRequestMapper;
+    }
+
+    @Override 
+    @Cacheable(value = "orders", key = "#id")
+    public Order read(Long id) {
+        return super.read(id);
+    }
 
     @Override
     public Order create(OrderRequest orderRequest) {
@@ -49,8 +69,9 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     }
 
     @Override
+    @CacheEvict(value = "orders", key = "#id")
     public Order update(long id, OrderRequest orderRequest) {
-        Order order = read(id);
+        Order order = self.read(id);    // Cached object is provided through proxy "self", not through direct "this"
         order.setStatus(statusRepository
             .findByIdAndType(orderRequest.getStatusId(), EntityName.ORDER.getName())
             .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))
@@ -67,6 +88,12 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
         return modifyAndSave(order, orderRequest);
+    }
+
+    @Override 
+    @CacheEvict(value = "orders", key = "#id")
+    public void delete(Long id) {
+        super.delete(id);
     }
 
     @Override

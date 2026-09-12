@@ -1,5 +1,8 @@
 package com.warehouse.demo.service.warehouseService.impl;
 
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -29,14 +32,22 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     private final OrderPalletRepository orderPalletRepository;
 
     private final StatusRequestMapper statusRequestMapper;
-    
-    @Override 
-    public Status readByNameAndType(String name, String type) {
-        boolean pairExists = statusRepository.existsByNameAndType(name, type);
-        if (!pairExists)
-            throw new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND));
 
-        return statusRepository.findByNameAndType(name, type).get();
+    private final CacheManager cacheManager;
+
+    @Override 
+    @Cacheable(value = "statuses", key = "#id")
+    public Status read(Long id) {
+        return super.read(id);
+    }
+    
+    @Override
+    @Cacheable(value = "statuses", key = "#name + ':' + #type") 
+    public Status readByNameAndType(String name, String type) {     // Refactor other services like this if it needs
+        return statusRepository.findByNameAndType(name, type)
+            .orElseThrow(() ->
+                new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND))
+            );
     }
 
     @Override
@@ -50,6 +61,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     }
 
     @Override
+    @CacheEvict(value = "statuses", key = "#id")
     public Status update(long id, StatusRequest statusRequest) {
         Status status = read(id);
         boolean fieldChanged = !status.getName().equals(statusRequest.getName()) || !status.getType().equals(statusRequest.getType());
@@ -57,7 +69,21 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
         if (fieldChanged && pairExists)
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
-        return modifyAndSave(status, statusRequest);
+        String oldName = status.getName();
+        String oldType = status.getType();
+
+        Status savedStatus = modifyAndSave(status, statusRequest);
+        cacheManager.getCache("statuses").evict(oldName + ":" + oldType); // Unable to use @CacheEvict with name ant type
+
+        return savedStatus;
+    }
+
+    @Override 
+    @CacheEvict(value = "statuses", key = "#id")
+    public void delete(Long id) {
+        Status status = read(id);
+        super.delete(id);
+        cacheManager.getCache("statuses").evict(status.getName() + ":" + status.getType()); // Cache is deleted only after DB operation
     }
 
     @Override

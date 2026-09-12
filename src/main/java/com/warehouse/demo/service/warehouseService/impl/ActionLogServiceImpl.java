@@ -31,7 +31,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
     }
 
     @Override
-    public void delete(Long id) {}  // prevent from deleting
+    public void delete(Long id) {}  // Prevent from deleting
 
     @Override
     protected JpaRepository<ActionLog, Long> getRepository() {
