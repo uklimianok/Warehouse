@@ -1,4 +1,6 @@
-package com.warehouse.demo.util;
+package com.warehouse.demo.util.test.redis;
+
+import java.time.LocalDateTime;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -8,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component 
 @RequiredArgsConstructor 
-public class LaunchRunner implements CommandLineRunner {
+public class RedisRunner implements CommandLineRunner {
     private final StringRedisTemplate redisTemplate;
 
     @Override
@@ -16,6 +18,6 @@ public class LaunchRunner implements CommandLineRunner {
         redisTemplate.opsForValue().set("launch-redis-message-key", "Redis is running ...");
         String result = redisTemplate.opsForValue().get("launch-redis-message-key");
         
-        System.out.println("LaunchRunner: " + result);
+        System.out.println(LocalDateTime.now() + " " + result);
     }
 }

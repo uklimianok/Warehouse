@@ -1,22 +1,24 @@
 package com.warehouse.demo.configuration.aspect;
 
+import java.time.LocalDateTime;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.entity.Identifiable;
-import com.warehouse.demo.entity.employee.Employee;
-import com.warehouse.demo.service.warehouseService.ActionLogService;
+import com.warehouse.demo.event.service.ActionLogEvent;
 import lombok.RequiredArgsConstructor;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class ActionLoggingAspect {
-    private final ActionLogService actionLogService;
+    private final KafkaTemplate<String, ActionLogEvent> kafkaTemplate;
 
     @AfterReturning(
         pointcut = "execution(* com.warehouse.demo.service..*.create(..)) || execution(* com.warehouse.demo.service..*.update(..))", 
@@ -24,24 +26,28 @@ public class ActionLoggingAspect {
     )
     public void logSave(JoinPoint joinPoint, Object result) {
         if (result instanceof Identifiable identifiable) {
-            Employee employee = ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEmployee();
-            long entityId = identifiable.getId();
-            String entityName = result.getClass().getSimpleName();
-            String action = joinPoint.getSignature().getName();
+            ActionLogEvent actionLogEvent = new ActionLogEvent();
+            actionLogEvent.setEmployeeId(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEmployee().getId());
+            actionLogEvent.setProceededAt(LocalDateTime.now());
+            actionLogEvent.setEntityId(identifiable.getId());
+            actionLogEvent.setEntityType(result.getClass().getSimpleName());
+            actionLogEvent.setAction(joinPoint.getSignature().getName());
 
-            actionLogService.log(employee, entityName, entityId, action);
+            kafkaTemplate.send("action-log-events", actionLogEvent);
         }
     }
 
     @AfterReturning("execution(* com.warehouse.demo.service..*.delete(..))")
     public void logDelete(JoinPoint joinPoint) {
         if (joinPoint.getArgs().length > 0 && joinPoint.getArgs()[0] instanceof Long id) {
-            Employee employee = ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEmployee();
-            long entityId = id;
-            String entityName = joinPoint.getTarget().getClass().getSimpleName().replace("ServiceImpl", "");
-            String action = joinPoint.getSignature().getName();
+            ActionLogEvent actionLogEvent = new ActionLogEvent();
+            actionLogEvent.setEmployeeId(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEmployee().getId());
+            actionLogEvent.setProceededAt(LocalDateTime.now());
+            actionLogEvent.setEntityId(id);
+            actionLogEvent.setEntityType(joinPoint.getTarget().getClass().getSimpleName().replace("ServiceImpl", ""));
+            actionLogEvent.setAction(joinPoint.getSignature().getName());
 
-            actionLogService.log(employee, entityName, entityId, action);
+            kafkaTemplate.send("action-log-events", actionLogEvent);
         }
     }
 }
