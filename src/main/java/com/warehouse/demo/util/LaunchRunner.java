@@ -13,8 +13,9 @@ public class LaunchRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        redisTemplate.opsForValue().set("launch-redis-message-key", "The value from launch message for checking Redis");
+        redisTemplate.opsForValue().set("launch-redis-message-key", "Redis is running ...");
         String result = redisTemplate.opsForValue().get("launch-redis-message-key");
+        
         System.out.println("LaunchRunner: " + result);
     }
 }
