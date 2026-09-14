@@ -1,4 +1,4 @@
-package com.warehouse.demo.controller;
+package com.warehouse.demo.controller.test;
 
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,7 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
-public class TestController {
+public class TestHTTPController {
     @GetMapping("/whoami")
     public Map<String, Object> getWhoAmI(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         Map<String, Object> response = Map.of(
