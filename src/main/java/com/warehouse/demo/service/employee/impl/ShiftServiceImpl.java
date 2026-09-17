@@ -14,9 +14,9 @@ import com.warehouse.demo.repository.employee.ShiftRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.ShiftService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -72,8 +72,8 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.SHIFT;
+    protected Entity getEntityName() {
+        return Entity.SHIFT;
     }
 
     @Override

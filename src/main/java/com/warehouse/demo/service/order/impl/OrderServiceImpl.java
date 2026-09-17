@@ -18,10 +18,10 @@ import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.StatusInfo;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
+import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -61,8 +61,8 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     public Order create(OrderRequest orderRequest) {
         Order order = new Order();
         order.setStatus(statusRepository
-            .findByNameAndType(StatusInfo.OrderStatus.ACCEPTED.getName(), EntityName.ORDER.getName())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))  
+            .findByNameAndType(StatusInfo.OrderStatus.ACCEPTED.getName(), Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))  
         );
 
         return modifyAndSave(order, orderRequest);
@@ -73,13 +73,13 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     public Order update(long id, OrderRequest orderRequest) {
         Order order = self.read(id);    // Cached object is provided through proxy "self", not through direct "this"
         order.setStatus(statusRepository
-            .findByIdAndType(orderRequest.getStatusId(), EntityName.ORDER.getName())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))
+            .findByIdAndType(orderRequest.getStatusId(), Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))
         );
 
         if (orderRequest.getGateId() != null)
             order.setGate(gateRepository.findById(orderRequest.getGateId())
-                .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.GATE, OutputMessage.NOT_FOUND)))
+                .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND)))
             );
         else
             order.setGate(null);
@@ -102,8 +102,8 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.ORDER;
+    protected Entity getEntityName() {
+        return Entity.ORDER;
     }
 
     @Override

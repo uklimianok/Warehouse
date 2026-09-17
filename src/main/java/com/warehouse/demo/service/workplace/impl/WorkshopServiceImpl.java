@@ -12,7 +12,7 @@ import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.WorkshopService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -58,8 +58,8 @@ public class WorkshopServiceImpl extends AbstractService<Workshop, Long> impleme
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.WORKSHOP;
+    protected Entity getEntityName() {
+        return Entity.WORKSHOP;
     }
 
     @Override

@@ -21,4 +21,6 @@ public class EmployeeRequest {
     private String documentId;
     private String residenceAddress;
     private String phoneNumber;
+    private Long workshopId;
+    private Long gateId;
 }

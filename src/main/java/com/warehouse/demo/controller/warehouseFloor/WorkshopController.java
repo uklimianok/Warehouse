@@ -21,9 +21,9 @@ import com.warehouse.demo.dto.workplace.workshop.WorkshopResponse;
 import com.warehouse.demo.entity.workplace.Workshop;
 import com.warehouse.demo.mapper.workplace.workshop.WorkshopResponseMapper;
 import com.warehouse.demo.service.workplace.WorkshopService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -87,7 +87,7 @@ public class WorkshopController {
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
         workshopService.delete(id);
-        String message = Utility.getOutputMessage(EntityName.WORKSHOP, OutputMessage.DELETED);
+        String message = Utility.getOutputMessage(Entity.WORKSHOP, OutputMessage.DELETED);
 
         ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
         return response;

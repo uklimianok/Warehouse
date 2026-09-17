@@ -1,4 +1,4 @@
-package com.warehouse.demo.util;
+package com.warehouse.demo.util.info;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

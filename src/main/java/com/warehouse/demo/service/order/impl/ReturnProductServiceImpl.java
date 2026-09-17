@@ -9,7 +9,8 @@ import com.warehouse.demo.mapper.order.returnProduct.ReturnProductRequestMapper;
 import com.warehouse.demo.repository.order.ReturnProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.ReturnProductService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,7 +41,7 @@ public class ReturnProductServiceImpl extends AbstractService<ReturnProduct, Lon
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.RETURN_PRODUCT;
+    protected Entity getEntityName() {
+        return Entity.RETURN_PRODUCT;
     }
 }

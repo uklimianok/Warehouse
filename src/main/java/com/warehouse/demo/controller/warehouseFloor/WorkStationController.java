@@ -21,9 +21,9 @@ import com.warehouse.demo.dto.workplace.workStation.WorkStationResponse;
 import com.warehouse.demo.entity.workplace.WorkStation;
 import com.warehouse.demo.mapper.workplace.workStation.WorkStationResponseMapper;
 import com.warehouse.demo.service.workplace.WorkStationService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -98,7 +98,7 @@ public class WorkStationController {
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
         workStationService.delete(id);
-        String message = Utility.getOutputMessage(EntityName.WORK_STATION, OutputMessage.DELETED);
+        String message = Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.DELETED);
 
         ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
         return response;

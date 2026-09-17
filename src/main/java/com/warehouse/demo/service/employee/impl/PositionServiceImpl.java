@@ -13,9 +13,9 @@ import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.PositionService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -76,8 +76,8 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.POSITION;
+    protected Entity getEntityName() {
+        return Entity.POSITION;
     }
 
     @Override

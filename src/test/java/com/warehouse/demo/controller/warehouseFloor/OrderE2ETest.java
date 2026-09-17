@@ -32,8 +32,8 @@ import com.warehouse.demo.dto.workplace.gate.GateRequest;
 import com.warehouse.demo.dto.workplace.gate.GateResponse;
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.repository.service.StatusRepository;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.StatusInfo;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.StatusInfo;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate 
@@ -53,12 +53,12 @@ public class OrderE2ETest {
     static void seedStatuses(@Autowired StatusRepository statusRepository) {
         Status statusAccepted = new Status();
         statusAccepted.setName(StatusInfo.OrderStatus.ACCEPTED.getName());
-        statusAccepted.setType(EntityName.ORDER.getName());
+        statusAccepted.setType(Entity.ORDER.getEntity());
         statusRepository.save(statusAccepted);
 
         Status statusStarted = new Status();
         statusStarted.setName(StatusInfo.OrderStatus.STARTED.getName());
-        statusStarted.setType(EntityName.ORDER.getName());
+        statusStarted.setType(Entity.ORDER.getEntity());
         statusRepository.save(statusStarted);
     }
 
@@ -84,7 +84,7 @@ public class OrderE2ETest {
         // 1. Read STARTED status
         ResponseEntity<StatusResponse> statusResponse = restTemplate
             .withBasicAuth("24000001", sharedPassword)
-            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.OrderStatus.STARTED.getName(), EntityName.ORDER.getName());
+            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.OrderStatus.STARTED.getName(), Entity.ORDER.getEntity());
         assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
         long startedStatusId = statusResponse.getBody().getId();
 
@@ -113,7 +113,7 @@ public class OrderE2ETest {
         // 1. Read STARTED status
         ResponseEntity<StatusResponse> statusResponse = restTemplate
             .withBasicAuth("24000001", sharedPassword)
-            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.OrderStatus.STARTED.getName(), EntityName.ORDER.getName());
+            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.OrderStatus.STARTED.getName(), Entity.ORDER.getEntity());
         assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
         long startedStatusId = statusResponse.getBody().getId();
 

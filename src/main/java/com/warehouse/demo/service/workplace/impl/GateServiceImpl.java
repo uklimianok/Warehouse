@@ -14,9 +14,9 @@ import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.repository.workplace.TrackRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.GateService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -72,8 +72,8 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.GATE;
+    protected Entity getEntityName() {
+        return Entity.GATE;
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.warehouse.demo.dto.employee;
 
 import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
 import com.warehouse.demo.dto.employee.position.PositionResponse;
+import com.warehouse.demo.dto.workplace.gate.GateResponse;
+import com.warehouse.demo.dto.workplace.workshop.WorkshopResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +21,6 @@ public class EmployeeResponse {
     private OrganizationResponse employerOrganization;
     private String employeeNumber;
     private PositionResponse position;
+    private WorkshopResponse workshop;
+    private GateResponse gate;
 }

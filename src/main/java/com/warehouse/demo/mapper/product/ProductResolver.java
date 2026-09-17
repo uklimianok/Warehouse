@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.product.Product;
 import com.warehouse.demo.repository.product.ProductRepository;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,6 @@ public class ProductResolver {
     public Product mapProduct(long productId) {
         return productRepository.findById(productId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(EntityName.PRODUCT, OutputMessage.NOT_FOUND)));
+                Utility.getOutputMessage(Entity.PRODUCT, OutputMessage.NOT_FOUND)));
     }
 }

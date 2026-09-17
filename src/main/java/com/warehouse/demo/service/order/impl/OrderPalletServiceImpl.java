@@ -16,10 +16,10 @@ import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderPalletService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.StatusInfo;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
+import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -53,9 +53,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     public OrderPallet create(OrderPalletRequest orderPalletRequest) {
         OrderPallet orderPallet = new OrderPallet();
         orderPallet.setStatus(
-            statusRepository.findByNameAndType(StatusInfo.OrderPalletStatus.PICKING.getName(), getEntityName().getName())
+            statusRepository.findByNameAndType(StatusInfo.OrderPalletStatus.PICKING.getName(), getEntityName().getEntity())
                 .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)) 
+                    new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)) 
             )   
         );
 
@@ -67,9 +67,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     public OrderPallet update(long id, OrderPalletRequest orderPalletRequest) {
         OrderPallet orderPallet = self.read(id);
         orderPallet.setStatus(
-            statusRepository.findByIdAndType(orderPalletRequest.getStatusId(), getEntityName().getName())
+            statusRepository.findByIdAndType(orderPalletRequest.getStatusId(), getEntityName().getEntity())
                 .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND))            
+                    new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND))            
             )
         );
 
@@ -88,8 +88,8 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.ORDER_PALLET;
+    protected Entity getEntityName() {
+        return Entity.ORDER_PALLET;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.employee.impl;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -8,16 +10,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
 import com.warehouse.demo.entity.employee.Employee;
+import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.user.User;
 import com.warehouse.demo.mapper.employee.EmployeeRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
+import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.repository.user.UserRepository;
+import com.warehouse.demo.repository.workplace.GateRepository;
+import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Department;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +39,9 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
     private final ActionLogRepository actionLogRepository;
+    private final PositionRepository positionRepository;
+    private final WorkshopRepository workshopRepository;
+    private final GateRepository gateRepository;
 
     private final EmployeeRequestMapper employeeRequestMapper;
 
@@ -45,9 +60,13 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     public Employee create(EmployeeRequest employeeRequest) {
         Employee employee = new Employee();
         employee.setEmployeeNumber(generateEmployeeNumber(employeeRequest));
+        configureWorkshopAndGate(employee, employeeRequest, true);
 
-        Employee savedEmployee = modifyAndSave(employee, employeeRequest);
-        if (savedEmployee.getPosition().isHasDatabaseAccess()) configureUser(savedEmployee);
+        employeeRequestMapper.convertFromRequest(employeeRequest, employee);
+
+        Employee savedEmployee = employeeRepository.save(employee);
+        if (savedEmployee.getPosition().isHasDatabaseAccess()) 
+            configureUser(savedEmployee);
 
         return savedEmployee;
     }
@@ -55,11 +74,20 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     @Override
     @Transactional
     @CacheEvict(value = "employees", key = "#id")
-    public Employee update(long id, EmployeeRequest employeeRequest) {
+    public Employee update(long id, EmployeeRequest employeeRequest, UserPrincipal userPrincipal) {
         Employee employee = read(id);
         boolean DBAccessModeBefore = employee.getPosition().isHasDatabaseAccess();
 
-        Employee savedEmployee = modifyAndSave(employee, employeeRequest);
+        throwIfPositionNotConfigurable(employee, userPrincipal);
+        configureWorkshopAndGate(employee, employeeRequest, false);
+
+        String department = userPrincipal.getUser().getEmployee().getPosition().getDepartment();
+        if (!department.equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+            employeeRequestMapper.convertFromRequest(employeeRequest, employee);
+        else
+            employeeRequestMapper.convertFromWarehouseEmployeeDepartmentRequest(employeeRequest, employee);
+
+        Employee savedEmployee = employeeRepository.save(employee);
         boolean DBAccessModeAfter = savedEmployee.getPosition().isHasDatabaseAccess();
 
         boolean DBAccessChanged = DBAccessModeBefore != DBAccessModeAfter;
@@ -83,8 +111,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.EMPLOYEE;
+    protected Entity getEntityName() {
+        return Entity.EMPLOYEE;
     }
 
     @Override
@@ -92,11 +120,6 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         boolean activeInUser = userRepository.existsByEmployeeId(id);
         boolean activeInActionLog = actionLogRepository.existsByEmployeeId(id);
         return activeInUser || activeInActionLog;
-    }
-
-    private Employee modifyAndSave(Employee target, EmployeeRequest from) {
-        employeeRequestMapper.convertFromRequest(from, target);
-        return employeeRepository.save(target);
     }
 
     private String generateEmployeeNumber(EmployeeRequest employee) {
@@ -119,5 +142,51 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         user.setPassword(passwordEncoder.encode(password));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    private void throwIfPositionNotConfigurable(Employee object, UserPrincipal subject) {
+        Position subjectPosition = subject.getUser().getEmployee().getPosition(); // 1. Check department
+        Set<String> allowedDepartments = Set.of(
+            Department.WAREHOUSE_EMPLOYEES_DEPARTMENT,
+            Department.AUXILIARY_EMPLOYEES_DEPARTMENT,
+            Department.HR_DEPARTMENT,
+            Department.IT_DEPARTMENT
+        );
+        if (!allowedDepartments.contains(subjectPosition.getDepartment())) 
+            throw new DataIntegrityViolationException("Access denied.");
+
+        if (    // 2. Check whether subject can configure not self
+            !subject.getUser().getEmployee().getEmployeeNumber().equals(object.getEmployeeNumber())
+            && subjectPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT)
+        ) throw new DataIntegrityViolationException("Access denied.");  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
+
+        Position objectPosition = object.getPosition();     // 3. Check position priority
+        int subjectPriority = Department.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
+        int objectPriority = Department.PRIORITIES.getOrDefault(objectPosition.getDepartment(), 0);
+        if (subjectPriority == 0 || objectPriority == 0)
+            throw new EntityNotFoundException(Utility.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND));
+        if (subjectPriority > objectPriority)
+            throw new DataIntegrityViolationException("Operation denied.");
+    }
+
+    private void configureWorkshopAndGate(Employee target, EmployeeRequest from, boolean isCreated) {
+        if (isCreated) {
+            target.setWorkshop(null);
+            target.setGate(null);
+            return;
+        }
+
+        Position position = positionRepository.findById(from.getPositionId())
+            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
+        if (
+            position.getCodeName().equals("GOODS_PICKER")
+            || position.getCodeName().equals("OPERATOR")
+        ) target.setWorkshop(workshopRepository.findById(from.getWorkshopId())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.WORKSHOP, OutputMessage.NOT_FOUND))));
+        else if (
+            position.getCodeName().equals("GOODS_UNLOADER")
+            || position.getCodeName().equals("SET_GOODS_LOADER")
+        ) target.setGate(gateRepository.findById(from.getGateId())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
     }
 }

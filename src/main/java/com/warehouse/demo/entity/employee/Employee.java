@@ -3,6 +3,8 @@ package com.warehouse.demo.entity.employee;
 import java.time.LocalDate;
 
 import com.warehouse.demo.entity.Identifiable;
+import com.warehouse.demo.entity.workplace.Gate;
+import com.warehouse.demo.entity.workplace.Workshop;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,4 +51,10 @@ public class Employee implements Identifiable {
     private String documentId;
     private String residenceAddress;
     private String phoneNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workshop_id", referencedColumnName = "id")
+    private Workshop workshop;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gate_id", referencedColumnName = "id")
+    private Gate gate;
 }

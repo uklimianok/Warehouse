@@ -11,7 +11,8 @@ import com.warehouse.demo.mapper.item.paperCard.PaperCardRequestMapper;
 import com.warehouse.demo.repository.item.PaperCardRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.item.PaperCardService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,7 +56,7 @@ public class PaperCardServiceImpl extends AbstractService<PaperCard, Long> imple
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.PAPER_CARD;
+    protected Entity getEntityName() {
+        return Entity.PAPER_CARD;
     }
 }

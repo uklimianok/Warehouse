@@ -21,9 +21,9 @@ import com.warehouse.demo.dto.item.paperCard.PaperCardResponse;
 import com.warehouse.demo.entity.item.PaperCard;
 import com.warehouse.demo.mapper.item.paperCard.PaperCardResponseMapper;
 import com.warehouse.demo.service.item.PaperCardService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -91,7 +91,7 @@ public class PaperCardController {
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
         paperCardService.delete(id);
-        String message = Utility.getOutputMessage(EntityName.PAPER_CARD, OutputMessage.DELETED);
+        String message = Utility.getOutputMessage(Entity.PAPER_CARD, OutputMessage.DELETED);
 
         ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
         return response;

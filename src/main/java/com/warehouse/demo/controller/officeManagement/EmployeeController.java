@@ -93,7 +93,7 @@ public class EmployeeController {
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
     public ResponseEntity<? extends EmployeeResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody EmployeeRequest employeeRequest) {
-        Employee employee = employeeService.update(id, employeeRequest);
+        Employee employee = employeeService.update(id, employeeRequest, userPrincipal);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
 
         ResponseEntity<EmployeeResponse> response = new ResponseEntity<>(employeeResponse, HttpStatus.OK);

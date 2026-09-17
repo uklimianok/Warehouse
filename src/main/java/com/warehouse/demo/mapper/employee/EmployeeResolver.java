@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,6 @@ public class EmployeeResolver {
     public Employee mapEmployee(long employeeId) {
         return employeeRepository.findById(employeeId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(EntityName.EMPLOYEE, OutputMessage.NOT_FOUND)));
+                Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
     }
 }

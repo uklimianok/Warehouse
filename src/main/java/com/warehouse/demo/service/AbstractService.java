@@ -5,15 +5,15 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 
 public abstract class AbstractService<T, ID> {
     protected abstract JpaRepository<T, ID> getRepository();
-    protected abstract EntityName getEntityName();
+    protected abstract Entity getEntityName();
 
     public List<T> readAll() {
         return getRepository().findAll();

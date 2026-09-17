@@ -1,11 +1,11 @@
-package com.warehouse.demo.util;
+package com.warehouse.demo.util.info;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public enum EntityName {
+public enum Entity {
     POSITION("Position"),
     ORGANIZATION_TYPE("Organization type"),
     ORGANIZATION("Organization"),
@@ -28,7 +28,8 @@ public enum EntityName {
     ORDER("Order"),
     ACTION_LOG("Action log"),
     USER("User"),
-    BARCODE_NUMBER("Barcode number");
+    BARCODE_NUMBER("Barcode number"),
+    DEPARTMENT("Department");
 
-    private final String name;
+    private final String entity;
 }

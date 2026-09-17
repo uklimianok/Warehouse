@@ -12,7 +12,7 @@ import com.warehouse.demo.mapper.order.orderedProduct.OrderedProductRequestMappe
 import com.warehouse.demo.repository.order.OrderedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderedProductService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
 
 @Service
 public class OrderedProductServiceImpl extends AbstractService<OrderedProduct, Long> implements OrderedProductService {
@@ -61,8 +61,8 @@ public class OrderedProductServiceImpl extends AbstractService<OrderedProduct, L
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.ORDERED_PRODUCT;
+    protected Entity getEntityName() {
+        return Entity.ORDERED_PRODUCT;
     }
 
     private OrderedProduct modifyAndSave(OrderedProduct target, OrderedProductRequest from) {

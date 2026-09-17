@@ -14,9 +14,9 @@ import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +38,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     @Override
     public Product create(ProductRequest productRequest) {
         if (productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.BARCODE_NUMBER, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.BARCODE_NUMBER, OutputMessage.EXISTS));
         
         return modifyAndSave(new Product(), productRequest);
     }
@@ -50,7 +50,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
         boolean barcodeNumberChanged = !product.getBarcodeNumber().equals(productRequest.getBarcodeNumber());
         boolean barcodeNumberExists = productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber());
         if (barcodeNumberChanged && barcodeNumberExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.BARCODE_NUMBER, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.BARCODE_NUMBER, OutputMessage.EXISTS));
 
         return modifyAndSave(product, productRequest);
     }
@@ -72,8 +72,8 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.PRODUCT;
+    protected Entity getEntityName() {
+        return Entity.PRODUCT;
     }
 
     @Override

@@ -9,7 +9,8 @@ import com.warehouse.demo.mapper.order.pickedProduct.PickedProductRequestMapper;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.PickedProductService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,7 +41,7 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.PICKED_PRODUCT;
+    protected Entity getEntityName() {
+        return Entity.PICKED_PRODUCT;
     }
 }

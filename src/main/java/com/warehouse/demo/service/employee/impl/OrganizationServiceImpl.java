@@ -15,9 +15,9 @@ import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,7 +52,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
         boolean organizationNumberChanged = !organization.getOrganizationNumber().equals(organizationRequest.getOrganizationNumber());
         boolean organizationNumberExists = organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber());
         if (organizationNumberChanged && organizationNumberExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ORGANIZATION, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.ORGANIZATION, OutputMessage.EXISTS));
 
         return modifyAndSave(organization, organizationRequest);
     }
@@ -74,8 +74,8 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.ORGANIZATION;
+    protected Entity getEntityName() {
+        return Entity.ORGANIZATION;
     }
 
     @Override

@@ -14,7 +14,8 @@ import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductPackageService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -61,8 +62,8 @@ public class ProductPackageServiceImpl extends AbstractService<ProductPackage, L
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.PRODUCT_PACKAGE;
+    protected Entity getEntityName() {
+        return Entity.PRODUCT_PACKAGE;
     }
 
     @Override

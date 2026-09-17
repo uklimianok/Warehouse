@@ -12,9 +12,9 @@ import com.warehouse.demo.mapper.workplace.track.TrackRequestMapper;
 import com.warehouse.demo.repository.workplace.TrackRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.TrackService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,7 +68,7 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.TRACK;
+    protected Entity getEntityName() {
+        return Entity.TRACK;
     }
 }

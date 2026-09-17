@@ -17,10 +17,10 @@ import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductPalletService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.StatusInfo;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
+import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -62,8 +62,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
         ProductPallet productPallet = new ProductPallet();
         productPallet.setStatus(statusRepository
-            .findByNameAndType(StatusInfo.ProductPalletStatus.ORDERED.getName(), EntityName.PRODUCT_PALLET.getName())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))    
+            .findByNameAndType(StatusInfo.ProductPalletStatus.ORDERED.getName(), Entity.PRODUCT_PALLET.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))    
         );
         productPallet.setWorkStation(null);
         productPallet.setNextWorkStation(null);
@@ -82,14 +82,14 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         productPallet.setStatus(
-            statusRepository.findByIdAndType(productPalletRequest.getStatusId(), EntityName.PRODUCT_PALLET.getName())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)))
+            statusRepository.findByIdAndType(productPalletRequest.getStatusId(), Entity.PRODUCT_PALLET.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))
         );
 
         StatusInfo.ProductPalletStatus status = Arrays.stream(StatusInfo.ProductPalletStatus.values())
             .filter(s -> s.getName().equals(productPallet.getStatus().getName()))
             .findFirst()
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.STATUS, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
         switch (status) {
             case ORDERED:
                 if (productPalletRequest.getWorkStationId() != null)
@@ -117,7 +117,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             productPallet.setWorkStation(
                 workStationRepository.findById(productPalletRequest.getWorkStationId())
                     .orElseThrow(() -> 
-                        new EntityNotFoundException(Utility.getOutputMessage(EntityName.WORK_STATION, OutputMessage.NOT_FOUND))
+                        new EntityNotFoundException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND))
                     )
             );
         else 
@@ -127,7 +127,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             productPallet.setNextWorkStation(
                 workStationRepository.findById(productPalletRequest.getNextWorkStationId())
                     .orElseThrow(() -> 
-                        new EntityNotFoundException(Utility.getOutputMessage(EntityName.WORK_STATION, OutputMessage.NOT_FOUND))
+                        new EntityNotFoundException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND))
                     )
             );
         else
@@ -148,8 +148,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.PRODUCT_PALLET;
+    protected Entity getEntityName() {
+        return Entity.PRODUCT_PALLET;
     }
 
     private ProductPallet modifyAndSave(ProductPallet target, ProductPalletRequest from) {

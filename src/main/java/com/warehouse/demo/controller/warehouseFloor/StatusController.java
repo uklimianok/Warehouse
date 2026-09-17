@@ -22,9 +22,9 @@ import com.warehouse.demo.dto.service.status.StatusResponse;
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.mapper.service.status.StatusResponseMapper;
 import com.warehouse.demo.service.warehouseService.StatusService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -97,7 +97,7 @@ public class StatusController {
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
         statusService.delete(id);
-        String message = Utility.getOutputMessage(EntityName.STATUS, OutputMessage.DELETED);
+        String message = Utility.getOutputMessage(Entity.STATUS, OutputMessage.DELETED);
 
         ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
         return response;

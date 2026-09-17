@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.workplace.Workshop;
 import com.warehouse.demo.repository.workplace.WorkshopRepository;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,6 @@ public class WorkshopResolver {
     public Workshop mapWorkshop(long workshopId) {
         return workshopRepository.findById(workshopId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(EntityName.WORKSHOP, OutputMessage.NOT_FOUND)));
+                Utility.getOutputMessage(Entity.WORKSHOP, OutputMessage.NOT_FOUND)));
     }
 }

@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.workplace.WorkStation;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,6 @@ public class WorkStationResolver {
     public WorkStation mapWorkStation(long workStationId) {
         return workStationRepository.findById(workStationId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(EntityName.WORK_STATION, OutputMessage.NOT_FOUND)));
+                Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)));
     }
 }

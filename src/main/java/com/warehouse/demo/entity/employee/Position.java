@@ -31,4 +31,6 @@ public class Position implements Identifiable {
     private String codeName;
     @Column(nullable = false)
     private boolean hasDatabaseAccess;
+    @Column(nullable = true)
+    private String department;
 }

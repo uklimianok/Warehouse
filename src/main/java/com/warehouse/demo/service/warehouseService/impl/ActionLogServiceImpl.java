@@ -11,9 +11,9 @@ import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.warehouseService.ActionLogService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
     public ActionLog log(ActionLogEvent actionLogEvent) {
         ActionLog actionLog = new ActionLog();
         actionLog.setEmployee(employeeRepository.findById(actionLogEvent.getEmployeeId())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(EntityName.EMPLOYEE, OutputMessage.NOT_FOUND))));
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND))));
         actionLog.setProceededAt(actionLogEvent.getProceededAt());
         actionLog.setEntityType(actionLogEvent.getEntityType());
         actionLog.setEntityId(actionLogEvent.getEntityId());
@@ -46,7 +46,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
 
     @Override
     public void delete(Long id) {
-        throw new DataIntegrityViolationException(Utility.getOutputMessage(EntityName.ACTION_LOG, ACTION_LOG_DELETE_RESTRICTED));
+        throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.ACTION_LOG, ACTION_LOG_DELETE_RESTRICTED));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.ACTION_LOG;
+    protected Entity getEntityName() {
+        return Entity.ACTION_LOG;
     }
 }

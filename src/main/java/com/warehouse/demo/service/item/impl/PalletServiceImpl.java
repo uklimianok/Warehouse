@@ -13,7 +13,7 @@ import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.item.PalletService;
-import com.warehouse.demo.util.EntityName;
+import com.warehouse.demo.util.info.Entity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -60,8 +60,8 @@ public class PalletServiceImpl extends AbstractService<Pallet, Long> implements 
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.PALLET;
+    protected Entity getEntityName() {
+        return Entity.PALLET;
     }
 
     @Override

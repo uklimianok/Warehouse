@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.workplace.Gate;
 import com.warehouse.demo.repository.workplace.GateRepository;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,6 @@ public class GateResolver {
     public Gate mapGate(long gateId) {
         return gateRepository.findById(gateId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(EntityName.GATE, OutputMessage.NOT_FOUND)));    
+                Utility.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND)));    
     }
 }

@@ -13,9 +13,9 @@ import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.WorkStationService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -71,8 +71,8 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.WORK_STATION;
+    protected Entity getEntityName() {
+        return Entity.WORK_STATION;
     }
 
     @Override

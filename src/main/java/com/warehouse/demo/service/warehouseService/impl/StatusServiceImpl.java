@@ -16,9 +16,9 @@ import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.warehouseService.StatusService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -92,8 +92,8 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     }
 
     @Override
-    protected EntityName getEntityName() {
-        return EntityName.STATUS;
+    protected Entity getEntityName() {
+        return Entity.STATUS;
     }
 
     @Override

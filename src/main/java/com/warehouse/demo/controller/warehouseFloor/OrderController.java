@@ -21,9 +21,9 @@ import com.warehouse.demo.dto.order.OrderResponse;
 import com.warehouse.demo.entity.order.Order;
 import com.warehouse.demo.mapper.order.OrderResponseMapper;
 import com.warehouse.demo.service.order.OrderService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -101,7 +101,7 @@ public class OrderController {
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
         orderService.delete(id);
-        String message = Utility.getOutputMessage(EntityName.ORDER, OutputMessage.DELETED);
+        String message = Utility.getOutputMessage(Entity.ORDER, OutputMessage.DELETED);
 
         ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
         return response;

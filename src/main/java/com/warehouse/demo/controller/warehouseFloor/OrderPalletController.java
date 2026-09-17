@@ -21,9 +21,9 @@ import com.warehouse.demo.dto.order.orderPallet.OrderPalletResponse;
 import com.warehouse.demo.entity.order.OrderPallet;
 import com.warehouse.demo.mapper.order.orderPallet.OrderPalletResponseMapper;
 import com.warehouse.demo.service.order.OrderPalletService;
-import com.warehouse.demo.util.EntityName;
-import com.warehouse.demo.util.OutputMessage;
-import com.warehouse.demo.util.Utility;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -98,7 +98,7 @@ public class OrderPalletController {
     @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<String> delete(@PathVariable long id) {
         orderPalletService.delete(id);
-        String message = Utility.getOutputMessage(EntityName.ORDER_PALLET, OutputMessage.DELETED);
+        String message = Utility.getOutputMessage(Entity.ORDER_PALLET, OutputMessage.DELETED);
 
         ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
         return response;
