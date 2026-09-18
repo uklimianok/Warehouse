@@ -26,7 +26,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
 
     private static final String ACTION_LOG_DELETE_RESTRICTED = "cannot be deleted.";
 
-    @KafkaListener(groupId = "1", topics = "action-log-events")
+    @KafkaListener(groupId = "1", topics = "action-log-event")
     public ActionLog listen(ActionLogEvent actionLogEvent) {
         return log(actionLogEvent);
     }

@@ -17,8 +17,8 @@ public interface ProductPalletRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "productPackage", source = "productPalletRequest.productPackageId")
     @Mapping(target = "pallet", source = "productPalletRequest.palletId")
-    @Mapping(target = "status", source = "productPalletRequest.statusId")
-    @Mapping(target = "workStation", source = "productPalletRequest.workStationId")
-    @Mapping(target = "nextWorkStation", source = "productPalletRequest.nextWorkStationId")
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "workStation", ignore = true)
+    @Mapping(target = "nextWorkStation", ignore = true)
     void convertFromRequest(ProductPalletRequest productPalletRequest, @MappingTarget ProductPallet productPallet);
 }

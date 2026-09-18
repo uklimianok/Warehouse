@@ -52,12 +52,12 @@ public class OrderE2ETest {
     @BeforeAll 
     static void seedStatuses(@Autowired StatusRepository statusRepository) {
         Status statusAccepted = new Status();
-        statusAccepted.setName(StatusInfo.OrderStatus.ACCEPTED.getName());
+        statusAccepted.setName(StatusInfo.ORDER_ACCEPTED);
         statusAccepted.setType(Entity.ORDER.getEntity());
         statusRepository.save(statusAccepted);
 
         Status statusStarted = new Status();
-        statusStarted.setName(StatusInfo.OrderStatus.STARTED.getName());
+        statusStarted.setName(StatusInfo.ORDER_STARTED);
         statusStarted.setType(Entity.ORDER.getEntity());
         statusRepository.save(statusStarted);
     }
@@ -75,7 +75,7 @@ public class OrderE2ETest {
             .withBasicAuth("24000001", sharedPassword)
             .postForEntity("http://localhost:" + port + "/orders", order, FullOrderResponse.class);
         assertEquals(HttpStatus.CREATED, createOrderResponse.getStatusCode());
-        assertEquals(StatusInfo.OrderStatus.ACCEPTED.getName(), ((FullOrderResponse) createOrderResponse.getBody()).getStatus().getName());
+        assertEquals(StatusInfo.ORDER_ACCEPTED, ((FullOrderResponse) createOrderResponse.getBody()).getStatus().getName());
         assertNull(((FullOrderResponse) createOrderResponse.getBody()).getGate());
     }
 
@@ -84,7 +84,7 @@ public class OrderE2ETest {
         // 1. Read STARTED status
         ResponseEntity<StatusResponse> statusResponse = restTemplate
             .withBasicAuth("24000001", sharedPassword)
-            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.OrderStatus.STARTED.getName(), Entity.ORDER.getEntity());
+            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.ORDER_STARTED, Entity.ORDER.getEntity());
         assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
         long startedStatusId = statusResponse.getBody().getId();
 
@@ -113,7 +113,7 @@ public class OrderE2ETest {
         // 1. Read STARTED status
         ResponseEntity<StatusResponse> statusResponse = restTemplate
             .withBasicAuth("24000001", sharedPassword)
-            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.OrderStatus.STARTED.getName(), Entity.ORDER.getEntity());
+            .getForEntity("http://localhost:" + port + "/statuses?name={name}&type={type}", StatusResponse.class, StatusInfo.ORDER_STARTED, Entity.ORDER.getEntity());
         assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
         long startedStatusId = statusResponse.getBody().getId();
 
@@ -145,7 +145,7 @@ public class OrderE2ETest {
             .withBasicAuth("24000001", sharedPassword)
             .exchange("http://localhost:" + port + "/orders/" + createdOrderId, HttpMethod.PATCH, updateEntity, FullOrderResponse.class);
         assertEquals(HttpStatus.OK, updateOrderResponse.getStatusCode());
-        assertEquals(StatusInfo.OrderStatus.STARTED.getName(), ((FullOrderResponse) updateOrderResponse.getBody()).getStatus().getName());
+        assertEquals(StatusInfo.ORDER_STARTED, ((FullOrderResponse) updateOrderResponse.getBody()).getStatus().getName());
         assertNotNull(updateOrderResponse.getBody().getGate());
     }
 

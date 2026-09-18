@@ -153,12 +153,12 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             Department.IT_DEPARTMENT
         );
         if (!allowedDepartments.contains(subjectPosition.getDepartment())) 
-            throw new DataIntegrityViolationException("Access denied.");
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));
 
         if (    // 2. Check whether subject can configure not self
             !subject.getUser().getEmployee().getEmployeeNumber().equals(object.getEmployeeNumber())
             && subjectPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT)
-        ) throw new DataIntegrityViolationException("Access denied.");  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
+        ) throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 
         Position objectPosition = object.getPosition();     // 3. Check position priority
         int subjectPriority = Department.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
@@ -166,7 +166,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         if (subjectPriority == 0 || objectPriority == 0)
             throw new EntityNotFoundException(Utility.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND));
         if (subjectPriority > objectPriority)
-            throw new DataIntegrityViolationException("Operation denied.");
+            throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
     }
 
     private void configureWorkshopAndGate(Employee target, EmployeeRequest from, boolean isCreated) {

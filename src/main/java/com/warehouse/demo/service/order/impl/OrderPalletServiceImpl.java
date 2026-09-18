@@ -53,7 +53,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     public OrderPallet create(OrderPalletRequest orderPalletRequest) {
         OrderPallet orderPallet = new OrderPallet();
         orderPallet.setStatus(
-            statusRepository.findByNameAndType(StatusInfo.OrderPalletStatus.PICKING.getName(), getEntityName().getEntity())
+            statusRepository.findByNameAndType(StatusInfo.ORDER_PALLET_PICKING, getEntityName().getEntity())
                 .orElseThrow(() ->
                     new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)) 
             )   

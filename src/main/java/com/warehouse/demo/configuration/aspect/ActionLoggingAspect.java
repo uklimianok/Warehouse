@@ -33,7 +33,7 @@ public class ActionLoggingAspect {
             actionLogEvent.setEntityType(result.getClass().getSimpleName());
             actionLogEvent.setAction(joinPoint.getSignature().getName());
 
-            kafkaTemplate.send("action-log-events", actionLogEvent);
+            kafkaTemplate.send("action-log-event", actionLogEvent);
         }
     }
 
@@ -47,7 +47,7 @@ public class ActionLoggingAspect {
             actionLogEvent.setEntityType(joinPoint.getTarget().getClass().getSimpleName().replace("ServiceImpl", ""));
             actionLogEvent.setAction(joinPoint.getSignature().getName());
 
-            kafkaTemplate.send("action-log-events", actionLogEvent);
+            kafkaTemplate.send("action-log-event", actionLogEvent);
         }
     }
 }

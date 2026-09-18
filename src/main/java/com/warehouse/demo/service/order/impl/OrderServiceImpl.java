@@ -61,7 +61,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     public Order create(OrderRequest orderRequest) {
         Order order = new Order();
         order.setStatus(statusRepository
-            .findByNameAndType(StatusInfo.OrderStatus.ACCEPTED.getName(), Entity.ORDER.getEntity())
+            .findByNameAndType(StatusInfo.ORDER_ACCEPTED, Entity.ORDER.getEntity())
             .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))  
         );
 
@@ -84,7 +84,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         else
             order.setGate(null);
 
-        if (!order.getStatus().getName().equals(StatusInfo.OrderStatus.ACCEPTED.getName()) && order.getGate() == null)
+        if (!order.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED) && order.getGate() == null)
             throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
         return modifyAndSave(order, orderRequest);

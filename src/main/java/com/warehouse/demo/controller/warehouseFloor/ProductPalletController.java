@@ -92,7 +92,7 @@ public class ProductPalletController {
     @PatchMapping("/{id}")
     @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
     public ResponseEntity<? extends ProductPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductPalletRequest productPalletRequest) {
-        ProductPallet productPallet = productPalletService.update(id, productPalletRequest);
+        ProductPallet productPallet = productPalletService.update(id, productPalletRequest, userPrincipal);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
 
         ResponseEntity<ProductPalletResponse> response = new ResponseEntity<>(productPalletResponse, HttpStatus.OK);

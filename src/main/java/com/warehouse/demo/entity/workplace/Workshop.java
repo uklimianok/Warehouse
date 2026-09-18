@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,6 @@ public class Workshop implements Identifiable {
     private String name;
     @Column(nullable = false)
     private BigDecimal standard;
+    @Version 
+    private long version;   // For async operations
 }

@@ -21,8 +21,6 @@ import com.warehouse.demo.mapper.item.pallet.PalletResolver;
 import com.warehouse.demo.mapper.product.productPackage.ProductPackageResolver;
 import com.warehouse.demo.mapper.product.productPallet.ProductPalletRequestMapper;
 import com.warehouse.demo.mapper.product.productPallet.ProductPalletRequestMapperImpl;
-import com.warehouse.demo.mapper.service.status.StatusResolver;
-import com.warehouse.demo.mapper.workplace.workStation.WorkStationResolver;
 import com.warehouse.demo.repository.item.PalletRepository;
 import com.warehouse.demo.repository.product.ProductPackageRepository;
 import com.warehouse.demo.repository.service.StatusRepository;
@@ -34,12 +32,10 @@ public class ProductPalletRequestMapperTest {
     private final StatusRepository statusRepository = mock(StatusRepository.class);
     private final ProductPackageRepository productPackageRepository = mock(ProductPackageRepository.class);
 
-    private final WorkStationResolver workStationResolver = new WorkStationResolver(workStationRepository);
     private final PalletResolver palletResolver = new PalletResolver(palletRepository);
-    private final StatusResolver statusResolver = new StatusResolver(statusRepository);
     private final ProductPackageResolver productPackageResolver = new ProductPackageResolver(productPackageRepository);
 
-    private final ProductPalletRequestMapper productPalletRequestMapper = new ProductPalletRequestMapperImpl(productPackageResolver, palletResolver, statusResolver, workStationResolver);
+    private final ProductPalletRequestMapper productPalletRequestMapper = new ProductPalletRequestMapperImpl(productPackageResolver, palletResolver);
 
     @Test 
     void convertFromRequest_nullNextWorkStationId_setsNull() {
@@ -82,7 +78,7 @@ public class ProductPalletRequestMapperTest {
         request.setProductPackageId(productPackageId);
         request.setPackageAmount(packageAmount);
         request.setPalletId(palletId);
-        request.setPalletNumber(palletNumber);
+        //request.setPalletNumber(palletNumber);
         request.setGroupNumber(groupNumber);
         request.setStatusId(statusId);
         request.setWorkStationId(workStationId);

@@ -13,4 +13,12 @@ public class Utility {
             "Cannot perform operation on " + entityName.getEntity() + "." :
             entityName.getEntity() + " " + message;
     }
+
+    public static String getOutputMessage(OutputMessage message) {
+        return message.getMessage();
+    }
+
+    public static String getOutputMessage(String message) {
+        return message;
+    }
 }
