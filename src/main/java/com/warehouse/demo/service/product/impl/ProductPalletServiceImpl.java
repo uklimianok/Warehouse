@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.configuration.security.UserPrincipal;
@@ -40,20 +40,26 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
     private final ProductPalletRequestMapper productPalletRequestMapper;
 
+    private final KafkaTemplate<String, ProductPalletEvent> kafkaTemplate;
+
     private static final String WORK_STATION_REQUIRED = "must contain current position.";
     private static final String WORK_STATION_NOT_REQUIRED = "must not contain current position.";
     private static final String NEXT_WORK_STATION_NOT_REQUIRED = "must not contain next position.";
     private static final String WORK_STATIONS_REQUIRED = "must contain any position.";
     private static final String WORK_STATIONS_NOT_REQUIRED = "must not contain any position.";
 
+    private static final String UNLOADED_STATUS_NEXT_WORK_STATION_NOT_NULL_EVENT = "product-pallet-unloaded-status-next-work-station-not-null-event";
+    private static final String UNLOADED_STATUS_NEXT_WORK_STATION_NULL_EVENT = "product-pallet-unloaded-status-next-work-station-null-event";
+
     private static AtomicLong PALLET_NUMBER_COUNTER = new AtomicLong(0);
 
-    public ProductPalletServiceImpl(@Lazy ProductPalletService self, ProductPalletRepository productPalletRepository, StatusRepository statusRepository, WorkStationRepository workStationRepository, ProductPalletRequestMapper productPalletRequestMapper) {
+    public ProductPalletServiceImpl(@Lazy ProductPalletService self, ProductPalletRepository productPalletRepository, StatusRepository statusRepository, WorkStationRepository workStationRepository, ProductPalletRequestMapper productPalletRequestMapper, KafkaTemplate<String, ProductPalletEvent> kafkaTemplate) {
         this.self = self;
         this.productPalletRepository = productPalletRepository;
         this.statusRepository = statusRepository;
         this.workStationRepository = workStationRepository;
         this.productPalletRequestMapper = productPalletRequestMapper;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override 
@@ -83,7 +89,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         if (statusChanged)
             configureStatus(productPallet, productPalletRequest, userPrincipal);
 
-        configureWorkStations(productPallet, productPalletRequest, userPrincipal);
+        configureWorkStations(productPallet, productPalletRequest, userPrincipal, statusChanged);
 
         return modifyAndSave(productPallet, productPalletRequest);
     }
@@ -222,7 +228,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         target.setNextWorkStation(null);
     }
 
-    private void configureWorkStations(ProductPallet target, ProductPalletRequest from, UserPrincipal subject) {
+    private void configureWorkStations(ProductPallet target, ProductPalletRequest from, UserPrincipal subject, boolean statusChanged) {
         Position subjectPosition = subject.getUser().getEmployee().getPosition();
         Status status = target.getStatus();
 
@@ -242,20 +248,48 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 break;
 
             case StatusInfo.PRODUCT_PALLET_UNLOADED, StatusInfo.PRODUCT_PALLET_STORED: {
-                if (from.getWorkStationId() == null || from.getNextWorkStationId() == null)
-                    throw new DataIntegrityViolationException(Utility.getOutputMessage(WORK_STATIONS_REQUIRED));
+                if (!statusChanged) {
+                    if (from.getWorkStationId() == null)
+                        throw new DataIntegrityViolationException(Utility.getOutputMessage(WORK_STATION_REQUIRED));
 
-                if (subjectPosition.getCodeName().equals("OPERATOR")) {   // Auto-transition
-                    target.setWorkStation(target.getNextWorkStation());
-                    target.setNextWorkStation(null);
-                } else {
                     target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
                         .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                     );
-                    target.setNextWorkStation(workStationRepository.findById(from.getNextWorkStationId())
-                        .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                    target.setNextWorkStation(  // Can still be nullable if status didn't change
+                        from.getNextWorkStationId() == null ?
+                        null :
+                        workStationRepository.findById(from.getNextWorkStationId())
+                            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                     );
+                } else {
+                    if (from.getWorkStationId() == null || from.getNextWorkStationId() == null)
+                        throw new DataIntegrityViolationException(Utility.getOutputMessage(WORK_STATIONS_REQUIRED));
+                    if (    // GOODS_UNLOADER can change only at UNLOADED and OPERATOR only at STORED
+                        (!status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
+                        && subjectPosition.getCodeName().equals("GOODS_UNLOADER"))
+                        || (!status.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
+                        && subjectPosition.getCodeName().equals("OPERATOR"))
+                    ) throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
+
+
+                    if (
+                        subjectPosition.getCodeName().equals("GOODS_UNLOADER")
+                        || subjectPosition.getCodeName().equals("OPERATOR")
+                    ) {   // Auto-transition
+                        target.setWorkStation(target.getNextWorkStation());
+                        target.setNextWorkStation(null);
+                    } else {
+                        target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
+                            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                        );
+                        target.setNextWorkStation(workStationRepository.findById(from.getNextWorkStationId())
+                            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                        );
+                    }
                 }
+
+                if (status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)) 
+                    produceEvent(target);
             }
                 break;
             
@@ -290,8 +324,27 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         }
     }
 
-    @KafkaListener(groupId = "1", topics = "product-pallet-next-work-station-event")
-    public void listen(ProductPalletEvent productPalletEvent) {
-        // Add logic later
+    private void produceEvent(ProductPallet entity) {
+        ProductPalletEvent productPalletEvent = new ProductPalletEvent();
+        productPalletEvent.setProductPackageId(entity.getProductPackage().getId());
+        productPalletEvent.setPalletNumber(entity.getPalletNumber());
+        productPalletEvent.setGroupNumber(entity.getGroupNumber());
+        productPalletEvent.setWorkStationId(
+            entity.getWorkStation() == null ?
+            null :
+            entity.getWorkStation().getId()
+        );
+        productPalletEvent.setNextWorkStationId(
+            entity.getNextWorkStation() == null ?
+            null :
+            entity.getNextWorkStation().getId()
+        );
+
+        if (entity.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)) {
+            if (productPalletEvent.getNextWorkStationId() != null)
+                kafkaTemplate.send(UNLOADED_STATUS_NEXT_WORK_STATION_NOT_NULL_EVENT, productPalletEvent);
+            else
+                kafkaTemplate.send(UNLOADED_STATUS_NEXT_WORK_STATION_NULL_EVENT, productPalletEvent);
+        }
     }
 }
