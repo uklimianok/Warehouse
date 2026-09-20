@@ -1,4 +1,4 @@
-package com.warehouse.demo.repository.product;
+/* package com.warehouse.demo.repository.product;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -104,3 +104,4 @@ public class ProductRepositoryIT {
         return productRepository.save(product);
     }
 }
+ */

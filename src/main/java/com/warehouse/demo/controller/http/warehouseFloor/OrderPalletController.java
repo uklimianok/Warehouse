@@ -1,0 +1,116 @@
+package com.warehouse.demo.controller.http.warehouseFloor;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.warehouse.demo.configuration.security.UserPrincipal;
+import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
+import com.warehouse.demo.dto.order.orderPallet.OrderPalletResponse;
+import com.warehouse.demo.entity.order.OrderPallet;
+import com.warehouse.demo.mapper.order.orderPallet.OrderPalletResponseMapper;
+import com.warehouse.demo.service.order.OrderPalletService;
+import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/order-pallets")
+@RequiredArgsConstructor
+public class OrderPalletController {
+    private final OrderPalletService orderPalletService;
+    private final OrderPalletResponseMapper orderPalletResponseMapper;
+
+    private static final String CREATE_ACCESS_ROLES = 
+        "hasAnyRole('GOODS_PICKER', 'COORDINATOR', 'SYSTEM_ADMINISTRATOR')";
+    private static final String READ_ACCESS_ROLES =
+        "hasAnyRole('SET_GOODS_EXPORTER', 'SET_GOODS_LOADER', " +
+        "'COORDINATOR', 'DATA_CONTROLLER', 'SHIFT_SUPERVISOR', 'DIRECTOR', " +
+        "'STATISTICS_PROCEEDER', 'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
+    private static final String READ_UPDATE_ACCESS_ROLES =
+        "hasAnyRole('COORDINATOR', 'DATA_CONTROLLER', 'SYSTEM_ADMINISTRATOR')";
+    private static final String FULL_ACCESS_ROLES =
+        "hasAnyRole('SYSTEM_ADMINISTRATOR')";
+
+    private static final String[] FULL_RESPONSE_ROLES_ARR = 
+    {
+        "COORDINATOR", "DATA_CONTROLLER", "SHIFT_SUPERVISOR", 
+        "DIRECTOR", "STATISTICS_PROCEEDER", "DEVELOPER", "SYSTEM_ADMINISTRATOR"
+    };
+
+    @GetMapping
+    @PreAuthorize(READ_ACCESS_ROLES)
+    public ResponseEntity<List<? extends OrderPalletResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<OrderPallet> orderPallets = orderPalletService.readAll();
+        List<? extends OrderPalletResponse> orderPalletResponse = orderPallets
+            .stream()
+            .map(op -> returnObjectResponse(op, userPrincipal))
+            .toList();
+        
+        ResponseEntity<List<? extends OrderPalletResponse>> response = new ResponseEntity<>(orderPalletResponse, HttpStatus.OK);
+        return response;
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize(READ_ACCESS_ROLES)
+    public ResponseEntity<? extends OrderPalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        OrderPallet orderPallet = orderPalletService.read(id);
+        OrderPalletResponse orderPalletResponse = returnObjectResponse(orderPallet, userPrincipal);
+
+        ResponseEntity<? extends OrderPalletResponse> response = new ResponseEntity<>(orderPalletResponse, HttpStatus.OK);
+        return response;
+    }
+
+    @PostMapping
+    @PreAuthorize(CREATE_ACCESS_ROLES)
+    public ResponseEntity<? extends OrderPalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderPalletRequest orderPalletRequest) {
+        OrderPallet orderPallet = orderPalletService.create(orderPalletRequest);
+        OrderPalletResponse orderPalletResponse = returnObjectResponse(orderPallet, userPrincipal);
+
+        ResponseEntity<? extends OrderPalletResponse> response = new ResponseEntity<>(orderPalletResponse, HttpStatus.CREATED);
+        return response;
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
+    public ResponseEntity<? extends OrderPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderPalletRequest orderPalletRequest) {
+        OrderPallet orderPallet = orderPalletService.update(id, orderPalletRequest);
+        OrderPalletResponse orderPalletResponse = returnObjectResponse(orderPallet, userPrincipal);
+
+        ResponseEntity<? extends OrderPalletResponse> response = new ResponseEntity<>(orderPalletResponse, HttpStatus.OK);
+        return response;
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize(FULL_ACCESS_ROLES)
+    public ResponseEntity<String> delete(@PathVariable long id) {
+        orderPalletService.delete(id);
+        String message = Utility.getOutputMessage(Entity.ORDER_PALLET, OutputMessage.DELETED);
+
+        ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
+        return response;
+    }
+
+    private OrderPalletResponse returnObjectResponse(OrderPallet from, UserPrincipal principal) {
+        OrderPalletResponse response = null;
+        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
+            response = orderPalletResponseMapper.convertToFullResponse(from);
+        else
+            response = orderPalletResponseMapper.convertToResponse(from);
+        
+        return response;
+    }
+}

@@ -13,7 +13,6 @@ import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.WorkshopService;
 import com.warehouse.demo.util.info.Entity;
-
 import lombok.RequiredArgsConstructor;
 
 @Service

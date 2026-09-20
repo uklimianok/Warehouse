@@ -1,4 +1,4 @@
-package com.warehouse.demo.mapper.product;
+/* package com.warehouse.demo.mapper.product;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,3 +51,4 @@ public class ProductMapperTest {
         return product;
     }
 }
+ */

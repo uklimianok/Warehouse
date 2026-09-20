@@ -29,7 +29,8 @@ public enum Entity {
     ACTION_LOG("Action log"),
     USER("User"),
     BARCODE_NUMBER("Barcode number"),
-    DEPARTMENT("Department");
+    DEPARTMENT("Department"),
+    NEXT_WORK_STATION("Next work station");
 
     private final String entity;
 }

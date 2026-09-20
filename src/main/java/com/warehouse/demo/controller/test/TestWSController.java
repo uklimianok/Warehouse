@@ -1,5 +1,7 @@
 package com.warehouse.demo.controller.test;
 
+import java.security.Principal;
+
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -17,7 +19,12 @@ public class TestWSController {
     }
 
     @MessageMapping("/greet-private")
-    public void greetPrivate(String message) {
-        simpMessagingTemplate.convertAndSendToUser("24000001", "/queue/test", message);
+    public void greetPrivate(String message, Principal principal) {
+        String fullMessage = "User: " + principal.getName() + ". " + message;
+        simpMessagingTemplate.convertAndSendToUser(
+            principal.getName(),    // Contains Employee.employeeNumber value
+            "/queue/test", 
+            fullMessage
+        );
     }
 }

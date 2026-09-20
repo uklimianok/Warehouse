@@ -60,7 +60,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     public Employee create(EmployeeRequest employeeRequest) {
         Employee employee = new Employee();
         employee.setEmployeeNumber(generateEmployeeNumber(employeeRequest));
-        configureWorkshopAndGate(employee, employeeRequest, true);
+        configureWorkshopAndGate(employee);
 
         employeeRequestMapper.convertFromRequest(employeeRequest, employee);
 
@@ -79,7 +79,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         boolean DBAccessModeBefore = employee.getPosition().isHasDatabaseAccess();
 
         throwIfPositionNotConfigurable(employee, userPrincipal);
-        configureWorkshopAndGate(employee, employeeRequest, false);
+        configureWorkshopAndGate(employee, employeeRequest);
 
         String department = userPrincipal.getUser().getEmployee().getPosition().getDepartment();
         if (!department.equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT))
@@ -169,13 +169,12 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
     }
 
-    private void configureWorkshopAndGate(Employee target, EmployeeRequest from, boolean isCreated) {
-        if (isCreated) {
-            target.setWorkshop(null);
-            target.setGate(null);
-            return;
-        }
+    private void configureWorkshopAndGate(Employee target) {
+        target.setWorkshop(null);
+        target.setGate(null);
+    }
 
+    private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {
         Position position = positionRepository.findById(from.getPositionId())
             .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
         if (
@@ -188,5 +187,6 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             || position.getCodeName().equals("SET_GOODS_LOADER")
         ) target.setGate(gateRepository.findById(from.getGateId())
             .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
+        else configureWorkshopAndGate(target);
     }
 }

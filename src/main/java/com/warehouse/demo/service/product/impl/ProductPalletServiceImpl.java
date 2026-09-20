@@ -53,7 +53,14 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
     private static AtomicLong PALLET_NUMBER_COUNTER = new AtomicLong(0);
 
-    public ProductPalletServiceImpl(@Lazy ProductPalletService self, ProductPalletRepository productPalletRepository, StatusRepository statusRepository, WorkStationRepository workStationRepository, ProductPalletRequestMapper productPalletRequestMapper, KafkaTemplate<String, ProductPalletEvent> kafkaTemplate) {
+    public ProductPalletServiceImpl(
+        @Lazy ProductPalletService self, 
+        ProductPalletRepository productPalletRepository, 
+        StatusRepository statusRepository, 
+        WorkStationRepository workStationRepository, 
+        ProductPalletRequestMapper productPalletRequestMapper, 
+        KafkaTemplate<String, ProductPalletEvent> kafkaTemplate
+    ) {
         this.self = self;
         this.productPalletRepository = productPalletRepository;
         this.statusRepository = statusRepository;
@@ -91,7 +98,29 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
         configureWorkStations(productPallet, productPalletRequest, userPrincipal, statusChanged);
 
-        return modifyAndSave(productPallet, productPalletRequest);
+        ProductPallet savedProductPallet = modifyAndSave(productPallet, productPalletRequest);
+
+        if (savedProductPallet.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)) {
+            if (!statusChanged) {
+                Long oldNextWorkStationId = productPallet.getNextWorkStation() == null ? null : productPallet.getNextWorkStation().getId();
+                Long newNextWorkStationId = productPalletRequest.getNextWorkStationId();
+
+                int rows = productPalletRepository.updateNextWorkStationIfMatching(id, newNextWorkStationId, oldNextWorkStationId);
+                if (rows == 0)
+                    throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.NEXT_WORK_STATION, OutputMessage.SET));
+
+                savedProductPallet.setNextWorkStation(
+                    newNextWorkStationId == null ?
+                    null :
+                    workStationRepository.findById(newNextWorkStationId)
+                        .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))  
+                );
+            }
+
+            produceEvent(savedProductPallet);
+        }
+
+        return savedProductPallet;
     }
 
     @Override 
@@ -145,7 +174,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         if (palletNumberExists)
             PALLET_NUMBER_COUNTER.set(productPalletRepository.count() + 1);
 
-        target.setPalletNumber(String.format("%12d", PALLET_NUMBER_COUNTER.get()));
+        target.setPalletNumber(String.format("%012d", PALLET_NUMBER_COUNTER.get()));
     }
 
     private void configureStatus(ProductPallet target) {
@@ -255,22 +284,20 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                     target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
                         .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                     );
-                    target.setNextWorkStation(  // Can still be nullable if status didn't change
-                        from.getNextWorkStationId() == null ?
-                        null :
-                        workStationRepository.findById(from.getNextWorkStationId())
-                            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
-                    );
                 } else {
-                    if (from.getWorkStationId() == null || from.getNextWorkStationId() == null)
-                        throw new DataIntegrityViolationException(Utility.getOutputMessage(WORK_STATIONS_REQUIRED));
+                    if (
+                        (status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
+                        && from.getWorkStationId() == null)
+                        || (status.getName().equals(StatusInfo.PRODUCT_PALLET_ACTIVE)
+                        && (from.getWorkStationId() == null || from.getNextWorkStationId() == null))
+                    ) throw new DataIntegrityViolationException(Utility.getOutputMessage(WORK_STATIONS_REQUIRED));
+
                     if (    // GOODS_UNLOADER can change only at UNLOADED and OPERATOR only at STORED
                         (!status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
                         && subjectPosition.getCodeName().equals("GOODS_UNLOADER"))
                         || (!status.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
                         && subjectPosition.getCodeName().equals("OPERATOR"))
                     ) throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
-
 
                     if (
                         subjectPosition.getCodeName().equals("GOODS_UNLOADER")
@@ -282,14 +309,14 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                         target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
                             .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                         );
-                        target.setNextWorkStation(workStationRepository.findById(from.getNextWorkStationId())
+                        target.setNextWorkStation(
+                            from.getNextWorkStationId() == null ?
+                            null :
+                            workStationRepository.findById(from.getNextWorkStationId())
                             .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                         );
                     }
                 }
-
-                if (status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)) 
-                    produceEvent(target);
             }
                 break;
             

@@ -33,5 +33,7 @@ public class Workshop implements Identifiable {
     @Column(nullable = false)
     private BigDecimal standard;
     @Version 
-    private long version;   // For async operations
+    private long version;   // For DB safe I/O operations and restore lastAssignedOperatorIndex
+    @Column(nullable = false)
+    private int lastAssignedOperatorIndex = 0;
 }

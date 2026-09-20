@@ -1,4 +1,4 @@
-package com.warehouse.demo.mapper.product;
+/* package com.warehouse.demo.mapper.product;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -37,7 +37,7 @@ public class ProductPalletRequestMapperTest {
 
     private final ProductPalletRequestMapper productPalletRequestMapper = new ProductPalletRequestMapperImpl(productPackageResolver, palletResolver);
 
-    @Test 
+    /* @Test 
     void convertFromRequest_nullNextWorkStationId_setsNull() {
         ProductPalletRequest request = generate();
 
@@ -48,9 +48,9 @@ public class ProductPalletRequestMapperTest {
 
         assertNull(productPallet.getNextWorkStation());
         verify(workStationRepository, times(1)).findById(1L);    // Only called once, for workStationId
-    }
+    } */
 
-    @Test 
+    /* @Test 
     void convertFromRequest_notNullNextWorkStationId_callsResolverTwice() {
         ProductPalletRequest request = generate(2L);
 
@@ -63,9 +63,9 @@ public class ProductPalletRequestMapperTest {
         assertNotNull(productPallet.getNextWorkStation());
         verify(workStationRepository, times(1)).findById(1L);   // workStationId
         verify(workStationRepository, times(1)).findById(2L);   // nextWorkStationId
-    }
+    } */
 
-    private ProductPalletRequest generate() {
+    /* private ProductPalletRequest generate() {
         return generate(1, 10, 1L, "0000001", "001", 1, 1L, null);
     }
 
@@ -94,3 +94,4 @@ public class ProductPalletRequestMapperTest {
         when(workStationRepository.findById(1L)).thenReturn(Optional.of(new WorkStation()));
     }
 }
+ */

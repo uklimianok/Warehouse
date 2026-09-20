@@ -11,7 +11,9 @@ public enum OutputMessage {
     ACTIVE("is active."),
     DELETED("deleted."),
     ACCESS_DENIED("Access denied."),
-    OPERATION_DENIED("Operation denied.");
+    OPERATION_DENIED("Operation denied."),
+    OPERATION_FAILED("Operation failed."),
+    SET("already set.");
 
     private final String message;
 }

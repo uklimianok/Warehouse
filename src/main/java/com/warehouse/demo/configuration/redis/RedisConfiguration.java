@@ -30,6 +30,7 @@ public class RedisConfiguration {
                     .enableDefaultTyping(BasicPolymorphicTypeValidator
                         .builder()
                         .allowIfSubType("com.warehouse.demo.entity")
+                        .allowIfSubType("java")
                         .build()
                     )
                     .build()))
@@ -43,6 +44,7 @@ public class RedisConfiguration {
                     .enableDefaultTyping(BasicPolymorphicTypeValidator
                         .builder()
                         .allowIfSubType("com.warehouse.demo.entity")
+                        .allowIfSubType("java")
                         .build()
                     )
                     .build()))
