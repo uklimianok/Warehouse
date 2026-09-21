@@ -1,4 +1,4 @@
-package com.warehouse.demo.service.employee;
+package com.warehouse.demo.service.product;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service 
 @RequiredArgsConstructor 
-public class DataControllerNotificationService {
+public class ProductPalletNotificationService {
     private final ProductPalletRepository productPalletRepository;
     private final EmployeeRepository employeeRepository;
 
@@ -32,7 +32,7 @@ public class DataControllerNotificationService {
 
     @KafkaListener(groupId = "1", topics = "product-pallet-unloaded-status-next-work-station-null-event")
     @Transactional 
-    public void consumeEvent(ProductPalletEvent productPalletEvent) {
+    public void consumeProductPalletUnloadedStatusNextWorkStationNullEvent(ProductPalletEvent productPalletEvent) {
         ProductPallet productPallet = productPalletRepository.findByPalletNumber(productPalletEvent.getPalletNumber())
             .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
         List<Employee> dataControllers = employeeRepository.findAllByPositionCodeName("DATA_CONTROLLER");
@@ -42,6 +42,24 @@ public class DataControllerNotificationService {
         for (Employee dataController : dataControllers) {
             simpMessagingTemplate.convertAndSendToUser(
                 dataController.getEmployeeNumber(), 
+                "/queue/notify", 
+                productPalletResponseMapper.convertToFullResponse(productPallet)
+            );
+        }
+    }
+
+    @KafkaListener(groupId = "1", topics = "product-pallet-unloaded-status-next-work-station-not-null-event")
+    @Transactional 
+    public void consumeProductPalletUnloadedStatusNextWorkStationNotNullEvent(ProductPalletEvent productPalletEvent) {
+        ProductPallet productPallet = productPalletRepository.findByPalletNumber(productPalletEvent.getPalletNumber())
+            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
+        List<Employee> operators = employeeRepository.findAllByPositionCodeNameAndWorkshopId("OPERATOR", productPallet.getNextWorkStation().getWorkshop().getId());
+
+        if (operators.isEmpty()) return;
+
+        for (Employee operator : operators) {
+            simpMessagingTemplate.convertAndSendToUser(
+                operator.getEmployeeNumber(), 
                 "/queue/notify", 
                 productPalletResponseMapper.convertToFullResponse(productPallet)
             );
