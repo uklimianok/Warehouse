@@ -1,5 +1,6 @@
 package com.warehouse.demo.service.employee.impl;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +16,15 @@ import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Position;
+import com.warehouse.demo.entity.product.ProductPallet;
+import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.entity.user.User;
 import com.warehouse.demo.mapper.employee.EmployeeRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
+import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.service.ActionLogRepository;
+import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.repository.user.UserRepository;
 import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.repository.workplace.WorkshopRepository;
@@ -28,6 +34,7 @@ import com.warehouse.demo.util.action.Utility;
 import com.warehouse.demo.util.info.Department;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
+import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -42,8 +49,12 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final PositionRepository positionRepository;
     private final WorkshopRepository workshopRepository;
     private final GateRepository gateRepository;
+    private final ProductPalletRepository productPalletRepository;
+    private final StatusRepository statusRepository;
 
     private final EmployeeRequestMapper employeeRequestMapper;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Value("${warehouse.shared-password}")
     private String password;
@@ -96,6 +107,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             else userRepository.deleteByEmployeeId(id);
         }
 
+        sendPendingNotifications(savedEmployee.getEmployeeNumber());
+
         return savedEmployee;
     }
 
@@ -103,6 +116,43 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     @CacheEvict(value = "employees", key = "#id")
     public void delete(Long id) {
         super.delete(id);
+    }
+
+    @Transactional 
+    public void sendPendingNotifications(String to) {
+        Employee employee = employeeRepository.findByEmployeeNumber(to)
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+        switch (employee.getPosition().getCodeName()) {
+            case "DATA_CONTROLLER": {
+                Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
+                    .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+                List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationIsNull(status);
+
+                simpMessagingTemplate.convertAndSendToUser(
+                    to, 
+                    "/queue/notify", 
+                    productPallets
+                );
+            }
+                break;
+            
+            case "OPERATOR": {
+                if (employee.getWorkshop() == null) break;
+
+                Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
+                    .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+                List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationWorkshopId(status, employee.getWorkshop().getId());
+
+                simpMessagingTemplate.convertAndSendToUser(
+                    to, 
+                    "/queue/notify", 
+                    productPallets
+                );
+            }
+                break;
+
+            default: break;
+        }
     }
 
     @Override

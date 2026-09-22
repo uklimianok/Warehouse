@@ -1,4 +1,4 @@
-package com.warehouse.demo.configuration.connection;
+package com.warehouse.demo.configuration.websockets;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
