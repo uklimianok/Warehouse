@@ -12,11 +12,13 @@ import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.dto.product.productPallet.ProductPalletRequest;
+import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.product.ProductPallet;
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.event.product.ProductPalletEvent;
 import com.warehouse.demo.mapper.product.productPallet.ProductPalletRequestMapper;
+import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
@@ -37,6 +39,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     private final ProductPalletRepository productPalletRepository;
     private final StatusRepository statusRepository;
     private final WorkStationRepository workStationRepository;
+    private final EmployeeRepository employeeRepository;
 
     private final ProductPalletRequestMapper productPalletRequestMapper;
 
@@ -58,6 +61,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         ProductPalletRepository productPalletRepository, 
         StatusRepository statusRepository, 
         WorkStationRepository workStationRepository, 
+        EmployeeRepository employeeRepository,
         ProductPalletRequestMapper productPalletRequestMapper, 
         KafkaTemplate<String, ProductPalletEvent> kafkaTemplate
     ) {
@@ -65,6 +69,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         this.productPalletRepository = productPalletRepository;
         this.statusRepository = statusRepository;
         this.workStationRepository = workStationRepository;
+        this.employeeRepository = employeeRepository;
         this.productPalletRequestMapper = productPalletRequestMapper;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -89,14 +94,16 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     @CacheEvict(value = "productPallets", key = "#id")
     public ProductPallet update(long id, ProductPalletRequest productPalletRequest, UserPrincipal userPrincipal) {
         ProductPallet productPallet = self.read(id);
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getName())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
-        throwIfNotConfigurable(productPallet, productPalletRequest, userPrincipal);
+        throwIfNotConfigurable(productPallet, productPalletRequest, callerEmployee);
 
         boolean statusChanged = productPallet.getStatus().getId() != productPalletRequest.getStatusId();
         if (statusChanged)
-            configureStatus(productPallet, productPalletRequest, userPrincipal);
+            configureStatus(productPallet, productPalletRequest, callerEmployee);
 
-        configureWorkStations(productPallet, productPalletRequest, userPrincipal, statusChanged);
+        configureWorkStations(productPallet, productPalletRequest, callerEmployee, statusChanged);
 
         ProductPallet savedProductPallet = modifyAndSave(productPallet, productPalletRequest);
 
@@ -144,8 +151,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         return productPalletRepository.save(target);
     }
 
-    private void throwIfNotConfigurable(ProductPallet target, ProductPalletRequest from, UserPrincipal subject) {
-        Position subjectPosition = subject.getUser().getEmployee().getPosition();
+    private void throwIfNotConfigurable(ProductPallet target, ProductPalletRequest from, Employee subject) {
+        Position subjectPosition = subject.getPosition();
         boolean palletChanged = (   // Null-safe check
             (target.getPallet() == null && from.getPalletId() != null)
             || (target.getPallet() != null && from.getPalletId() == null)
@@ -184,8 +191,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         );
     }
 
-    private void configureStatus(ProductPallet target, ProductPalletRequest from, UserPrincipal subject) {
-        Position subjectPosition = subject.getUser().getEmployee().getPosition();
+    private void configureStatus(ProductPallet target, ProductPalletRequest from, Employee subject) {
+        Position subjectPosition = subject.getPosition();
         Status oldStatus = target.getStatus();
         Status newStatus = statusRepository
             .findById(from.getStatusId())
@@ -257,8 +264,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         target.setNextWorkStation(null);
     }
 
-    private void configureWorkStations(ProductPallet target, ProductPalletRequest from, UserPrincipal subject, boolean statusChanged) {
-        Position subjectPosition = subject.getUser().getEmployee().getPosition();
+    private void configureWorkStations(ProductPallet target, ProductPalletRequest from, Employee subject, boolean statusChanged) {
+        Position subjectPosition = subject.getPosition();
         Status status = target.getStatus();
 
         switch (status.getName()) {

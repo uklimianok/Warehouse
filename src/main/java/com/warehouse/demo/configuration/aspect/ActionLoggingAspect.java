@@ -9,7 +9,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.entity.Identifiable;
 import com.warehouse.demo.event.service.ActionLogEvent;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class ActionLoggingAspect {
     public void logSave(JoinPoint joinPoint, Object result) {
         if (result instanceof Identifiable identifiable) {
             ActionLogEvent actionLogEvent = new ActionLogEvent();
-            actionLogEvent.setEmployeeId(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEmployee().getId());
+            actionLogEvent.setEmployeeNumber(SecurityContextHolder.getContext().getAuthentication().getName());
             actionLogEvent.setProceededAt(LocalDateTime.now());
             actionLogEvent.setEntityId(identifiable.getId());
             actionLogEvent.setEntityType(result.getClass().getSimpleName());
@@ -41,7 +40,7 @@ public class ActionLoggingAspect {
     public void logDelete(JoinPoint joinPoint) {
         if (joinPoint.getArgs().length > 0 && joinPoint.getArgs()[0] instanceof Long id) {
             ActionLogEvent actionLogEvent = new ActionLogEvent();
-            actionLogEvent.setEmployeeId(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser().getEmployee().getId());
+            actionLogEvent.setEmployeeNumber(SecurityContextHolder.getContext().getAuthentication().getName());
             actionLogEvent.setProceededAt(LocalDateTime.now());
             actionLogEvent.setEntityId(id);
             actionLogEvent.setEntityType(joinPoint.getTarget().getClass().getSimpleName().replace("ServiceImpl", ""));

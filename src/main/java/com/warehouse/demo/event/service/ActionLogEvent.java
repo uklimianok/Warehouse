@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter 
 @Setter 
 public class ActionLogEvent {
-    private long employeeId;
+    private String employeeNumber;
     private LocalDateTime proceededAt;
     private String entityType;
     private long entityId;

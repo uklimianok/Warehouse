@@ -1,5 +1,12 @@
-{"properties": [{
-  "name": "warehouse.shared-password",
-  "type": "java.lang.String",
-  "description": "A description for 'warehouse.shared-password'"
-}]}
+{"properties": [
+  {
+    "name": "warehouse.shared-password",
+    "type": "java.lang.String",
+    "description": "A description for 'warehouse.shared-password'"
+  },
+  {
+    "name": "warehouse.keycloak.admin-url",
+    "type": "java.lang.String",
+    "description": "A description for 'warehouse.keycloak.admin-url'"
+  }
+]}

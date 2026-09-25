@@ -34,8 +34,8 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
     @Override
     public ActionLog log(ActionLogEvent actionLogEvent) {
         ActionLog actionLog = new ActionLog();
-        actionLog.setEmployee(employeeRepository.findById(actionLogEvent.getEmployeeId())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND))));
+        actionLog.setEmployee(employeeRepository.findByEmployeeNumber(actionLogEvent.getEmployeeNumber())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND))));   // Need to change it, the log record must be captured anyway
         actionLog.setProceededAt(actionLogEvent.getProceededAt());
         actionLog.setEntityType(actionLogEvent.getEntityType());
         actionLog.setEntityId(actionLogEvent.getEntityId());

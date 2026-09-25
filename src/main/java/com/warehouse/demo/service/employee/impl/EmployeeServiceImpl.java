@@ -89,10 +89,13 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         Employee employee = read(id);
         boolean DBAccessModeBefore = employee.getPosition().isHasDatabaseAccess();
 
-        throwIfPositionNotConfigurable(employee, userPrincipal);
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getName())
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+
+        throwIfPositionNotConfigurable(employee, callerEmployee);
         configureWorkshopAndGate(employee, employeeRequest);
 
-        String department = userPrincipal.getUser().getEmployee().getPosition().getDepartment();
+        String department = callerEmployee.getPosition().getDepartment();
         if (!department.equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             employeeRequestMapper.convertFromRequest(employeeRequest, employee);
         else
@@ -194,8 +197,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         userRepository.save(user);
     }
 
-    private void throwIfPositionNotConfigurable(Employee object, UserPrincipal subject) {
-        Position subjectPosition = subject.getUser().getEmployee().getPosition(); // 1. Check department
+    private void throwIfPositionNotConfigurable(Employee object, Employee subject) {
+        Position subjectPosition = subject.getPosition(); // 1. Check department
         Set<String> allowedDepartments = Set.of(
             Department.WAREHOUSE_EMPLOYEES_DEPARTMENT,
             Department.AUXILIARY_EMPLOYEES_DEPARTMENT,
@@ -206,7 +209,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));
 
         if (    // 2. Check whether subject can configure not self
-            !subject.getUser().getEmployee().getEmployeeNumber().equals(object.getEmployeeNumber())
+            !subject.getEmployeeNumber().equals(object.getEmployeeNumber())
             && subjectPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT)
         ) throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 

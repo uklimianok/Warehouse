@@ -14,9 +14,8 @@ public class TestHTTPController {
     @GetMapping("/whoami")
     public Map<String, Object> getWhoAmI(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         Map<String, Object> response = Map.of(
-            "username", userPrincipal.getUser().getEmployee().getEmployeeNumber(),
+            "username", userPrincipal.getName(),
             "role", userPrincipal.getAuthorities(),
-            "isEnabled", userPrincipal.isEnabled(),
             "message", "Congratulations! You managed to receive this message."
         );
         return response;
