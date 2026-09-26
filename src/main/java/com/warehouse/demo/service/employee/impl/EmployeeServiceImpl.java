@@ -3,29 +3,26 @@ package com.warehouse.demo.service.employee.impl;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.configuration.security.UserPrincipal;
+import com.warehouse.demo.configuration.security.keycloak.service.KeycloakUserService;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.product.ProductPallet;
 import com.warehouse.demo.entity.service.Status;
-import com.warehouse.demo.entity.user.User;
 import com.warehouse.demo.mapper.employee.EmployeeRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.repository.service.StatusRepository;
-import com.warehouse.demo.repository.user.UserRepository;
 import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
@@ -44,7 +41,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmployeeServiceImpl extends AbstractService<Employee, Long> implements EmployeeService {
     private final EmployeeRepository employeeRepository;
-    private final UserRepository userRepository;
     private final ActionLogRepository actionLogRepository;
     private final PositionRepository positionRepository;
     private final WorkshopRepository workshopRepository;
@@ -52,13 +48,11 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final ProductPalletRepository productPalletRepository;
     private final StatusRepository statusRepository;
 
+    private final KeycloakUserService keycloakUserService;
+
     private final EmployeeRequestMapper employeeRequestMapper;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
-
-    @Value("${warehouse.shared-password}")
-    private String password;
-    private final PasswordEncoder passwordEncoder;
 
     @Override 
     @Cacheable(value = "employees", key = "#id")
@@ -75,9 +69,9 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
         employeeRequestMapper.convertFromRequest(employeeRequest, employee);
 
-        Employee savedEmployee = employeeRepository.save(employee);
+        Employee savedEmployee = employeeRepository.saveAndFlush(employee); // save() doesn't fully save the entity at once, so that it may conflict with Keycloak functionality
         if (savedEmployee.getPosition().isHasDatabaseAccess()) 
-            configureUser(savedEmployee);
+            keycloakUserService.create(savedEmployee);
 
         return savedEmployee;
     }
@@ -87,7 +81,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     @CacheEvict(value = "employees", key = "#id")
     public Employee update(long id, EmployeeRequest employeeRequest, UserPrincipal userPrincipal) {
         Employee employee = read(id);
-        boolean DBAccessModeBefore = employee.getPosition().isHasDatabaseAccess();
+        Position oldPosition = employee.getPosition();
 
         Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getName())
             .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
@@ -102,23 +96,27 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             employeeRequestMapper.convertFromWarehouseEmployeeDepartmentRequest(employeeRequest, employee);
 
         Employee savedEmployee = employeeRepository.save(employee);
-        boolean DBAccessModeAfter = savedEmployee.getPosition().isHasDatabaseAccess();
-
-        boolean DBAccessChanged = DBAccessModeBefore != DBAccessModeAfter;
-        if (DBAccessChanged) {
-            if (savedEmployee.getPosition().isHasDatabaseAccess()) configureUser(savedEmployee);
-            else userRepository.deleteByEmployeeId(id);
-        }
 
         sendPendingNotifications(savedEmployee.getEmployeeNumber());
+
+        Position newPosition = savedEmployee.getPosition();
+        if (oldPosition != newPosition)
+            keycloakUserService.updatePosition(oldPosition, employee);
 
         return savedEmployee;
     }
 
     @Override 
     @CacheEvict(value = "employees", key = "#id")
+    @Transactional
     public void delete(Long id) {
+        String employeeNumber = employeeRepository.findEmployeeNumberById(id)
+            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+
         super.delete(id);
+        employeeRepository.flush(); // Commits delete() at once, not later
+
+        keycloakUserService.delete(employeeNumber);
     }
 
     @Transactional 
@@ -170,9 +168,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     @Override
     protected boolean isUsed(Long id) {
-        boolean activeInUser = userRepository.existsByEmployeeId(id);
         boolean activeInActionLog = actionLogRepository.existsByEmployeeId(id);
-        return activeInUser || activeInActionLog;
+        return activeInActionLog;
     }
 
     private String generateEmployeeNumber(EmployeeRequest employee) {
@@ -187,14 +184,6 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             throw new DataIntegrityViolationException("Impossible to create employee number.");
 
         return String.format("%02d%01d%05d", positionId, lastBirthDigit, count);
-    }
-
-    private void configureUser(Employee target) {
-        User user = new User();
-        user.setEmployee(target);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEnabled(true);
-        userRepository.save(user);
     }
 
     private void throwIfPositionNotConfigurable(Employee object, Employee subject) {
@@ -227,7 +216,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         target.setGate(null);
     }
 
-    private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {
+    private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {  // Add protection from null values in EmployeeRequest here
         Position position = positionRepository.findById(from.getPositionId())
             .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
         if (
