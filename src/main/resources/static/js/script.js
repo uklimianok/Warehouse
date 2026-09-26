@@ -1,5 +1,8 @@
+const token = prompt("Paste access token");
+
 const client = new StompJs.Client({
-    brokerURL: "ws://localhost:8280/ws",
+    brokerURL: `ws://${location.host}/ws`,  // Gets host and port it was loaded from
+    connectHeaders: { Authorization: `Bearer ${token}` },
     onConnect: () => {
         console.log("Connected!");
 

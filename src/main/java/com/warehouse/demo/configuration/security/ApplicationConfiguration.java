@@ -20,6 +20,8 @@ public class ApplicationConfiguration {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/test.html", "/ws/**", "/js/**")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
             )
