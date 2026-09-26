@@ -12,4 +12,5 @@ import lombok.Setter;
 public class PositionRequest {
     private String name;
     private boolean hasDatabaseAccess;
+    private String department;
 }

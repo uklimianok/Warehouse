@@ -32,5 +32,5 @@ public class Position implements Identifiable {
     @Column(nullable = false)
     private boolean hasDatabaseAccess;
     @Column(nullable = true)
-    private String department;
+    private String department;  // Create a separate entity !!!
 }
