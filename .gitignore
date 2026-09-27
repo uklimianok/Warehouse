@@ -7,6 +7,8 @@ logs/
 .env
 .dockerignore
 docker-compose.yml
+keycloak/export
+keycloak/export-realm.ps1
 
 ### STS ###
 .apt_generated

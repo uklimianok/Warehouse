@@ -1,4 +1,4 @@
-const token = prompt("Paste access token");
+const token = location.hash.substring(1);
 
 const client = new StompJs.Client({
     brokerURL: `ws://${location.host}/ws`,  // Gets host and port it was loaded from
@@ -21,4 +21,8 @@ const client = new StompJs.Client({
     }
 });
 
-client.activate();
+if (token == null || token.length == 0) {
+    console.log("Token is empty");
+} else {
+    client.activate();
+}
