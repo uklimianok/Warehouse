@@ -38,6 +38,6 @@ public class Product implements Identifiable {
     @Column(nullable = false)
     private BigDecimal cost;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producer_id", referencedColumnName = "id")
+    @JoinColumn(name = "producer_id", referencedColumnName = "id", nullable = false)
     private Organization producer;
 }

@@ -31,7 +31,7 @@ public class ProductPackage implements Identifiable {
     @SequenceGenerator(name="package_seq", sequenceName="package_seq", allocationSize=50)
     private long id;
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="product_id", referencedColumnName="id")
+    @JoinColumn(name="product_id", referencedColumnName="id", nullable = false)
     private Product product;
     @Column(nullable = false)
     private int productsAmount;

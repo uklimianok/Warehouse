@@ -70,7 +70,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         employeeRequestMapper.convertFromRequest(employeeRequest, employee);
 
         Employee savedEmployee = employeeRepository.saveAndFlush(employee); // save() doesn't fully save the entity at once, so that it may conflict with Keycloak functionality
-        if (savedEmployee.getPosition().isHasDatabaseAccess()) 
+        if (savedEmployee.getPosition().isEnabled()) 
             keycloakUserService.create(savedEmployee);
 
         return savedEmployee;

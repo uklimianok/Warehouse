@@ -30,12 +30,12 @@ public class OrderPallet implements Identifiable {
     @SequenceGenerator(name = "order_pallet_seq", sequenceName = "order_pallet_seq", allocationSize = 50)
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false)
     private Order order;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pallet_id", referencedColumnName = "id")
+    @JoinColumn(name = "pallet_id", referencedColumnName = "id", nullable = false)
     private Pallet pallet;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", referencedColumnName = "id")
+    @JoinColumn(name = "status_id", referencedColumnName = "id", nullable = false)
     private Status status;
 }

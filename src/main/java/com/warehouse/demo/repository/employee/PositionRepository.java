@@ -9,4 +9,5 @@ import com.warehouse.demo.entity.employee.Position;
 public interface PositionRepository extends JpaRepository<Position, Long> {
     boolean existsByName(String name);
     Optional<Position> findByCodeName(String codeName);
+    boolean existsByDepartmentId(long departmentId);
 }

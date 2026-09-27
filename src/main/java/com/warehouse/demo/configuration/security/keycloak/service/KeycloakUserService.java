@@ -85,7 +85,7 @@ public class KeycloakUserService {
     public void updatePosition(Position oldPosition, Employee employee) {
         Optional<String> userId = readIdByUsername(employee.getEmployeeNumber());
         if (userId.isEmpty()) {
-            if (employee.getPosition().isHasDatabaseAccess())
+            if (employee.getPosition().isEnabled())
                 create(employee);
 
             return;
@@ -93,9 +93,9 @@ public class KeycloakUserService {
 
         updateRoles(userId.get(), oldPosition, employee.getPosition());
 
-        boolean DBAccessIsChanged = oldPosition.isHasDatabaseAccess() != employee.getPosition().isHasDatabaseAccess();
+        boolean DBAccessIsChanged = oldPosition.isEnabled() != employee.getPosition().isEnabled();
         if (DBAccessIsChanged)
-            setEnabled(userId.get(), employee.getPosition().isHasDatabaseAccess());
+            setEnabled(userId.get(), employee.getPosition().isEnabled());
     }
 
     private URI createUser(KeycloakUserRequest userRequest) {

@@ -37,6 +37,6 @@ public class Track implements Identifiable {
     @Column(nullable = false)
     private BigDecimal width;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gate_id", referencedColumnName = "id")
+    @JoinColumn(name = "gate_id", referencedColumnName = "id", nullable = false)
     private Gate gate;
 }

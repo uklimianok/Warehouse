@@ -37,24 +37,28 @@ public class Employee implements Identifiable {
     @Column(nullable = false)
     private String lastName;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employer_organization_id", referencedColumnName = "id")
+    @JoinColumn(name = "employer_organization_id", referencedColumnName = "id", nullable = false)
     private Organization employerOrganization;
     @Column(unique = true, nullable = false)
     private String employeeNumber;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_id", referencedColumnName = "id")
+    @JoinColumn(name = "position_id", referencedColumnName = "id", nullable = false)
     private Position position;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shift_id", referencedColumnName = "id")
+    @JoinColumn(name = "shift_id", referencedColumnName = "id", nullable = false)
     private Shift shift;
+    @Column(nullable = true)
     private LocalDate birthDate;
+    @Column(nullable = true)
     private String documentId;
+    @Column(nullable = true)
     private String residenceAddress;
+    @Column(nullable = true)
     private String phoneNumber;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workshop_id", referencedColumnName = "id")
+    @JoinColumn(name = "workshop_id", referencedColumnName = "id", nullable = true)
     private Workshop workshop;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gate_id", referencedColumnName = "id")
+    @JoinColumn(name = "gate_id", referencedColumnName = "id", nullable = true)
     private Gate gate;
 }

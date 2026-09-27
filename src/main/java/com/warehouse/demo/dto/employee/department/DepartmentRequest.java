@@ -1,4 +1,4 @@
-package com.warehouse.demo.dto.employee.position;
+package com.warehouse.demo.dto.employee.department;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PositionRequest {
+public class DepartmentRequest {
     private String name;
-    private boolean isEnabled;
-    private String department;
 }

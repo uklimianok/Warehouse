@@ -32,6 +32,6 @@ public class PaperCard implements Identifiable {
     @Column(unique = true, nullable = false)
     private String code;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_pallet_id", referencedColumnName = "id")
+    @JoinColumn(name = "order_pallet_id", referencedColumnName = "id", nullable = false)
     private OrderPallet orderPallet;
 }

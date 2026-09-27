@@ -32,8 +32,9 @@ public class WorkStation implements Identifiable {
     private String stationNumber;
     @Column(nullable = false)
     private String controlNumber;
+    @Column(nullable = false)
     private String type;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workshop_id", referencedColumnName = "id")
+    @JoinColumn(name = "workshop_id", referencedColumnName = "id", nullable = false)
     private Workshop workshop;
 }

@@ -32,7 +32,7 @@ public class ActionLog implements Identifiable {
     @SequenceGenerator(name = "action_logs_seq", sequenceName = "action_logs_seq", allocationSize = 50)
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", referencedColumnName="id")
+    @JoinColumn(name = "employee_id", referencedColumnName="id", nullable = false)
     private Employee employee;
     @Column(nullable = false)
     private LocalDateTime proceededAt;

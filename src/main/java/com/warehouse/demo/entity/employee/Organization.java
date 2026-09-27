@@ -33,10 +33,14 @@ public class Organization implements Identifiable {
     @Column(unique = true, nullable = false)
     private String organizationNumber;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_type_id", referencedColumnName = "id")
+    @JoinColumn(name = "organization_type_id", referencedColumnName = "id", nullable = false)
     private OrganizationType organizationType;
+    @Column(nullable = true)
     private String address;
+    @Column(nullable = true)
     private String phoneNumber;
+    @Column(nullable = true)
     private String email;
+    @Column(nullable = true)
     private String url;
 }

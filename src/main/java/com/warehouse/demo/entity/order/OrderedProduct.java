@@ -32,10 +32,10 @@ public class OrderedProduct implements Identifiable {
     @SequenceGenerator(name = "ordered_product_seq", sequenceName = "ordered_product_seq", allocationSize = 50)
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false)
     private Order order;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "package_id", referencedColumnName = "id")
+    @JoinColumn(name = "package_id", referencedColumnName = "id", nullable = false)
     private ProductPackage productPackage;
     @Column(nullable = false)
     private BigDecimal orderedVolume;

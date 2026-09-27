@@ -30,10 +30,10 @@ public class ReturnProduct implements Identifiable {
     @SequenceGenerator(name = "return_product_seq", sequenceName = "return_product_seq", allocationSize = 50)
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false)
     private Order order;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private Product product;
     @Column(nullable = false)
     private int productsAmount;
