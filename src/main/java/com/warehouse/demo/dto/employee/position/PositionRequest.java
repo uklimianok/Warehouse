@@ -12,5 +12,5 @@ import lombok.Setter;
 public class PositionRequest {
     private String name;
     private boolean isEnabled;
-    private String department;
+    private long departmentId;
 }

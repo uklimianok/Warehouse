@@ -28,7 +28,7 @@ import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
 import com.warehouse.demo.util.action.Utility;
-import com.warehouse.demo.util.info.Department;
+import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -89,8 +89,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         throwIfPositionNotConfigurable(employee, callerEmployee);
         configureWorkshopAndGate(employee, employeeRequest);
 
-        String department = callerEmployee.getPosition().getDepartment();
-        if (!department.equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+        String department = callerEmployee.getPosition().getDepartment().getCodeName();
+        if (!department.equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             employeeRequestMapper.convertFromRequest(employeeRequest, employee);
         else
             employeeRequestMapper.convertFromWarehouseEmployeeDepartmentRequest(employeeRequest, employee);
@@ -189,22 +189,22 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private void throwIfPositionNotConfigurable(Employee object, Employee subject) {
         Position subjectPosition = subject.getPosition(); // 1. Check department
         Set<String> allowedDepartments = Set.of(
-            Department.WAREHOUSE_EMPLOYEES_DEPARTMENT,
-            Department.AUXILIARY_EMPLOYEES_DEPARTMENT,
-            Department.HR_DEPARTMENT,
-            Department.IT_DEPARTMENT
+            DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT,
+            DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT,
+            DepartmentInfo.HR_DEPARTMENT,
+            DepartmentInfo.IT_DEPARTMENT
         );
-        if (!allowedDepartments.contains(subjectPosition.getDepartment())) 
+        if (!allowedDepartments.contains(subjectPosition.getDepartment().getCodeName())) 
             throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));
 
         if (    // 2. Check whether subject can configure not self
             !subject.getEmployeeNumber().equals(object.getEmployeeNumber())
-            && subjectPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT)
+            && subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT)
         ) throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 
         Position objectPosition = object.getPosition();     // 3. Check position priority
-        int subjectPriority = Department.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
-        int objectPriority = Department.PRIORITIES.getOrDefault(objectPosition.getDepartment(), 0);
+        int subjectPriority = DepartmentInfo.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
+        int objectPriority = DepartmentInfo.PRIORITIES.getOrDefault(objectPosition.getDepartment(), 0);
         if (subjectPriority == 0 || objectPriority == 0)
             throw new EntityNotFoundException(Utility.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND));
         if (subjectPriority > objectPriority)

@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Department {
+public class DepartmentInfo {
     public static final String WAREHOUSE_EMPLOYEES_DEPARTMENT = "Warehouse Employees Department";
     public static final String AUXILIARY_EMPLOYEES_DEPARTMENT = "Auxiliary Employees Department";
     public static final String WAREHOUSE_SERVICE_DEPARTMENT = "Warehouse Service Department";

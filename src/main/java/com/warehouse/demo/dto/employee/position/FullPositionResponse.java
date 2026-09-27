@@ -9,11 +9,11 @@ import lombok.Setter;
 @Setter 
 public class FullPositionResponse extends PositionResponse {
     private String codeName;
-    private boolean hasDatabaseAccess;
+    private boolean isEnabled;
 
-    public FullPositionResponse(long id, String name, String codeName, boolean hasDatabaseAccess) {
+    public FullPositionResponse(long id, String name, String codeName, boolean isEnabled) {
         super(id, name);
         this.codeName = codeName;
-        this.hasDatabaseAccess = hasDatabaseAccess;
+        this.isEnabled = isEnabled;
     }
 }

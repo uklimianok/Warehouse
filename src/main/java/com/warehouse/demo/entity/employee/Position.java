@@ -1,7 +1,6 @@
 package com.warehouse.demo.entity.employee;
 
 import com.warehouse.demo.entity.Identifiable;
-import com.warehouse.demo.util.info.Department;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

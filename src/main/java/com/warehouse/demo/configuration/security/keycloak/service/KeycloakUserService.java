@@ -18,7 +18,7 @@ import com.warehouse.demo.configuration.security.keycloak.dto.KeycloakUserReques
 import com.warehouse.demo.configuration.security.keycloak.dto.KeycloakUserResponse;
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Position;
-import com.warehouse.demo.util.info.Department;
+import com.warehouse.demo.util.info.DepartmentInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service 
@@ -46,7 +46,7 @@ public class KeycloakUserService {
     }
 
     public void create(Employee employee) {
-        boolean passwordIsRequired = !employee.getPosition().getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT);
+        boolean passwordIsRequired = !employee.getPosition().getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT);
 
         KeycloakCredential keycloakCredential = new KeycloakCredential(
             "password",
@@ -133,8 +133,8 @@ public class KeycloakUserService {
     }
 
     private void updateRoles(String userId, Position oldPosition, Position newPosition) {
-        boolean passwordIsRequiredBefore = !oldPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT);
-        boolean passwordIsRequiredAfter = !newPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT);
+        boolean passwordIsRequiredBefore = !oldPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT);
+        boolean passwordIsRequiredAfter = !newPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT);
 
         List<KeycloakRole> keycloakRoles = new ArrayList<>();
         keycloakRoles.add(readRole(oldPosition.getCodeName()));

@@ -25,7 +25,7 @@ import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductPalletService;
 import com.warehouse.demo.util.action.Utility;
-import com.warehouse.demo.util.info.Department;
+import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -162,7 +162,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
         if (
             (   // Condition 1: fields that are absolutely restricted for the roles
-                subjectPosition.getDepartment().equals(Department.WAREHOUSE_EMPLOYEES_DEPARTMENT)
+                subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT)
                 && (target.getProductPackage().getId() != from.getProductPackageId()
                 || target.getPackageAmount() != from.getPackageAmount()
                 || !target.getGroupNumber().equals(from.getGroupNumber()))
@@ -201,8 +201,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         switch (newStatus.getName()) {
             case StatusInfo.PRODUCT_PALLET_ORDERED: {
                 if (
-                    subjectPosition.getDepartment().equals(Department.IT_DEPARTMENT)
-                    || subjectPosition.getDepartment().equals(Department.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT)
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -213,7 +213,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_ORDERED) 
                     && (subjectPosition.getCodeName().equals("GOODS_UNLOADER")
-                    || subjectPosition.getDepartment().equals(Department.IT_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -224,7 +224,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
                     && (subjectPosition.getCodeName().equals("OPERATOR")
-                    || subjectPosition.getDepartment().equals(Department.IT_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -235,7 +235,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
                     && (subjectPosition.getCodeName().equals("OPERATOR")
-                    || subjectPosition.getDepartment().equals(Department.IT_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -246,8 +246,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_ACTIVE)
                     && (subjectPosition.getCodeName().equals("OPERATOR")
-                    || subjectPosition.getDepartment().equals(Department.IT_DEPARTMENT)
-                    || subjectPosition.getDepartment().equals(Department.AUXILIARY_EMPLOYEES_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT)
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else 
                     throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
