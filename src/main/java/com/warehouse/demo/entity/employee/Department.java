@@ -29,4 +29,6 @@ public class Department implements Identifiable {
     private String name;
     @Column(unique = true, nullable = false)
     private String codeName;
+    @Column(nullable = false)
+    private int priority;
 }

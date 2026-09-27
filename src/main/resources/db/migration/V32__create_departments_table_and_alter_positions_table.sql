@@ -5,7 +5,8 @@ CREATE SEQUENCE department_seq
 CREATE TABLE departments (
     id BIGINT PRIMARY KEY DEFAULT nextval('department_seq'),
     name VARCHAR(255) UNIQUE NOT NULL,
-    code_name VARCHAR(255) UNIQUE NOT NULL
+    code_name VARCHAR(255) UNIQUE NOT NULL,
+    priority INT NOT NULL
 );
 
 ALTER SEQUENCE department_seq OWNED BY departments.id;

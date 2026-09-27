@@ -9,9 +9,11 @@ import lombok.Setter;
 @Setter 
 public class FullDepartmentResponse extends DepartmentResponse {
     private String codeName;
+    private int priority;
 
-    public FullDepartmentResponse(long id, String name, String codeName) {
+    public FullDepartmentResponse(long id, String name, String codeName, int priority) {
         super(id, name);
         this.codeName = codeName;
+        this.priority = priority;
     }
 }
