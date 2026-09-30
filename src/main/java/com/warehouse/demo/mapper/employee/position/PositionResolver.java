@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.repository.employee.PositionRepository;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -19,6 +19,6 @@ public class PositionResolver {
     public Position mapPosition(long positionId) {
         return positionRepository.findById(positionId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
+                MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
     }
 }

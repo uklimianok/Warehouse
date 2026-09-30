@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,8 @@ import com.warehouse.demo.dto.workplace.workStation.WorkStationResponse;
 import com.warehouse.demo.entity.workplace.WorkStation;
 import com.warehouse.demo.mapper.workplace.workStation.WorkStationResponseMapper;
 import com.warehouse.demo.service.workplace.WorkStationService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.ControllerSecurity;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -34,12 +35,7 @@ public class WorkStationController {
     private final WorkStationService workStationService;
     private final WorkStationResponseMapper workStationResponseMapper;
 
-    private static final String READ_ACCESS_ROLES = 
-        "hasAnyRole('GOODS_UNLOADER', 'GOODS_PICKER', 'OPERATOR', " + 
-        "'COORDINATOR', 'DATA_CONTROLLER', 'SHIFT_SUPERVISOR', " +
-        "'DIRECTOR', 'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
-    private static final String FULL_ACCESS_ROLES =
-        "hasAnyRole('DATA_CONTROLLER', 'SYSTEM_ADMINISTRATOR')";
+    private final ControllerSecurity controllerSecurity;
 
     private static final String[] OPERATOR_RESPONSE_ROLES_ARR = 
         {
@@ -52,56 +48,56 @@ public class WorkStationController {
         };
 
     @GetMapping
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends WorkStationResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+        
         List<WorkStation> workStations = workStationService.readAll();
         List<? extends WorkStationResponse> workStationsResponse = workStations
             .stream()
             .map(s -> returnObjectResponse(s, userPrincipal))
             .toList();
 
-        ResponseEntity<List<? extends WorkStationResponse>> response = new ResponseEntity<>(workStationsResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(workStationsResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<? extends WorkStationResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         WorkStation workStation = workStationService.read(id);
         WorkStationResponse workStationResponse = returnObjectResponse(workStation, userPrincipal);
 
-        ResponseEntity<WorkStationResponse> response = new ResponseEntity<>(workStationResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(workStationResponse, HttpStatus.OK);
     }
 
     @PostMapping
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends WorkStationResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkStationRequest workStationRequest) {
+        throwIfUnauthorized('C', userPrincipal.getMainRole());
+        
         WorkStation workStation = workStationService.create(workStationRequest);
         WorkStationResponse workStationResponse = returnObjectResponse(workStation, userPrincipal);
 
-        ResponseEntity<WorkStationResponse> response = new ResponseEntity<>(workStationResponse, HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(workStationResponse, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends WorkStationResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkStationRequest workStationRequest) {
+        throwIfUnauthorized('U', userPrincipal.getMainRole());
+        
         WorkStation workStation = workStationService.update(id, workStationRequest);
         WorkStationResponse workStationResponse = returnObjectResponse(workStation, userPrincipal);
 
-        ResponseEntity<WorkStationResponse> response = new ResponseEntity<>(workStationResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(workStationResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<String> delete(@PathVariable long id) {
-        workStationService.delete(id);
-        String message = Utility.getOutputMessage(Entity.WORK_STATION, OutputMessage.DELETED);
+    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('D', userPrincipal.getMainRole());
 
-        ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
-        return response;
+        workStationService.delete(id);
+        String message = MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.DELETED);
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     private WorkStationResponse returnObjectResponse(WorkStation from, UserPrincipal principal) {
@@ -114,5 +110,10 @@ public class WorkStationController {
             response = workStationResponseMapper.convertToResponse(from);
 
         return response;
+    }
+
+    private void throwIfUnauthorized(char mode, String role) {
+        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

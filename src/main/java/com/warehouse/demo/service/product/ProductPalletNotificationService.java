@@ -14,7 +14,7 @@ import com.warehouse.demo.event.product.ProductPalletEvent;
 import com.warehouse.demo.mapper.product.productPallet.ProductPalletResponseMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -34,7 +34,7 @@ public class ProductPalletNotificationService {
     @Transactional 
     public void consumeProductPalletUnloadedStatusNextWorkStationNullEvent(ProductPalletEvent productPalletEvent) {
         ProductPallet productPallet = productPalletRepository.findByPalletNumber(productPalletEvent.getPalletNumber())
-            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
         List<Employee> dataControllers = employeeRepository.findAllByPositionCodeName("DATA_CONTROLLER");
 
         if (dataControllers.isEmpty()) return;
@@ -52,7 +52,7 @@ public class ProductPalletNotificationService {
     @Transactional 
     public void consumeProductPalletUnloadedStatusNextWorkStationNotNullEvent(ProductPalletEvent productPalletEvent) {
         ProductPallet productPallet = productPalletRepository.findByPalletNumber(productPalletEvent.getPalletNumber())
-            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
         List<Employee> operators = employeeRepository.findAllByPositionCodeNameAndWorkshopId("OPERATOR", productPallet.getNextWorkStation().getWorkshop().getId());
 
         if (operators.isEmpty()) return;

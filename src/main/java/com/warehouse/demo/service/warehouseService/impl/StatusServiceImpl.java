@@ -16,7 +16,7 @@ import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.warehouseService.StatusService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -46,7 +46,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     public Status readByNameAndType(String name, String type) {     // Refactor other services like this if it needs
         return statusRepository.findByNameAndType(name, type)
             .orElseThrow(() ->
-                new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND))
+                new EntityNotFoundException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND))
             );
     }
 
@@ -54,7 +54,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     public Status create(StatusRequest statusRequest) {
         boolean pairExists = statusRepository.existsByNameAndType(statusRequest.getName(), statusRequest.getType());
         if (pairExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         Status status = new Status();
         return modifyAndSave(status, statusRequest);
@@ -67,7 +67,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
         boolean fieldChanged = !status.getName().equals(statusRequest.getName()) || !status.getType().equals(statusRequest.getType());
         boolean pairExists = statusRepository.existsByNameAndType(statusRequest.getName(), statusRequest.getType());
         if (fieldChanged && pairExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         String oldName = status.getName();
         String oldType = status.getType();

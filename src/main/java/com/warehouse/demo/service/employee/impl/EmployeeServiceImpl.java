@@ -27,7 +27,7 @@ import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
@@ -83,8 +83,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         Employee employee = read(id);
         Position oldPosition = employee.getPosition();
 
-        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getName())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getMainRole())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
         throwIfPositionNotConfigurable(employee, callerEmployee);
         configureWorkshopAndGate(employee, employeeRequest);
@@ -111,7 +111,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     @Transactional
     public void delete(Long id) {
         String employeeNumber = employeeRepository.findEmployeeNumberById(id)
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
         super.delete(id);
         employeeRepository.flush(); // Commits delete() at once, not later
@@ -122,11 +122,11 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     @Transactional 
     public void sendPendingNotifications(String to) {
         Employee employee = employeeRepository.findByEmployeeNumber(to)
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
         switch (employee.getPosition().getCodeName()) {
             case "DATA_CONTROLLER": {
                 Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
-                    .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+                    .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
                 List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationIsNull(status);
 
                 simpMessagingTemplate.convertAndSendToUser(
@@ -141,7 +141,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
                 if (employee.getWorkshop() == null) break;
 
                 Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
-                    .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+                    .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
                 List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationWorkshopId(status, employee.getWorkshop().getId());
 
                 simpMessagingTemplate.convertAndSendToUser(
@@ -195,20 +195,20 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             DepartmentInfo.IT_DEPARTMENT
         );
         if (!allowedDepartments.contains(subjectPosition.getDepartment().getCodeName())) 
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
 
         if (    // 2. Check whether subject can configure not self
             !subject.getEmployeeNumber().equals(object.getEmployeeNumber())
             && subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT)
-        ) throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
+        ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 
         Position objectPosition = object.getPosition();     // 3. Check position priority
         int subjectPriority = DepartmentInfo.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
         int objectPriority = DepartmentInfo.PRIORITIES.getOrDefault(objectPosition.getDepartment(), 0);
         if (subjectPriority == 0 || objectPriority == 0)
-            throw new EntityNotFoundException(Utility.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND));
+            throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND));
         if (subjectPriority > objectPriority)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
     }
 
     private void configureWorkshopAndGate(Employee target) {
@@ -218,17 +218,17 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {  // Add protection from null values in EmployeeRequest here
         Position position = positionRepository.findById(from.getPositionId())
-            .orElseThrow(() -> new DataIntegrityViolationException(Utility.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
         if (
             position.getCodeName().equals("GOODS_PICKER")
             || position.getCodeName().equals("OPERATOR")
         ) target.setWorkshop(workshopRepository.findById(from.getWorkshopId())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.WORKSHOP, OutputMessage.NOT_FOUND))));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORKSHOP, OutputMessage.NOT_FOUND))));
         else if (
             position.getCodeName().equals("GOODS_UNLOADER")
             || position.getCodeName().equals("SET_GOODS_LOADER")
         ) target.setGate(gateRepository.findById(from.getGateId())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
         else configureWorkshopAndGate(target);
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,8 @@ import com.warehouse.demo.dto.order.OrderResponse;
 import com.warehouse.demo.entity.order.Order;
 import com.warehouse.demo.mapper.order.OrderResponseMapper;
 import com.warehouse.demo.service.order.OrderService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.ControllerSecurity;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -34,18 +35,7 @@ public class OrderController {
     private final OrderService orderService;
     private final OrderResponseMapper orderResponseMapper;
 
-    private static final String READ_ACCESS_ROLES =
-        "hasAnyRole('GOODS_PICKER', 'SET_GOODS_EXPORTER', 'COORDINATOR', " + 
-        "'DATA_CONTROLLER', 'SHIFT_SUPERVISOR', 'DIRECTOR', " +
-        "'ORDERS_PROCEEDER', 'STATISTICS_PROCEEDER', 'DEVELOPER', " +
-        "'SYSTEM_ADMINISTRATOR')";
-    private static final String READ_UPDATE_ACCESS_ROLES =
-        "hasAnyRole('GOODS_PICKER', 'SET_GOODS_EXPORTER', 'COORDINATOR', " +
-        "'DATA_CONTROLLER', 'ORDERS_PROCEEDER', 'SYSTEM_ADMINISTRATOR')";
-    private static final String CREATE_READ_UPDATE_ACCESS_ROLES = 
-        "hasAnyRole('ORDERS_PROCEEDER', 'SYSTEM_ADMINISTRATOR')";
-    private static final String FULL_ACCESS_ROLES =
-        "hasAnyRole('SYSTEM_ADMINISTRATOR')";
+    private final ControllerSecurity controllerSecurity;
 
     private static final String[] FULL_RESPONSE_ROLES_ARR = 
     {
@@ -55,56 +45,56 @@ public class OrderController {
     };
 
     @GetMapping
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends OrderResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         List<Order> orders = orderService.readAll();
         List<OrderResponse> ordersResponse = orders
             .stream()
             .map(p -> returnObjectResponse(p, userPrincipal))
             .toList();
 
-        ResponseEntity<List<? extends OrderResponse>> response = new ResponseEntity<>(ordersResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(ordersResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<? extends OrderResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+        
         Order order = orderService.read(id);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 
-        ResponseEntity<OrderResponse> response = new ResponseEntity<>(orderResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
     @PostMapping
-    @PreAuthorize(CREATE_READ_UPDATE_ACCESS_ROLES)
     public ResponseEntity<? extends OrderResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderRequest orderRequest) {
+        throwIfUnauthorized('C', userPrincipal.getMainRole());
+        
         Order order = orderService.create(orderRequest);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 
-        ResponseEntity<OrderResponse> response = new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(orderResponse, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize(READ_UPDATE_ACCESS_ROLES)
     public ResponseEntity<? extends OrderResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderRequest orderRequest) {
+        throwIfUnauthorized('U', userPrincipal.getMainRole());
+
         Order order = orderService.update(id, orderRequest);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 
-        ResponseEntity<OrderResponse> response = new ResponseEntity<>(orderResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<String> delete(@PathVariable long id) {
-        orderService.delete(id);
-        String message = Utility.getOutputMessage(Entity.ORDER, OutputMessage.DELETED);
+    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('D', userPrincipal.getMainRole());
 
-        ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
-        return response;
+        orderService.delete(id);
+        String message = MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.DELETED);
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     private OrderResponse returnObjectResponse(Order from, UserPrincipal principal) {
@@ -115,5 +105,10 @@ public class OrderController {
             response = orderResponseMapper.convertToResponse(from);
 
         return response;
+    }
+
+    private void throwIfUnauthorized(char mode, String role) {
+        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

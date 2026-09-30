@@ -13,7 +13,7 @@ import com.warehouse.demo.repository.employee.DepartmentRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.DepartmentService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -43,7 +43,7 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
         boolean departmentIsChanged = !department.getName().equals(departmentRequest.getName());
         boolean departmentExists = departmentRepository.existsByName(departmentRequest.getName());
         if (departmentIsChanged && departmentExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(department, departmentRequest);
     }

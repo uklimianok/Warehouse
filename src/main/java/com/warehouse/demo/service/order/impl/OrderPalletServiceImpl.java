@@ -16,7 +16,7 @@ import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderPalletService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -55,7 +55,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         orderPallet.setStatus(
             statusRepository.findByNameAndType(StatusInfo.ORDER_PALLET_PICKING, getEntityName().getEntity())
                 .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)) 
+                    new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)) 
             )   
         );
 
@@ -69,7 +69,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         orderPallet.setStatus(
             statusRepository.findByIdAndType(orderPalletRequest.getStatusId(), getEntityName().getEntity())
                 .orElseThrow(() ->
-                    new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND))            
+                    new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND))            
             )
         );
 

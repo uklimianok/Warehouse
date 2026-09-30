@@ -15,7 +15,7 @@ import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -40,7 +40,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
     @Override
     public Organization create(OrganizationRequest organizationRequest) {
         if (organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(new Organization(), organizationRequest);
     }
@@ -52,7 +52,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
         boolean organizationNumberChanged = !organization.getOrganizationNumber().equals(organizationRequest.getOrganizationNumber());
         boolean organizationNumberExists = organizationRepository.existsByOrganizationNumber(organizationRequest.getOrganizationNumber());
         if (organizationNumberChanged && organizationNumberExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.ORGANIZATION, OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.ORGANIZATION, OutputMessage.EXISTS));
 
         return modifyAndSave(organization, organizationRequest);
     }

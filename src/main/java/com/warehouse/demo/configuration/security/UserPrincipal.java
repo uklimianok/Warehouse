@@ -19,6 +19,15 @@ public class UserPrincipal implements Principal {
         return employeeNumber;
     }
 
+    public String getMainRole() {
+        for (GrantedAuthority authority : authorities) {
+            if (authority.getAuthority().matches("/[A-Z_]+/"))  // Matches to something like "TRUCK_DRIVER"
+                return authority.getAuthority();
+        }
+
+        return "";
+    }
+
     public boolean hasAnyRole(String... roleCodes) {
         return Arrays.stream(roleCodes)
             .anyMatch(rc -> this.getAuthorities()

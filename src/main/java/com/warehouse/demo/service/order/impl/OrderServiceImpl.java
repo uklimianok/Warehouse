@@ -18,7 +18,7 @@ import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -62,7 +62,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         Order order = new Order();
         order.setStatus(statusRepository
             .findByNameAndType(StatusInfo.ORDER_ACCEPTED, Entity.ORDER.getEntity())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))  
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))  
         );
 
         return modifyAndSave(order, orderRequest);
@@ -74,18 +74,18 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         Order order = self.read(id);    // Cached object is provided through proxy "self", not through direct "this"
         order.setStatus(statusRepository
             .findByIdAndType(orderRequest.getStatusId(), Entity.ORDER.getEntity())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))
         );
 
         if (orderRequest.getGateId() != null)
             order.setGate(gateRepository.findById(orderRequest.getGateId())
-                .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND)))
+                .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND)))
             );
         else
             order.setGate(null);
 
         if (!order.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED) && order.getGate() == null)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), GATE_REQUIRED));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
         return modifyAndSave(order, orderRequest);
     }

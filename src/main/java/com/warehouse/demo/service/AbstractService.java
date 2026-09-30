@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -36,11 +36,11 @@ public abstract class AbstractService<T, ID> {
 
     protected void throwIfActive(ID id) {
         if (isUsed(id))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.ACTIVE));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.ACTIVE));
     }
 
     protected void throwIfNotExists(ID id) {
         if (!getRepository().existsById(id)) 
-            throw new EntityNotFoundException(Utility.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND));
+            throw new EntityNotFoundException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.NOT_FOUND));
     }
 }

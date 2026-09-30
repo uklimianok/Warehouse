@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.employee.Department;
 import com.warehouse.demo.repository.employee.DepartmentRepository;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -18,6 +18,6 @@ public class DepartmentResolver {
 
     public Department mapDepartment(long departmentId) {
         return departmentRepository.findById(departmentId)
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND)));
     }
 }

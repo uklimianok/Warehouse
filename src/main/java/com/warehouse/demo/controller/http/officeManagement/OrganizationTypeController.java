@@ -9,6 +9,10 @@ import com.warehouse.demo.dto.employee.organizationType.OrganizationTypeResponse
 import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.mapper.employee.organizationType.OrganizationTypeResponseMapperImpl;
 import com.warehouse.demo.service.employee.OrganizationTypeService;
+import com.warehouse.demo.util.action.ControllerSecurity;
+import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +20,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,66 +36,68 @@ public class OrganizationTypeController {
     private final OrganizationTypeService organizationTypeService;
     private final OrganizationTypeResponseMapperImpl organizationTypeResponseMapperImpl;
 
-    private final static String READ_ACCESS_ROLES =
-        "hasAnyRole('DIRECTOR', 'MAJOR_HR', 'WAREHOUSE_EMPLOYEES_HR', " +
-        "'OFFICE_EMPLOYEES_HR', 'ORDERS_PROCEEDER', 'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
-    private final static String FULL_ACCESS_ROLES =
-        "hasAnyRole('MAJOR_HR', 'SYSTEM_ADMINISTRATOR')";
+    private final ControllerSecurity controllerSecurity;
     
     @GetMapping
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends OrganizationTypeResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         List<OrganizationType> organizationTypes = organizationTypeService.readAll();
         List<? extends OrganizationTypeResponse> organizationTypeResponses = organizationTypes
             .stream()
             .map(ot -> returnObjectResponse(ot, userPrincipal))
             .toList();
 
-        ResponseEntity<List<? extends OrganizationTypeResponse>> response = new ResponseEntity<>(organizationTypeResponses, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(organizationTypeResponses, HttpStatus.OK);
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<? extends OrganizationTypeResponse> readById(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         OrganizationType organizationType = organizationTypeService.read(id);
         OrganizationTypeResponse organizationTypeResponse = returnObjectResponse(organizationType, userPrincipal);
 
-        ResponseEntity<OrganizationTypeResponse> response = new ResponseEntity<>(organizationTypeResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(organizationTypeResponse, HttpStatus.OK);
     }
 
     @PostMapping
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends OrganizationTypeResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrganizationTypeRequest organizationTypeRequest) {
+        throwIfUnauthorized('C', userPrincipal.getMainRole());
+
         OrganizationType organizationType = organizationTypeService.create(organizationTypeRequest);
         OrganizationTypeResponse organizationTypeResponse = returnObjectResponse(organizationType, userPrincipal);
 
-        ResponseEntity<OrganizationTypeResponse> response = new ResponseEntity<>(organizationTypeResponse, HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(organizationTypeResponse, HttpStatus.CREATED);
     }
     
     @PatchMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends OrganizationTypeResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrganizationTypeRequest organizationTypeRequest) {
+        throwIfUnauthorized('U', userPrincipal.getMainRole());
+
         OrganizationType organizationType = organizationTypeService.update(id, organizationTypeRequest);
         OrganizationTypeResponse organizationTypeResponse = returnObjectResponse(organizationType, userPrincipal);
 
-        ResponseEntity<OrganizationTypeResponse> response = new ResponseEntity<>(organizationTypeResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(organizationTypeResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<String> delete(@PathVariable long id) {
-        organizationTypeService.delete(id);
+    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('D', userPrincipal.getMainRole());
 
-        ResponseEntity<String> response = new ResponseEntity<>("Organization type is deleted.", HttpStatus.OK);
-        return response;
+        organizationTypeService.delete(id);
+        String message = MessageHandler.getOutputMessage(Entity.ORGANIZATION_TYPE, OutputMessage.DELETED);
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     private OrganizationTypeResponse returnObjectResponse(OrganizationType from, UserPrincipal principal) {
         OrganizationTypeResponse response = organizationTypeResponseMapperImpl.convertToResponse(from);
         return response;
+    }
+
+    private void throwIfUnauthorized(char mode, String role) {
+        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

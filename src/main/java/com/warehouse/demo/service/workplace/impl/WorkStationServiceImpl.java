@@ -13,7 +13,7 @@ import com.warehouse.demo.repository.product.ProductPalletRepository;
 import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.WorkStationService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -37,7 +37,7 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     public WorkStation create(WorkStationRequest workStationRequest) {
         boolean stationNameExists = workStationRepository.existsByStationNumber(workStationRequest.getStationNumber());
         if (stationNameExists) 
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
         
         return modifyAndSave(new WorkStation(), workStationRequest);
     }
@@ -49,7 +49,7 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
         boolean stationNumberChanged = !workStation.getStationNumber().equals(workStationRequest.getStationNumber());
         boolean stationNumberExists = workStationRepository.existsByStationNumber(workStationRequest.getStationNumber());
         if (stationNumberChanged && stationNumberExists) 
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(workStation, workStationRequest);
     }

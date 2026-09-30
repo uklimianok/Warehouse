@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.repository.service.StatusRepository;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -19,6 +19,6 @@ public class StatusResolver {
     public Status mapStatus(long statusId) {
         return statusRepository.findById(statusId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+                MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
     }
 }

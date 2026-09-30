@@ -14,7 +14,7 @@ import com.warehouse.demo.mapper.employee.organizationType.OrganizationTypeReque
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.OrganizationTypeService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -37,7 +37,7 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
     @Override
     public OrganizationType create(OrganizationTypeRequest organizationTypeRequest) {
         if (organizationTypeRepository.existsByName(organizationTypeRequest.getName()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         OrganizationType organizationType = new OrganizationType();
 
@@ -51,7 +51,7 @@ public class OrganizationTypeServiceImpl extends AbstractService<OrganizationTyp
         boolean nameChanged = !organizationType.getName().equals(organizationTypeRequest.getName());
         boolean nameExists = organizationTypeRepository.existsByName(organizationTypeRequest.getName());
         if (nameChanged && nameExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(organizationType, organizationTypeRequest);
     }

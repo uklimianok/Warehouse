@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.item.Pallet;
 import com.warehouse.demo.repository.item.PalletRepository;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -19,6 +19,6 @@ public class PalletResolver {
     public Pallet mapPallet(long palletId) {
         return palletRepository.findById(palletId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(Entity.PALLET, OutputMessage.NOT_FOUND)));
+                MessageHandler.getOutputMessage(Entity.PALLET, OutputMessage.NOT_FOUND)));
     }
 }

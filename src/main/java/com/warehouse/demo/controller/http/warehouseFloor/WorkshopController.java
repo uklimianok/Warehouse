@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,8 @@ import com.warehouse.demo.dto.workplace.workshop.WorkshopResponse;
 import com.warehouse.demo.entity.workplace.Workshop;
 import com.warehouse.demo.mapper.workplace.workshop.WorkshopResponseMapper;
 import com.warehouse.demo.service.workplace.WorkshopService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.ControllerSecurity;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -34,67 +35,68 @@ public class WorkshopController {
     private final WorkshopService workshopService;
     private final WorkshopResponseMapper workshopResponseMapper;
 
-    private static final String READ_ACCESS_ROLES = 
-        "hasAnyRole('DATA_CONTROLLER', 'DIRECTOR'," +
-        "'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
-    private static final String FULL_ACCESS_ROLES =
-        "hasAnyRole('DATA_CONTROLLER', 'SYSTEM_ADMINISTRATOR')";
+    private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends WorkshopResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         List<Workshop> workshops = workshopService.readAll();
         List<? extends WorkshopResponse> workshopResponse = workshops
             .stream()
             .map(s -> returnObjectResponse(s, userPrincipal))
             .toList();
 
-        ResponseEntity<List<? extends WorkshopResponse>> response = new ResponseEntity<>(workshopResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(workshopResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<? extends WorkshopResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+        
         Workshop workshop = workshopService.read(id);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
 
-        ResponseEntity<WorkshopResponse> response = new ResponseEntity<>(workshopResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(workshopResponse, HttpStatus.OK);
     }
 
     @PostMapping
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends WorkshopResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkshopRequest workshopRequest) {
+        throwIfUnauthorized('C', userPrincipal.getMainRole());
+        
         Workshop workshop = workshopService.create(workshopRequest);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
 
-        ResponseEntity<WorkshopResponse> response = new ResponseEntity<>(workshopResponse, HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(workshopResponse, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends WorkshopResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkshopRequest workshopRequest) {
+        throwIfUnauthorized('U', userPrincipal.getMainRole());
+        
         Workshop workshop = workshopService.update(id, workshopRequest);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
 
-        ResponseEntity<WorkshopResponse> response = new ResponseEntity<>(workshopResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(workshopResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<String> delete(@PathVariable long id) {
-        workshopService.delete(id);
-        String message = Utility.getOutputMessage(Entity.WORKSHOP, OutputMessage.DELETED);
+    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('D', userPrincipal.getMainRole());
 
-        ResponseEntity<String> response = new ResponseEntity<>(message, HttpStatus.OK);
-        return response;
+        workshopService.delete(id);
+        String message = MessageHandler.getOutputMessage(Entity.WORKSHOP, OutputMessage.DELETED);
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     private WorkshopResponse returnObjectResponse(Workshop from, UserPrincipal principal) {
         WorkshopResponse response = workshopResponseMapper.convertToResponse(from);
         return response;
+    }
+
+    private void throwIfUnauthorized(char mode, String role) {
+        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

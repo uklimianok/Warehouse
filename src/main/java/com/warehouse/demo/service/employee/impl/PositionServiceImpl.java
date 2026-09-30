@@ -1,5 +1,7 @@
 package com.warehouse.demo.service.employee.impl;
 
+import java.util.List;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,7 +15,7 @@ import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.PositionService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -27,6 +29,8 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
 
     private final PositionRequestMapper positionRequestMapper;
 
+    private final String LOOP_INHERITANCE_MESSAGE = "This position is already in the chain of position inheritance.";
+
     @Override
     @Cacheable(value = "positions", key = "#id")
     public Position read(Long id) {
@@ -36,11 +40,11 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     @Override
     public Position create(PositionRequest positionRequest) {
         if (positionRepository.existsByName(positionRequest.getName())) 
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         Position position = new Position();
-        position.setName(positionRequest.getName());
         position.setCodeName(position.getName().replace(' ', '_').toUpperCase());
+        position.setRemovable(true);
 
         return modifyAndSave(position, positionRequest);
     }
@@ -52,9 +56,9 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
         boolean nameChanged = !position.getName().equals(positionRequest.getName());
         boolean nameExists = positionRepository.existsByName(positionRequest.getName());
         if (nameChanged && nameExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
-        position.setName(positionRequest.getName());
+        throwIfInheritanceLooped(position.getId(), positionRequest.getInheritedPositionsId());
 
         return modifyAndSave(position, positionRequest);
     }
@@ -84,5 +88,17 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     protected boolean isUsed(Long id) {
         boolean activeInEmployee = employeeRepository.existsByPositionId(id);
         return activeInEmployee;
+    }
+
+    private void throwIfInheritanceLooped(long targetId, List<Long> parents) {
+        if (parents == null) return;
+
+        for (int i = 0; i < parents.size(); i++) {
+            if (parents.get(i) == targetId)
+                throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(LOOP_INHERITANCE_MESSAGE));
+        
+            List<Long> grandParents = positionRepository.findInheritedPositionsById(parents.get(i));
+            throwIfInheritanceLooped(targetId, grandParents);
+        }
     }
 }

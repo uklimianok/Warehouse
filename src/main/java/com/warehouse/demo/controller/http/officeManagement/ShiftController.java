@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +21,10 @@ import com.warehouse.demo.dto.employee.shift.ShiftResponse;
 import com.warehouse.demo.entity.employee.Shift;
 import com.warehouse.demo.mapper.employee.shift.ShiftResponseMapper;
 import com.warehouse.demo.service.employee.ShiftService;
+import com.warehouse.demo.util.action.ControllerSecurity;
+import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.info.Entity;
+import com.warehouse.demo.util.info.OutputMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,68 +35,68 @@ public class ShiftController {
     private final ShiftService shiftService;
     private final ShiftResponseMapper shiftResponseMapper;
 
-    private static final String READ_ACCESS_ROLES = 
-        "hasAnyRole('SHIFT_SUPERVISOR', 'DIRECTOR', 'MAJOR_HR', " +
-        "'WAREHOUSE_EMPLOYEES_HR', 'OFFICE_EMPLOYEES_HR', 'STATISTICS_PROCEEDER', " +
-        "'DEVELOPER', 'SYSTEM_ADMINISTRATOR')";
-    private static final String FULL_ACCESS_ROLES = 
-        "hasAnyRole('MAJOR_HR', 'WAREHOUSE_EMPLOYEES_HR', 'OFFICE_EMPLOYEES_HR', " +
-        "'SYSTEM_ADMINISTRATOR')";
+    private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<List<? extends ShiftResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         List<Shift> shifts = shiftService.readAll();
         List<ShiftResponse> shiftResponses = shifts
             .stream()
             .map(s -> returnObjectResponse(s, userPrincipal))
             .toList();
 
-        ResponseEntity<List<? extends ShiftResponse>> response = new ResponseEntity<>(shiftResponses, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(shiftResponses, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize(READ_ACCESS_ROLES)
     public ResponseEntity<? extends ShiftResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('R', userPrincipal.getMainRole());
+
         Shift shift = shiftService.read(id);
         ShiftResponse shiftResponse = returnObjectResponse(shift, userPrincipal);
 
-        ResponseEntity<ShiftResponse> response = new ResponseEntity<>(shiftResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(shiftResponse, HttpStatus.OK);
     }
 
     @PostMapping
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends ShiftResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ShiftRequest shiftRequest) {
+        throwIfUnauthorized('C', userPrincipal.getMainRole());
+
         Shift shift = shiftService.create(shiftRequest);
         ShiftResponse shiftResponse = returnObjectResponse(shift, userPrincipal);
 
-        ResponseEntity<ShiftResponse> response = new ResponseEntity<>(shiftResponse, HttpStatus.CREATED);
-        return response;
+        return new ResponseEntity<>(shiftResponse, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
     public ResponseEntity<? extends ShiftResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ShiftRequest shiftRequest) {
+        throwIfUnauthorized('U', userPrincipal.getMainRole());
+
         Shift shift = shiftService.update(id, shiftRequest);
         ShiftResponse shiftResponse = returnObjectResponse(shift, userPrincipal);
 
-        ResponseEntity<ShiftResponse> response = new ResponseEntity<>(shiftResponse, HttpStatus.OK);
-        return response;
+        return new ResponseEntity<>(shiftResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize(FULL_ACCESS_ROLES)
-    public ResponseEntity<String> delete(@PathVariable long id) {
-        shiftService.delete(id);
+    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
+        throwIfUnauthorized('D', userPrincipal.getMainRole());
 
-        ResponseEntity<String> response = new ResponseEntity<>("Shift deleted.", HttpStatus.OK);
-        return response;
+        shiftService.delete(id);
+        String message = MessageHandler.getOutputMessage(Entity.SHIFT, OutputMessage.DELETED);
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     private ShiftResponse returnObjectResponse(Shift from, UserPrincipal principal) {
         ShiftResponse response = shiftResponseMapper.convertToResponse(from);
         return response;
+    }
+
+    private void throwIfUnauthorized(char mode, String role) {
+        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.entity.employee.OrganizationType;
 import com.warehouse.demo.repository.employee.OrganizationTypeRepository;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -19,6 +19,6 @@ public class OrganizationTypeResolver {
     public OrganizationType mapOrganizationType(long organizationTypeId) {
         return organizationTypeRepository.findById(organizationTypeId)
             .orElseThrow(() -> new EntityNotFoundException(
-                Utility.getOutputMessage(Entity.ORGANIZATION_TYPE, OutputMessage.NOT_FOUND)));
+                MessageHandler.getOutputMessage(Entity.ORGANIZATION_TYPE, OutputMessage.NOT_FOUND)));
     }
 }

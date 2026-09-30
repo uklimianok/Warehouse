@@ -11,7 +11,7 @@ import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.warehouseService.ActionLogService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -35,7 +35,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
     public ActionLog log(ActionLogEvent actionLogEvent) {
         ActionLog actionLog = new ActionLog();
         actionLog.setEmployee(employeeRepository.findByEmployeeNumber(actionLogEvent.getEmployeeNumber())
-            .orElseThrow(() -> new EntityNotFoundException(Utility.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND))));   // Need to change it, the log record must be captured anyway
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND))));   // Need to change it, the log record must be captured anyway
         actionLog.setProceededAt(actionLogEvent.getProceededAt());
         actionLog.setEntityType(actionLogEvent.getEntityType());
         actionLog.setEntityId(actionLogEvent.getEntityId());
@@ -46,7 +46,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
 
     @Override
     public void delete(Long id) {
-        throw new DataIntegrityViolationException(Utility.getOutputMessage(Entity.ACTION_LOG, ACTION_LOG_DELETE_RESTRICTED));
+        throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.ACTION_LOG, ACTION_LOG_DELETE_RESTRICTED));
     }
 
     @Override

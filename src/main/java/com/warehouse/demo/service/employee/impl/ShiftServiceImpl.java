@@ -14,7 +14,7 @@ import com.warehouse.demo.repository.employee.ShiftRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.ShiftService;
-import com.warehouse.demo.util.action.Utility;
+import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -38,7 +38,7 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
     @Override
     public Shift create(ShiftRequest shiftRequest) {
         if (shiftRepository.existsBySymbol(shiftRequest.getSymbol()))
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(new Shift(), shiftRequest);
     }
@@ -50,7 +50,7 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
         boolean shiftChanged = !shift.getSymbol().equals(shiftRequest.getSymbol());
         boolean shiftExists = shiftRepository.existsBySymbol(shiftRequest.getSymbol());
         if (shiftChanged && shiftExists)
-            throw new DataIntegrityViolationException(Utility.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(shift, shiftRequest);
     }
