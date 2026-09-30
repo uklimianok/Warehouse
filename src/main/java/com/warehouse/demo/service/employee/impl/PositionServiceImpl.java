@@ -97,7 +97,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
             if (parents.get(i) == targetId)
                 throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(LOOP_INHERITANCE_MESSAGE));
         
-            List<Long> grandParents = positionRepository.findInheritedPositionsById(parents.get(i));
+            List<Long> grandParents = positionRepository.findInheritedPositionsIdById(parents.get(i));
             throwIfInheritanceLooped(targetId, grandParents);
         }
     }

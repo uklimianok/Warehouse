@@ -28,6 +28,7 @@ import com.warehouse.demo.repository.workplace.WorkshopRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.action.PositionInheritanceTree;
 import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
@@ -53,6 +54,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final EmployeeRequestMapper employeeRequestMapper;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private final PositionInheritanceTree positionInheritanceTree;
 
     @Override 
     @Cacheable(value = "employees", key = "#id")
@@ -123,36 +126,29 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     public void sendPendingNotifications(String to) {
         Employee employee = employeeRepository.findByEmployeeNumber(to)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
-        switch (employee.getPosition().getCodeName()) {
-            case "DATA_CONTROLLER": {
-                Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
-                    .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
-                List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationIsNull(status);
 
-                simpMessagingTemplate.convertAndSendToUser(
-                    to, 
-                    "/queue/notify", 
-                    productPallets
-                );
-            }
-                break;
-            
-            case "OPERATOR": {
-                if (employee.getWorkshop() == null) break;
+        if (positionInheritanceTree.isOneOrDescendant(employee.getPosition(), "DATA_CONTROLLER")) {
+            Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
+                .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+            List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationIsNull(status);
 
-                Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
-                    .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
-                List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationWorkshopId(status, employee.getWorkshop().getId());
+            simpMessagingTemplate.convertAndSendToUser(
+                to, 
+                "/queue/notify", 
+                productPallets
+            );
+        }
 
-                simpMessagingTemplate.convertAndSendToUser(
-                    to, 
-                    "/queue/notify", 
-                    productPallets
-                );
-            }
-                break;
+        if (positionInheritanceTree.isOneOrDescendant(employee.getPosition(), "OPERATOR") && employee.getWorkshop() != null) {
+            Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
+                .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+            List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationWorkshopId(status, employee.getWorkshop().getId());
 
-            default: break;
+            simpMessagingTemplate.convertAndSendToUser(
+                to, 
+                "/queue/notify", 
+                productPallets
+            );
         }
     }
 
@@ -173,17 +169,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     }
 
     private String generateEmployeeNumber(EmployeeRequest employee) {
-        long positionId = employee.getPositionId();
-        if (positionId < 0 || positionId > 99)
-            throw new DataIntegrityViolationException("Impossible to create employee number.");
-
-        int lastBirthDigit = employee.getBirthDate().getDayOfMonth() % 10;
-
-        long count = employeeRepository.count() + 1;
-        if (count > 99999)
-            throw new DataIntegrityViolationException("Impossible to create employee number.");
-
-        return String.format("%02d%01d%05d", positionId, lastBirthDigit, count);
+        long count = employeeRepository.count() + 10_000_000;
+        return String.format("%08d", count);
     }
 
     private void throwIfPositionNotConfigurable(Employee object, Employee subject) {
@@ -220,13 +207,13 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         Position position = positionRepository.findById(from.getPositionId())
             .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
         if (
-            position.getCodeName().equals("GOODS_PICKER")
-            || position.getCodeName().equals("OPERATOR")
+            positionInheritanceTree.isOneOrDescendant(position, "GOODS_PICKER")
+            || positionInheritanceTree.isOneOrDescendant(position, "OPERATOR")
         ) target.setWorkshop(workshopRepository.findById(from.getWorkshopId())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORKSHOP, OutputMessage.NOT_FOUND))));
         else if (
-            position.getCodeName().equals("GOODS_UNLOADER")
-            || position.getCodeName().equals("SET_GOODS_LOADER")
+            positionInheritanceTree.isOneOrDescendant(position, "GOODS_UNLOADER")
+            || positionInheritanceTree.isOneOrDescendant(position, "SET_GOODS_UNLOADER")
         ) target.setGate(gateRepository.findById(from.getGateId())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
         else configureWorkshopAndGate(target);

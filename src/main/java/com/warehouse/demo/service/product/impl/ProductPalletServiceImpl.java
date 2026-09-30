@@ -25,6 +25,7 @@ import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductPalletService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.action.PositionInheritanceTree;
 import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
@@ -45,6 +46,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
     private final KafkaTemplate<String, ProductPalletEvent> kafkaTemplate;
 
+    private final PositionInheritanceTree positionInheritanceTree;
+
     private static final String WORK_STATION_REQUIRED = "must contain current position.";
     private static final String WORK_STATION_NOT_REQUIRED = "must not contain current position.";
     private static final String NEXT_WORK_STATION_NOT_REQUIRED = "must not contain next position.";
@@ -63,7 +66,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         WorkStationRepository workStationRepository, 
         EmployeeRepository employeeRepository,
         ProductPalletRequestMapper productPalletRequestMapper, 
-        KafkaTemplate<String, ProductPalletEvent> kafkaTemplate
+        KafkaTemplate<String, ProductPalletEvent> kafkaTemplate,
+        PositionInheritanceTree positionInheritanceTree
     ) {
         this.self = self;
         this.productPalletRepository = productPalletRepository;
@@ -72,6 +76,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         this.employeeRepository = employeeRepository;
         this.productPalletRequestMapper = productPalletRequestMapper;
         this.kafkaTemplate = kafkaTemplate;
+        this.positionInheritanceTree = positionInheritanceTree;
     }
 
     @Override 
@@ -168,8 +173,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 || !target.getGroupNumber().equals(from.getGroupNumber()))
             ) || (  // Condition 2: field is restricted for OPERATOR (absolutely) and GOODS_UNLOADER (unless a certain status) 
                 palletChanged
-                && (subjectPosition.getCodeName().equals("OPERATOR")
-                || (subjectPosition.getCodeName().equals("GOODS_UNLOADER")
+                && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
+                || (positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER")
                 && !target.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_ORDERED)))
             )
         ) 
@@ -212,7 +217,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             case StatusInfo.PRODUCT_PALLET_UNLOADED: {
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_ORDERED) 
-                    && (subjectPosition.getCodeName().equals("GOODS_UNLOADER")
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER")
                     || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
@@ -223,7 +228,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             case StatusInfo.PRODUCT_PALLET_STORED: {
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
-                    && (subjectPosition.getCodeName().equals("OPERATOR")
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
                     || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
@@ -234,7 +239,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             case StatusInfo.PRODUCT_PALLET_ACTIVE: {
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
-                    && (subjectPosition.getCodeName().equals("OPERATOR")
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
                     || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
@@ -245,7 +250,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             case StatusInfo.PRODUCT_PALLET_OUT_OF_USE: {
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_ACTIVE)
-                    && (subjectPosition.getCodeName().equals("OPERATOR")
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
                     || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT)
                     || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT))
                 ) target.setStatus(newStatus);
@@ -301,14 +306,14 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
                     if (    // GOODS_UNLOADER can change only at UNLOADED and OPERATOR only at STORED
                         (!status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
-                        && subjectPosition.getCodeName().equals("GOODS_UNLOADER"))
+                        && positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER"))
                         || (!status.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
-                        && subjectPosition.getCodeName().equals("OPERATOR"))
+                        && positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR"))
                     ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
 
                     if (
-                        subjectPosition.getCodeName().equals("GOODS_UNLOADER")
-                        || subjectPosition.getCodeName().equals("OPERATOR")
+                        positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER")
+                        || positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
                     ) {   // Auto-transition
                         target.setWorkStation(target.getNextWorkStation());
                         target.setNextWorkStation(null);
@@ -333,7 +338,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (from.getNextWorkStationId() != null)
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(NEXT_WORK_STATION_NOT_REQUIRED));
 
-                if (subjectPosition.getCodeName().equals("OPERATOR")) {   // Auto-transition
+                if (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")) {   // Auto-transition
                     target.setWorkStation(target.getNextWorkStation());
                     target.setNextWorkStation(null);
                 } else {
