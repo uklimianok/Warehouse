@@ -30,7 +30,8 @@ public enum Entity {
     USER("User"),
     BARCODE_NUMBER("Barcode number"),
     DEPARTMENT("Department"),
-    NEXT_WORK_STATION("Next work station");
+    NEXT_WORK_STATION("Next work station"),
+    RESPONSE_OBJECT("Response object");
 
     private final String entity;
 }

@@ -38,8 +38,6 @@ public class PositionController {
     
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] FULL_ACCESS_ROLES_ARR = {"MAJOR_HR", "SYSTEM_ADMINISTRATOR"};
-
     @GetMapping
     public ResponseEntity<List<? extends PositionResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -95,13 +93,11 @@ public class PositionController {
     }
 
     private PositionResponse returnPositionResponse(Position from, UserPrincipal principal) {
-        PositionResponse response = null;
-        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            response = positionResponseMapper.convertToFullResponse(from);
-        else
-            response = positionResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> positionResponseMapper.convertToFullResponse(from);
+            default -> positionResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

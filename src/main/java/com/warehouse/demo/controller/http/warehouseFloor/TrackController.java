@@ -37,11 +37,6 @@ public class TrackController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] FULL_RESPONSE_ROLES_ARR =
-        {
-            "DATA_CONTROLLER", "SYSTEM_ADMINISTRATOR"
-        };
-
     @GetMapping
     public ResponseEntity<List<? extends TrackResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -96,13 +91,11 @@ public class TrackController {
     }
 
     private TrackResponse returnObjectResponse(Track from, UserPrincipal principal) {
-        TrackResponse response = null;
-        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
-            response = trackResponseMapper.convertToFullResponse(from);
-        else
-            response = trackResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> trackResponseMapper.convertToFullResponse(from);
+            default -> trackResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

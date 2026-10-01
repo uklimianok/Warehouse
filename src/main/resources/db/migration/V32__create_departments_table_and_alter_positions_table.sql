@@ -19,13 +19,13 @@ ALTER TABLE positions
 
 ALTER TABLE positions
     ADD is_removable BOOLEAN NOT NULL
-    ADD controller_access_flags JSONB NOT NULL DEFAULT '{}'::jsonb
+    ADD controller_flags JSONB NOT NULL DEFAULT '{}'::jsonb
     ADD department_id BIGINT NOT NULL
     CONSTRAINT fk_department
         FOREIGN KEY (department_id)
         REFERENCES departments(id);
 
-CREATE INDEX idx_positions_controller_access_flags ON positions USING GIN (controller_access_flags);
+CREATE INDEX idx_positions_controller_flags ON positions USING GIN (controller_flags);
 
 UPDATE positions
     SET is_removable = CASE code_name

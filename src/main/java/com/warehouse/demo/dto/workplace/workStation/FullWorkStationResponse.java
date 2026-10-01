@@ -9,11 +9,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter 
-public class FullWorkStationResponse extends OperatorWorkStationResponse {
+public class FullWorkStationResponse extends WorkStationResponse {
+    private String type;
     private WorkshopResponse workshop;
 
     public FullWorkStationResponse(long id, String stationNumber, String controlNumber, String type, WorkshopResponse workshop) {
-        super(id, stationNumber, controlNumber, type);
+        super(id, stationNumber, controlNumber);
+        this.type = type;
         this.workshop = workshop;
     }
 }

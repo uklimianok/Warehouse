@@ -37,16 +37,6 @@ public class WorkStationController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] OPERATOR_RESPONSE_ROLES_ARR = 
-        {
-            "OPERATOR"
-        };
-    private static final String[] FULL_RESPONSE_ROLES_ARR =
-        {
-            "COORDINATOR", "DATA_CONTROLLER", "SHIFT_SUPERVISOR", 
-            "DIRECTOR", "DEVELOPER", "SYSTEM_ADMINISTRATOR"
-        };
-
     @GetMapping
     public ResponseEntity<List<? extends WorkStationResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -101,15 +91,11 @@ public class WorkStationController {
     }
 
     private WorkStationResponse returnObjectResponse(WorkStation from, UserPrincipal principal) {
-        WorkStationResponse response = null;
-        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
-            response = workStationResponseMapper.convertToFullResponse(from);
-        else if (principal.hasAnyRole(OPERATOR_RESPONSE_ROLES_ARR))
-            response = workStationResponseMapper.convertToOperatorResponse(from);
-        else
-            response = workStationResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> workStationResponseMapper.convertToFullResponse(from);
+            default -> workStationResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

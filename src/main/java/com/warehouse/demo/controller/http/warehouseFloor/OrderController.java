@@ -37,13 +37,6 @@ public class OrderController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] FULL_RESPONSE_ROLES_ARR = 
-    {
-        "COORDINATOR", "DATA_CONTROLLER", "SHIFT_SUPERVISOR", "DIRECTOR",
-        "ORDERS_PROCEEDER", "STATISTICS_PROCEEDER", "DEVELOPER", 
-        "SYSTEM_ADMINISTRATOR"
-    };
-
     @GetMapping
     public ResponseEntity<List<? extends OrderResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -98,13 +91,11 @@ public class OrderController {
     }
 
     private OrderResponse returnObjectResponse(Order from, UserPrincipal principal) {
-        OrderResponse response = null;
-        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
-            response = orderResponseMapper.convertToFullResponse(from);
-        else
-            response = orderResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> orderResponseMapper.convertToFullResponse(from);
+            default -> orderResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

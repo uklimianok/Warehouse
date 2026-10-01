@@ -51,5 +51,5 @@ public class Position implements Identifiable {
     boolean removable;
     @Column(nullable = false, columnDefinition = "jsonb")   // columnDefinition clarifies this field to be "jsonb", not "json"
     @JdbcTypeCode(SqlTypes.JSON)    // Tells Hibernate to serialize it into JSON
-    Map<String, String> controllerAccessFlags;
+    Map<String, List<String>> controllerFlags;
 }

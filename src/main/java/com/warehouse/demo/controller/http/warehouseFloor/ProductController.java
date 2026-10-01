@@ -37,9 +37,6 @@ public class ProductController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] FULL_ACCESS_ROLES_ARR = 
-        {"DATA_CONTROLLER", "SYSTEM_ADMINISTRATOR"};
-
     @GetMapping
     public ResponseEntity<List<? extends ProductResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -94,13 +91,11 @@ public class ProductController {
     }
 
     private ProductResponse returnObjectResponse(Product from, UserPrincipal principal) {
-        ProductResponse productResponse = null;
-        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            productResponse = productResponseMapper.convertToFullResponse(from);
-        else
-            productResponse = productResponseMapper.convertToResponse(from);
-
-        return productResponse;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> productResponseMapper.convertToFullResponse(from);
+            default -> productResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

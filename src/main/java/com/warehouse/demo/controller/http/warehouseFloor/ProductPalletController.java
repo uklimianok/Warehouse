@@ -37,16 +37,6 @@ public class ProductPalletController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] TRANSFER_RESPONSE_ROLES_ARR = 
-        {
-            "GOODS_UNLOADER", "OPERATOR"
-        };
-    private static final String[] FULL_RESPONSE_ROLES_ARR =
-        {
-            "COORDINATOR", "DATA_CONTROLLER", "DIRECTOR", "DEVELOPER", 
-            "SYSTEM_ADMINISTRATOR"
-        };
-
     @GetMapping
     public ResponseEntity<List<? extends ProductPalletResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -101,15 +91,12 @@ public class ProductPalletController {
     }
 
     private ProductPalletResponse returnObjectResponse(ProductPallet from, UserPrincipal principal) {
-        ProductPalletResponse response = null;
-        if (principal.hasAnyRole(FULL_RESPONSE_ROLES_ARR))
-            response = productPalletResponseMapper.convertToFullResponse(from);
-        else if (principal.hasAnyRole(TRANSFER_RESPONSE_ROLES_ARR))
-            response = productPalletResponseMapper.convertToTransferResponse(from);
-        else
-            response = productPalletResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> productPalletResponseMapper.convertToFullResponse(from);
+            case "Transfer" -> productPalletResponseMapper.convertToTransferResponse(from);
+            default -> productPalletResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

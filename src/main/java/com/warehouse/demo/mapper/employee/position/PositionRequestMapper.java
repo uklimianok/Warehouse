@@ -15,5 +15,6 @@ public interface PositionRequestMapper {
     @Mapping(target = "codeName", ignore = true)
     @Mapping(target = "department", source = "positionRequest.departmentId")
     @Mapping(target = "inheritedPositions", source = "inheritedPositionsId")
+    @Mapping(target = "removable", ignore = true)
     void convertFromRequest(PositionRequest positionRequest, @MappingTarget Position position);
 }

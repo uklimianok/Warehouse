@@ -17,5 +17,5 @@ public class PositionRequest {
     private boolean isEnabled;
     private long departmentId;
     private List<Long> inheritedPositionsId;
-    private Map<String, String> controllerAccessFlags;
+    private Map<String, List<String>> controllerFlags;
 }

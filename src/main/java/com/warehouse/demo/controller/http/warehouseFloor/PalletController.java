@@ -37,9 +37,6 @@ public class PalletController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] FULL_ACCESS_ROLES_ARR = 
-        {"DATA_CONTROLLER", "SYSTEM_ADMINISTRATOR"};
-
     @GetMapping
     public ResponseEntity<List<? extends PalletResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -94,13 +91,11 @@ public class PalletController {
     }
 
     private PalletResponse returnObjectResponse(Pallet from, UserPrincipal principal) {
-        PalletResponse response = null;
-        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            response = palletResponseMapper.convertToFullResponse(from);
-        else
-            response = palletResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> palletResponseMapper.convertToFullResponse(from);
+            default -> palletResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

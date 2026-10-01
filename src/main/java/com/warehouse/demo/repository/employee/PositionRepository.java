@@ -16,9 +16,14 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
     @Query("SELECT p.inheritedPositions FROM Position p WHERE p.id = :id")
     List<Long> findInheritedPositionsIdById(long id);
     @Query(
-        value = "SELECT code_name FROM position WHERE controller_access_flags ->> :key LIKE '%' || :value || '%'", 
+        value = "SELECT code_name FROM positions WHERE (controller_flags -> :key ->> 0) LIKE '%' || :value || '%'", 
         nativeQuery = true
     )   // "||" - SQL's concatenation, "%" - SQL's substring
-    List<String> findCodeNameByControllerAccessFlagsContaining(@Param("key") String controllerName, @Param("value") String mode);
+    List<String> findCodeNameByControllerFlagsContaining(@Param("key") String controllerName, @Param("value") String mode);
     List<Position> findAllByInheritedPositionsContainingCodeName(String codeName);
+    @Query(
+        value = "SELECT (controller_flags -> :key ->> 1) FROM positions WHERE id = (SELECT position_id FROM employees WHERE employee_number = :number)",
+        nativeQuery = true
+    )
+    Optional<String> findControllerFlags_ResponseObjectTypeByEmployee_EmployeeNumberAndControllerFlagsEquals(@Param("map") String controllerName, @Param("number") String employeeNumber);
 }

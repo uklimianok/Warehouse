@@ -37,8 +37,6 @@ public class DepartmentController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] FULL_ACCESS_ROLES_ARR = {"MAJOR_HR", "SYSTEM_ADMINISTRATOR"};
-
     @GetMapping 
     public ResponseEntity<List<? extends DepartmentResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -93,13 +91,11 @@ public class DepartmentController {
     }
 
     private DepartmentResponse returnObjectResponse(Department from, UserPrincipal principal) {
-        DepartmentResponse departmentResponse = null;
-        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            departmentResponse = departmentResponseMapper.convertToFullResponse(from);
-        else
-            departmentResponse = departmentResponseMapper.convertToResponse(from);
-
-        return departmentResponse;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case ("Full") -> departmentResponseMapper.convertToFullResponse(from);
+            default -> departmentResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {

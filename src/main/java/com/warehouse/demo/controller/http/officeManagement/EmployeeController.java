@@ -37,18 +37,6 @@ public class EmployeeController {
 
     private final ControllerSecurity controllerSecurity;
 
-    private static final String[] READ_UPDATE_ACCESS_ROLES_ARR = 
-        {
-            "COORDINATOR", "DATA_CONTROLLER", "SHIFT_SUPERVISOR", 
-            "MAJOR_HR", "WAREHOUSE_EMPLOYEES_HR", "OFFICE_EMPLOYEES_HR",
-            "SYSTEM_ADMINISTRATOR"
-        };
-    private static final String[] FULL_ACCESS_ROLES_ARR = 
-        {
-            "MAJOR_HR", "WAREHOUSE_EMPLOYEES_HR", "OFFICE_EMPLOYEES_HR",
-            "SYSTEM_ADMINISTRATOR"
-        };
-
     @GetMapping
     public ResponseEntity<List<? extends EmployeeResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         throwIfUnauthorized('R', userPrincipal.getMainRole());
@@ -104,15 +92,12 @@ public class EmployeeController {
     }
 
     private EmployeeResponse returnObjectResponse(Employee from, UserPrincipal principal) {
-        EmployeeResponse response = null;
-        if (principal.hasAnyRole(FULL_ACCESS_ROLES_ARR))
-            response = employeeResponseMapper.convertToFullResponse(from);
-        else if (principal.hasAnyRole(READ_UPDATE_ACCESS_ROLES_ARR))
-            response = employeeResponseMapper.convertToDataControllerResponse(from);
-        else
-            response = employeeResponseMapper.convertToResponse(from);
-
-        return response;
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
+        return switch (responseType) {
+            case "Full" -> employeeResponseMapper.convertToFullResponse(from);
+            case "DataController" -> employeeResponseMapper.convertToDataControllerResponse(from);
+            default -> employeeResponseMapper.convertToResponse(from);
+        };
     }
 
     private void throwIfUnauthorized(char mode, String role) {
