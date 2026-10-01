@@ -2,7 +2,7 @@ package com.warehouse.demo.dto.product;
 
 import java.math.BigDecimal;
 
-import com.warehouse.demo.dto.employee.organization.FullOrganizationResponse;
+import com.warehouse.demo.dto.employee.organization.OrganizationResponse;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,9 +14,9 @@ import lombok.Setter;
 public class FullProductResponse extends ProductResponse {
     private String barcodeNumber;
     private BigDecimal cost;
-    private FullOrganizationResponse producer;
+    private OrganizationResponse producer;
 
-    public FullProductResponse(long id, String name, String barcodeNumber, BigDecimal cost, FullOrganizationResponse producer) {
+    public FullProductResponse(long id, String name, String barcodeNumber, BigDecimal cost, OrganizationResponse producer) {
         super(id, name);
         this.barcodeNumber = barcodeNumber;
         this.cost = cost;
