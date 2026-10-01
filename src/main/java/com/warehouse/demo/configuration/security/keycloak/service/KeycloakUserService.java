@@ -145,7 +145,7 @@ public class KeycloakUserService {
         deleteRoles(userId, keycloakRoles);
 
         if (passwordIsRequiredBefore && !passwordIsRequiredAfter)
-            clearRequiredActions(userId);   // It's safer to delete roles, then delete password
+            clearRequiredActions(userId);   // It's safer to delete roles earlier, then delete password
 
         keycloakRoles.clear();
         keycloakRoles.add(readRole(newPosition.getCodeName()));
@@ -157,6 +157,11 @@ public class KeycloakUserService {
 
         if (!passwordIsRequiredBefore && passwordIsRequiredAfter)
             setCredential(userId);
+
+        keycloakRestClient.post()   // Logout to invalidate the JWT containing old Position
+            .uri("/users/{userId}/logout", userId)
+            .retrieve()             // No body sent for logout
+            .toBodilessEntity();
     }
 
     private void setEnabled(String userId, boolean enabled) {
