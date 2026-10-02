@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.warehouse.demo.entity.order.ReturnProduct;
 
 public interface ReturnProductRepository extends JpaRepository<ReturnProduct, Long> {
-    boolean existsByProductId(long id);
-    boolean existsByOrderId(long id);
+    boolean existsByProductId(long productId);
+    boolean existsByOrderId(long orderId);
 }

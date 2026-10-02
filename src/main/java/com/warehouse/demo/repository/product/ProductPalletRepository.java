@@ -14,12 +14,12 @@ import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.util.info.StatusInfo;
 
 public interface ProductPalletRepository extends JpaRepository<ProductPallet, Long> {
-    boolean existsByProductPackageId(long id);
-    boolean existsByPalletId(long id);
-    boolean existsByStatusId(long id);
-    boolean existsByWorkStationId(long id);
+    boolean existsByProductPackageId(long productPackageId);
+    boolean existsByPalletId(long palletId);
+    boolean existsByStatusId(long statusId);
+    boolean existsByWorkStationId(long workStationId);
     boolean existsByPalletNumber(String palletNumber);
-    boolean existsByNextWorkStationId(long id);
+    boolean existsByNextWorkStationId(long nextWorkStationId);
     Optional<ProductPallet> findByPalletNumber(String palletNumber);
     @Transactional 
     @Modifying  // Allows manual UPDATE/DELETE @Query

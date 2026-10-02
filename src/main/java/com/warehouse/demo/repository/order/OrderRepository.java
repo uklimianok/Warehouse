@@ -9,10 +9,10 @@ import com.warehouse.demo.entity.order.Order;
 import jakarta.transaction.Transactional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    boolean existsByStoreId(long id);
-    boolean existsByShiftId(long id);
-    boolean existsByStatusId(long id);
-    boolean existsByGateId(long id);
+    boolean existsByStoreId(long storeId);
+    boolean existsByShiftId(long shiftId);
+    boolean existsByStatusId(long statusId);
+    boolean existsByGateId(long gateId);
     @Modifying(clearAutomatically = true)
     @Transactional 
     @Query("UPDATE Order o SET o.statusId = :statusId WHERE o.id = :id")
