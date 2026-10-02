@@ -19,4 +19,5 @@ public class PickedProductResponse {
     private OrderPalletResponse orderPallet;
     private ProductPackageResponse productPackage;
     private BigDecimal pickedVolume;
+    private boolean isCompleted;
 }

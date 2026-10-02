@@ -39,4 +39,6 @@ public class PickedProduct implements Identifiable {
     private ProductPackage productPackage;
     @Column(nullable = false)
     private BigDecimal pickedVolume;
+    @Column(nullable = false)
+    private boolean completed;
 }

@@ -2,19 +2,24 @@ package com.warehouse.demo.service.order.impl;
 
 import com.warehouse.demo.repository.service.StatusRepository;
 
+import com.warehouse.demo.util.action.PositionInheritanceTree;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
 import com.warehouse.demo.entity.employee.Employee;
+import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.order.OrderPallet;
+import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.mapper.order.orderPallet.OrderPalletRequestMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.item.PaperCardRepository;
 import com.warehouse.demo.repository.order.OrderPalletRepository;
+import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderPalletService;
@@ -28,6 +33,8 @@ import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> implements OrderPalletService {
+    private final PositionInheritanceTree positionInheritanceTree;
+
     private final OrderPalletService self;
 
     private final StatusRepository statusRepository;
@@ -35,6 +42,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     private final PaperCardRepository paperCardRepository;
     private final PickedProductRepository pickedProductRepository;
     private final EmployeeRepository employeeRepository;
+    private final OrderRepository orderRepository;
 
     private final OrderPalletRequestMapper orderPalletRequestMapper;
 
@@ -45,7 +53,8 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         PaperCardRepository paperCardRepository, 
         PickedProductRepository pickedProductRepository, 
         OrderPalletRequestMapper orderPalletRequestMapper,
-        EmployeeRepository employeeRepository
+        EmployeeRepository employeeRepository,
+        OrderRepository orderRepository, PositionInheritanceTree positionInheritanceTree
     ) {
         this.self = self;
         this.statusRepository = statusRepository;
@@ -54,6 +63,8 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         this.pickedProductRepository = pickedProductRepository;
         this.orderPalletRequestMapper = orderPalletRequestMapper;
         this.employeeRepository = employeeRepository;
+        this.orderRepository = orderRepository;
+        this.positionInheritanceTree = positionInheritanceTree;
     }
 
     @Override 
@@ -79,15 +90,11 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     @CacheEvict(value = "orderPallets", key = "#id")
     public OrderPallet update(long id, OrderPalletRequest orderPalletRequest, String employeeNumber) {  // Develop status system
         OrderPallet orderPallet = self.read(id);
-        orderPallet.setStatus(
-            statusRepository.findByIdAndType(orderPalletRequest.getStatusId(), getEntityName().getEntity())
-                .orElseThrow(() ->
-                    new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND))            
-            )
-        );
-
         Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+
+        configureStatus(orderPallet, orderPalletRequest, callerEmployee);
+
         if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             orderPalletRequestMapper.convertFromWarehouseEmployeeRequest(orderPalletRequest, orderPallet);
         else
@@ -122,5 +129,90 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     private OrderPallet modifyAndSave(OrderPallet target, OrderPalletRequest from) {
         orderPalletRequestMapper.convertFromRequest(from, target);
         return orderPalletRepository.save(target);
+    }
+
+    private void configureStatus(OrderPallet target, OrderPalletRequest from, Employee subject) {
+        statusRepository.findByIdAndType(from.getStatusId(), getEntityName().getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+        Position subjectPosition = subject.getPosition();
+        Status oldStatus = target.getStatus();
+        Status newStatus = statusRepository.findByIdAndType(from.getStatusId(), getEntityName().getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+        switch (newStatus.getName()) {
+            case StatusInfo.ORDER_PALLET_PICKING: {
+                if (
+                    (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletId(target.getId())
+                )   // Status "Picking" can be set by certain roles, but only if there are no picked products assigned to the order pallet
+                    target.setStatus(newStatus);
+                else
+                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_PICKED: {
+                if (
+                    (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                )   // Status "Picked" can be set by certain roles, but only if all picked products assigned to the order pallet are completed
+                    target.setStatus(newStatus);
+                else
+                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_EXPORTING: {
+                if (
+                    (oldStatus.getName().equals(StatusInfo.ORDER_PALLET_PICKED)
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SET_GOODS_EXPORTER")))
+                    || (
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                    )   
+                )   // Status "Exporting" can be set either by "Set Goods Exporter" automatically or as "Picked" status
+                    target.setStatus(newStatus);
+                else
+                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_LOADING: {
+                if (
+                    (oldStatus.getName().equals(StatusInfo.ORDER_PALLET_EXPORTING)
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SET_GOODS_LOADER")))
+                    || (
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                    ) 
+                ) 
+                    target.setStatus(newStatus);
+                else
+                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_SENT: {
+                if (
+                    oldStatus.getName().equals(StatusInfo.ORDER_PALLET_LOADING)
+                    && (
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                    )   
+                ) {  // Status "Sent" can be set only from "Loading" status
+                    target.setStatus(newStatus);
+
+                    Status orderSentStatus = statusRepository.findByNameAndType(StatusInfo.ORDER_SENT, Entity.ORDER.getEntity())
+                        .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+                    int affectedRows = orderRepository.updateStatusById(target.getOrder().getId(), orderSentStatus.getId());
+                    if (affectedRows < 1) 
+                        throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.NOT_FOUND));
+                }
+                else
+                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            }
+        }
     }
 }

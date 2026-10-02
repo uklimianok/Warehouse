@@ -15,4 +15,5 @@ public class PickedProductRequest {
     private long orderPalletId;
     private long packageId;
     private BigDecimal pickedVolume;
+    private boolean isCompleted;
 }

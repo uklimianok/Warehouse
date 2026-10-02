@@ -56,3 +56,6 @@ UPDATE positions
         WHEN 'SYSTEM_ADMINISTRATOR' THEN false
     ELSE is_removable
 END;
+
+ALTER TABLE picked_products
+    ADD is_completed BOOLEAN NOT NULL

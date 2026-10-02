@@ -10,8 +10,7 @@ public class StatusInfo {
     public static final String PRODUCT_PALLET_OUT_OF_USE = "Out-of-use";
     public static final String ORDER_ACCEPTED = "Accepted";
     public static final String ORDER_STARTED = "Started";
-    public static final String ORDER_INCOMPLETE_INACTIVE = "Incomplete-inactive";
-    public static final String ORDER_INCOMPLETE_ACTIVE = "Incomplete-active";
+    public static final String ORDER_INCOMPLETE = "Incomplete";
     public static final String ORDER_COMPLETE = "Complete";
     public static final String ORDER_SENT = "Sent";
     public static final String ORDER_PALLET_PICKING = "Picking";
@@ -30,8 +29,7 @@ public class StatusInfo {
     public static final Set<String> ORDER = Set.of(
         ORDER_ACCEPTED,
         ORDER_STARTED,
-        ORDER_INCOMPLETE_INACTIVE,
-        ORDER_INCOMPLETE_ACTIVE,
+        ORDER_INCOMPLETE,
         ORDER_COMPLETE,
         ORDER_SENT
     );
