@@ -166,19 +166,12 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         );
 
         if (
-            (   // Condition 1: fields that are absolutely restricted for the roles
-                subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT)
-                && (target.getProductPackage().getId() != from.getProductPackageId()
-                || target.getPackageAmount() != from.getPackageAmount()
-                || !target.getGroupNumber().equals(from.getGroupNumber()))
-            ) || (  // Condition 2: field is restricted for OPERATOR (absolutely) and GOODS_UNLOADER (unless a certain status) 
+            (  // Field is restricted for GOODS_UNLOADER (unless a certain status) 
                 palletChanged
-                && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
-                || (positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER")
-                && !target.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_ORDERED)))
+                && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER")
+                && !target.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_ORDERED))
             )
-        ) 
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+        ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
     }
 
     private void generatePalletNumber(ProductPallet target) {

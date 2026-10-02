@@ -20,4 +20,11 @@ public interface OrderRequestMapper {
     @Mapping(target = "shift", source = "orderRequest.shiftId")
     @Mapping(target = "status", ignore = true)
     void convertFromRequest(OrderRequest orderRequest, @MappingTarget Order order);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "store", ignore = true)
+    @Mapping(target = "gate", ignore = true)
+    @Mapping(target = "shift", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    void convertFromWarehouseEmployeeRequest(OrderRequest orderRequest, @MappingTarget Order order);
 }

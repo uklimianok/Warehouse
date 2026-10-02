@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.OrderRequest;
+import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.order.Order;
 import com.warehouse.demo.mapper.order.OrderRequestMapper;
+import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.repository.order.OrderedProductRepository;
@@ -19,6 +21,7 @@ import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -35,13 +38,24 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     private final ReturnProductRepository returnProductRepository;
     private final GateRepository gateRepository;
     private final StatusRepository statusRepository;
+    private final EmployeeRepository employeeRepository;
 
     private final OrderRequestMapper orderRequestMapper;
 
     public static final String GATE_REQUIRED = "must contain any gate.";
 
-    public OrderServiceImpl(@Lazy OrderService self, OrderRepository orderRepository, OrderedProductRepository orderedProductRepository, OrderPalletRepository orderPalletRepository, ReturnProductRepository returnProductRepository, GateRepository gateRepository, StatusRepository statusRepository, OrderRequestMapper orderRequestMapper) {
-        this.self = self;   // Set only when it is used, not when declared
+    public OrderServiceImpl(
+        @Lazy OrderService self, 
+        OrderRepository orderRepository, 
+        OrderedProductRepository orderedProductRepository, 
+        OrderPalletRepository orderPalletRepository, 
+        ReturnProductRepository returnProductRepository, 
+        GateRepository gateRepository, 
+        StatusRepository statusRepository, 
+        OrderRequestMapper orderRequestMapper,
+        EmployeeRepository employeeRepository
+    ) {
+        this.self = self;   // @Lazy sets only when it is used, not when declared
         this.orderRepository = orderRepository;
         this.orderedProductRepository = orderedProductRepository;
         this.orderPalletRepository = orderPalletRepository;
@@ -49,6 +63,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         this.gateRepository = gateRepository;
         this.statusRepository = statusRepository;
         this.orderRequestMapper = orderRequestMapper;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override 
@@ -70,7 +85,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
 
     @Override
     @CacheEvict(value = "orders", key = "#id")
-    public Order update(long id, OrderRequest orderRequest) {
+    public Order update(long id, OrderRequest orderRequest, String employeeNumber) {    // Develop status system
         Order order = self.read(id);    // Cached object is provided through proxy "self", not through direct "this"
         order.setStatus(statusRepository
             .findByIdAndType(orderRequest.getStatusId(), Entity.ORDER.getEntity())
@@ -87,7 +102,14 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         if (!order.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED) && order.getGate() == null)
             throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
-        return modifyAndSave(order, orderRequest);
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+            orderRequestMapper.convertFromWarehouseEmployeeRequest(orderRequest, order);
+        else
+            orderRequestMapper.convertFromRequest(orderRequest, order);
+
+        return orderRepository.save(order);
     }
 
     @Override 

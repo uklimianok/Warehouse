@@ -74,7 +74,7 @@ public class OrderPalletController {
     public ResponseEntity<? extends OrderPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderPalletRequest orderPalletRequest) {
         throwIfUnauthorized('U', userPrincipal.getMainRole());
 
-        OrderPallet orderPallet = orderPalletService.update(id, orderPalletRequest);
+        OrderPallet orderPallet = orderPalletService.update(id, orderPalletRequest, userPrincipal.getEmployeeNumber());
         OrderPalletResponse orderPalletResponse = returnObjectResponse(orderPallet, userPrincipal);
 
         return new ResponseEntity<>(orderPalletResponse, HttpStatus.OK);

@@ -74,7 +74,7 @@ public class OrderController {
     public ResponseEntity<? extends OrderResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderRequest orderRequest) {
         throwIfUnauthorized('U', userPrincipal.getMainRole());
 
-        Order order = orderService.update(id, orderRequest);
+        Order order = orderService.update(id, orderRequest, userPrincipal.getEmployeeNumber());
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
 
         return new ResponseEntity<>(orderResponse, HttpStatus.OK);

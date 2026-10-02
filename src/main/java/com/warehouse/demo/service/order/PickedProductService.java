@@ -6,5 +6,5 @@ import com.warehouse.demo.service.BaseService;
 
 public interface PickedProductService extends BaseService<PickedProduct, Long> {
     PickedProduct create(PickedProductRequest pickedProductRequest);
-    PickedProduct update(long id, PickedProductRequest pickedProductRequest);
+    PickedProduct update(long id, PickedProductRequest pickedProductRequest, String employeeNumber);
 }

@@ -22,4 +22,26 @@ public interface ProductPalletRequestMapper {
     @Mapping(target = "workStation", ignore = true)
     @Mapping(target = "nextWorkStation", ignore = true)
     void convertFromRequest(ProductPalletRequest productPalletRequest, @MappingTarget ProductPallet productPallet);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "productPackage", ignore = true)
+    @Mapping(target = "packageAmount", ignore = true)
+    @Mapping(target = "pallet", source = "productPalletRequest.palletId")
+    @Mapping(target = "palletNumber", ignore = true)
+    @Mapping(target = "groupNumber", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "workStation", ignore = true)
+    @Mapping(target = "nextWorkStation", ignore = true)
+    void convertFromGoodsUnloaderRequest(ProductPalletRequest productPalletRequest, @MappingTarget ProductPallet productPallet);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "productPackage", ignore = true)
+    @Mapping(target = "packageAmount", ignore = true)
+    @Mapping(target = "pallet", ignore = true)
+    @Mapping(target = "palletNumber", ignore = true)
+    @Mapping(target = "groupNumber", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "workStation", ignore = true)
+    @Mapping(target = "nextWorkStation", ignore = true)
+    void convertFromOperatorRequest(ProductPalletRequest productPalletRequest, @MappingTarget ProductPallet productPallet);
 }

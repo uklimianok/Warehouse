@@ -16,4 +16,9 @@ public interface PickedProductRequestMapper {
     @Mapping(target = "orderPallet", source = "pickedProductRequest.orderPalletId")
     @Mapping(target = "productPackage", source = "pickedProductRequest.packageId")
     void convertFromRequest(PickedProductRequest pickedProductRequest, @MappingTarget PickedProduct pickedProduct);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orderPallet", ignore = true)
+    @Mapping(target = "productPackage", ignore = true)
+    void convertFromGoodsPickerRequest(PickedProductRequest pickedProductRequest, @MappingTarget PickedProduct pickedProduct);
 }

@@ -74,7 +74,7 @@ public class PickedProductController {
     public ResponseEntity<? extends PickedProductResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PickedProductRequest pickedProductRequest) {
         throwIfUnauthorized('U', userPrincipal.getMainRole());
 
-        PickedProduct pickedProduct = pickedProductService.update(id, pickedProductRequest);
+        PickedProduct pickedProduct = pickedProductService.update(id, pickedProductRequest, userPrincipal.getEmployeeNumber());
         PickedProductResponse pickedProductResponse = returnObjectResponse(pickedProduct, userPrincipal);
 
         return new ResponseEntity<>(pickedProductResponse, HttpStatus.OK);

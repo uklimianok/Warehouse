@@ -16,6 +16,12 @@ public interface OrderPalletRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "order", source = "orderPalletRequest.orderId")
     @Mapping(target = "pallet", source = "orderPalletRequest.palletId")
-    @Mapping(target = "status", source = "orderPalletRequest.statusId")
+    @Mapping(target = "status", ignore = true)
     void convertFromRequest(OrderPalletRequest orderPalletRequest, @MappingTarget OrderPallet orderPallet);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "order", ignore = true)
+    @Mapping(target = "pallet", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    void convertFromWarehouseEmployeeRequest(OrderPalletRequest orderPalletRequest, @MappingTarget OrderPallet orderPallet);
 }

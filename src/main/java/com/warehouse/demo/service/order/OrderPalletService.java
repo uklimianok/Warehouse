@@ -6,5 +6,5 @@ import com.warehouse.demo.service.BaseService;
 
 public interface OrderPalletService extends BaseService<OrderPallet, Long> {
     OrderPallet create(OrderPalletRequest orderPalletRequest);
-    OrderPallet update(long id, OrderPalletRequest orderPalletRequest);
+    OrderPallet update(long id, OrderPalletRequest orderPalletRequest, String employeeNumber);
 }

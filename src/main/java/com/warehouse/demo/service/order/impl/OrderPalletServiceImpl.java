@@ -9,14 +9,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
+import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.order.OrderPallet;
 import com.warehouse.demo.mapper.order.orderPallet.OrderPalletRequestMapper;
+import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.item.PaperCardRepository;
 import com.warehouse.demo.repository.order.OrderPalletRepository;
 import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderPalletService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.info.DepartmentInfo;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -31,16 +34,26 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     private final OrderPalletRepository orderPalletRepository;
     private final PaperCardRepository paperCardRepository;
     private final PickedProductRepository pickedProductRepository;
+    private final EmployeeRepository employeeRepository;
 
     private final OrderPalletRequestMapper orderPalletRequestMapper;
 
-    public OrderPalletServiceImpl(@Lazy OrderPalletService self, StatusRepository statusRepository, OrderPalletRepository orderPalletRepository, PaperCardRepository paperCardRepository, PickedProductRepository pickedProductRepository, OrderPalletRequestMapper orderPalletRequestMapper) {
+    public OrderPalletServiceImpl(
+        @Lazy OrderPalletService self, 
+        StatusRepository statusRepository, 
+        OrderPalletRepository orderPalletRepository, 
+        PaperCardRepository paperCardRepository, 
+        PickedProductRepository pickedProductRepository, 
+        OrderPalletRequestMapper orderPalletRequestMapper,
+        EmployeeRepository employeeRepository
+    ) {
         this.self = self;
         this.statusRepository = statusRepository;
         this.orderPalletRepository = orderPalletRepository;
         this.paperCardRepository = paperCardRepository;
         this.pickedProductRepository = pickedProductRepository;
         this.orderPalletRequestMapper = orderPalletRequestMapper;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override 
@@ -64,7 +77,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
 
     @Override
     @CacheEvict(value = "orderPallets", key = "#id")
-    public OrderPallet update(long id, OrderPalletRequest orderPalletRequest) {
+    public OrderPallet update(long id, OrderPalletRequest orderPalletRequest, String employeeNumber) {  // Develop status system
         OrderPallet orderPallet = self.read(id);
         orderPallet.setStatus(
             statusRepository.findByIdAndType(orderPalletRequest.getStatusId(), getEntityName().getEntity())
@@ -73,7 +86,14 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
             )
         );
 
-        return modifyAndSave(orderPallet, orderPalletRequest);
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+            orderPalletRequestMapper.convertFromWarehouseEmployeeRequest(orderPalletRequest, orderPallet);
+        else
+            orderPalletRequestMapper.convertFromRequest(orderPalletRequest, orderPallet);
+
+        return orderPalletRepository.save(orderPallet);
     }
 
     @Override 

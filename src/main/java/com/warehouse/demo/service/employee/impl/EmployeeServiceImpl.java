@@ -1,7 +1,6 @@
 package com.warehouse.demo.service.employee.impl;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -174,22 +173,14 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     }
 
     private void throwIfPositionNotConfigurable(Employee object, Employee subject) {
-        Position subjectPosition = subject.getPosition(); // 1. Check department
-        Set<String> allowedDepartments = Set.of(
-            DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT,
-            DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT,
-            DepartmentInfo.HR_DEPARTMENT,
-            DepartmentInfo.IT_DEPARTMENT
-        );
-        if (!allowedDepartments.contains(subjectPosition.getDepartment().getCodeName())) 
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
+        Position subjectPosition = subject.getPosition();
 
-        if (    // 2. Check whether subject can configure not self
+        if (    // 1. Check whether subject can configure not self
             !subject.getEmployeeNumber().equals(object.getEmployeeNumber())
             && subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT)
         ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 
-        Position objectPosition = object.getPosition();     // 3. Check position priority
+        Position objectPosition = object.getPosition();     // 2. Check position priority
         int subjectPriority = DepartmentInfo.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
         int objectPriority = DepartmentInfo.PRIORITIES.getOrDefault(objectPosition.getDepartment(), 0);
         if (subjectPriority == 0 || objectPriority == 0)
@@ -203,17 +194,19 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         target.setGate(null);
     }
 
-    private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {  // Add protection from null values in EmployeeRequest here
+    private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {
         Position position = positionRepository.findById(from.getPositionId())
             .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
         if (
-            positionInheritanceTree.isOneOrDescendant(position, "GOODS_PICKER")
-            || positionInheritanceTree.isOneOrDescendant(position, "OPERATOR")
+            from.getWorkshopId() != null
+            && (positionInheritanceTree.isOneOrDescendant(position, "GOODS_PICKER")
+            || positionInheritanceTree.isOneOrDescendant(position, "OPERATOR"))
         ) target.setWorkshop(workshopRepository.findById(from.getWorkshopId())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORKSHOP, OutputMessage.NOT_FOUND))));
         else if (
-            positionInheritanceTree.isOneOrDescendant(position, "GOODS_UNLOADER")
-            || positionInheritanceTree.isOneOrDescendant(position, "SET_GOODS_UNLOADER")
+            from.getGateId() != null
+            && (positionInheritanceTree.isOneOrDescendant(position, "GOODS_UNLOADER")
+            || positionInheritanceTree.isOneOrDescendant(position, "SET_GOODS_UNLOADER"))
         ) target.setGate(gateRepository.findById(from.getGateId())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
         else configureWorkshopAndGate(target);
