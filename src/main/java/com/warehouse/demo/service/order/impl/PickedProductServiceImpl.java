@@ -45,7 +45,11 @@ public class PickedProductServiceImpl extends AbstractService<PickedProduct, Lon
         else
             pickedProductRequestMapper.convertFromRequest(pickedProductRequest, pickedProduct);
 
-        return pickedProductRepository.save(pickedProduct);
+        PickedProduct savedPickedProduct = pickedProductRepository.save(pickedProduct);
+
+
+
+        return savedPickedProduct;
     }
 
     private PickedProduct modifyAndSave(PickedProduct target, PickedProductRequest from) {

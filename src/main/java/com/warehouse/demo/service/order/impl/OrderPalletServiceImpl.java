@@ -83,7 +83,10 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
             )   
         );
 
-        return modifyAndSave(orderPallet, orderPalletRequest);
+        OrderPallet savedOrderPallet = modifyAndSave(orderPallet, orderPalletRequest);
+        changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_STARTED);
+
+        return savedOrderPallet;
     }
 
     @Override
@@ -100,7 +103,18 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         else
             orderPalletRequestMapper.convertFromRequest(orderPalletRequest, orderPallet);
 
-        return orderPalletRepository.save(orderPallet);
+        OrderPallet savedOrderPallet = orderPalletRepository.save(orderPallet);
+        
+        if (savedOrderPallet.getStatus().getName().equals(StatusInfo.ORDER_PALLET_PICKED)) {
+            boolean allPickedProductsCompleted = orderPalletRepository.isAllOrderedProductExistInPickedProduct();
+            if (allPickedProductsCompleted)
+                changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_COMPLETE); 
+            else 
+                changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_INCOMPLETE);
+        } else if (savedOrderPallet.getStatus().getName().equals(StatusInfo.ORDER_PALLET_SENT))
+            changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_SENT);
+
+        return savedOrderPallet;
     }
 
     @Override 
@@ -154,9 +168,13 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
 
             case StatusInfo.ORDER_PALLET_PICKED: {
                 if (
-                    (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
-                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                    && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                    (oldStatus.getName().equals(StatusInfo.ORDER_PALLET_PICKING)
+                    && positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_PICKER"))
+                    || (
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                    )
                 )   // Status "Picked" can be set by certain roles, but only if all picked products assigned to the order pallet are completed
                     target.setStatus(newStatus);
                 else
@@ -201,18 +219,20 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
                         && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
                     )   
-                ) {  // Status "Sent" can be set only from "Loading" status
+                )   // Status "Sent" can be set only from "Loading" status
                     target.setStatus(newStatus);
-
-                    Status orderSentStatus = statusRepository.findByNameAndType(StatusInfo.ORDER_SENT, Entity.ORDER.getEntity())
-                        .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
-                    int affectedRows = orderRepository.updateStatusById(target.getOrder().getId(), orderSentStatus.getId());
-                    if (affectedRows < 1) 
-                        throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.NOT_FOUND));
-                }
                 else
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             }
         }
+    }
+
+    private void changeOrderStatus(long orderId, String statusName) {
+        Status orderSentStatus = statusRepository.findByNameAndType(statusName, Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+        int affectedRows = orderRepository.updateStatusById(orderId, orderSentStatus.getId());
+        if (affectedRows < 1) 
+            throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.NOT_FOUND));
     }
 }
