@@ -264,7 +264,7 @@ UPDATE positions
             "TrackController": ["", ""],
             "ActionLogController": ["", ""]
         }'::jsonb
-        WHEN 'WAREHOUSE_EMPLOYEE_HR' THEN '{
+        WHEN 'WAREHOUSE_EMPLOYEES_HR' THEN '{
             "ProductController": ["", ""], 
             "ProductPackageController": ["", ""],
             "PalletController": ["", ""],
@@ -288,7 +288,7 @@ UPDATE positions
             "TrackController": ["", ""],
             "ActionLogController": ["", ""]
         }'::jsonb
-        WHEN 'OFFICE_EMPLOYEE_HR' THEN '{
+        WHEN 'OFFICE_EMPLOYEES_HR' THEN '{
             "ProductController": ["", ""], 
             "ProductPackageController": ["", ""],
             "PalletController": ["", ""],
@@ -480,7 +480,7 @@ UPDATE positions
             "TrackController": ["", ""],
             "ActionLogController": ["", ""]
         }'::jsonb
-        WHEN 'ELECTRICIAN' THEN '{
+        WHEN 'ELECTRIC' THEN '{
             "ProductController": ["", ""], 
             "ProductPackageController": ["", ""],
             "PalletController": ["", ""],
@@ -600,5 +600,5 @@ UPDATE positions
             "TrackController": ["", ""],
             "ActionLogController": ["", ""]
         }'::jsonb
-    ELSE controller_access_flags
+    ELSE controller_flags
 END;

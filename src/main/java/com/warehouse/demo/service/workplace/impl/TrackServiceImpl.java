@@ -2,7 +2,6 @@ package com.warehouse.demo.service.workplace.impl;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +12,7 @@ import com.warehouse.demo.repository.workplace.TrackRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.TrackService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -34,7 +34,7 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
     @Override
     public Track create(TrackRequest trackRequest) {
         if (trackRepository.existsBySymbol(trackRequest.getSymbol()))
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(new Track(), trackRequest);
     }
@@ -46,7 +46,7 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
         boolean trackChanged = !track.getSymbol().equals(trackRequest.getSymbol());
         boolean trackExists = trackRepository.existsBySymbol(trackRequest.getSymbol());
         if (trackChanged && trackExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(track, trackRequest);
     }

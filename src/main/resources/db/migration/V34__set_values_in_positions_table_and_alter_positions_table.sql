@@ -12,7 +12,7 @@ UPDATE positions
         WHEN 'DATA_CONTROLLER' THEN (SELECT id FROM departments WHERE code_name = 'AUXILIARY_EMPLOYEES_DEPARTMENT')
         WHEN 'SHIFT_SUPERVISOR' THEN (SELECT id FROM departments WHERE code_name = 'AUXILIARY_EMPLOYEES_DEPARTMENT')
         WHEN 'CLEANER' THEN (SELECT id FROM departments WHERE code_name = 'SERVICE_DEPARTMENT')
-        WHEN 'ELECTRICIAN' THEN (SELECT id FROM departments WHERE code_name = 'SERVICE_DEPARTMENT')
+        WHEN 'ELECTRIC' THEN (SELECT id FROM departments WHERE code_name = 'SERVICE_DEPARTMENT')
         WHEN 'GENERAL_LABORER' THEN (SELECT id FROM departments WHERE code_name = 'SERVICE_DEPARTMENT')
         WHEN 'DIRECTOR' THEN (SELECT id FROM departments WHERE code_name = 'HIGH_LEVEL_STAFF_DEPARTMENT')
         WHEN 'LABOR_PROTECTOR' THEN (SELECT id FROM departments WHERE code_name = 'LABOR_PROTECTION_DEPARTMENT')
@@ -29,4 +29,4 @@ UPDATE positions
 END;
 
 ALTER TABLE positions
-    SET COLUMN department_id NOT NULL;
+    ALTER COLUMN department_id SET NOT NULL;

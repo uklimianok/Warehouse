@@ -1,17 +1,15 @@
 package com.warehouse.demo.service.employee.impl;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
-
 import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.configuration.security.keycloak.service.KeycloakUserService;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
@@ -20,6 +18,7 @@ import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.product.ProductPallet;
 import com.warehouse.demo.entity.service.Status;
+import com.warehouse.demo.event.employee.EmployeeUpdatedEvent;
 import com.warehouse.demo.mapper.employee.EmployeeRequestMapper;
 import com.warehouse.demo.mapper.product.productPallet.ProductPalletResponseMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
@@ -39,7 +38,7 @@ import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -62,7 +61,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     private final PositionInheritanceTree positionInheritanceTree;
 
-    private static AtomicLong EMPLOYEE_NUMBER_COUNTER = new AtomicLong(0);
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override 
     @Cacheable(value = "employees", key = "#id")
@@ -107,7 +106,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
         Employee savedEmployee = employeeRepository.save(employee);
 
-        sendPendingNotifications(savedEmployee.getEmployeeNumber());
+        applicationEventPublisher.publishEvent(new EmployeeUpdatedEvent(savedEmployee.getEmployeeNumber()));    // Calls sendPendingNotifications() if it's successfully commits
 
         Position newPosition = savedEmployee.getPosition();
         if (oldPosition.getId() != newPosition.getId())
@@ -129,7 +128,6 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         keycloakUserService.deleteUser(employeeNumber);
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendPendingNotifications(String to) {
         Employee employee = employeeRepository.findByEmployeeNumber(to)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
@@ -184,24 +182,28 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     }
 
     private void generateEmployeeNumber(Employee target) {
-        EMPLOYEE_NUMBER_COUNTER.set(employeeRepository.getNextIdValue() + 10_000_000);
-        target.setEmployeeNumber(String.valueOf(EMPLOYEE_NUMBER_COUNTER.get()));
+        target.setEmployeeNumber(String.format("%08d", employeeRepository.nextEmployeeNumber()));
     }
 
-    private void throwIfPositionNotConfigurable(Employee subject, Employee object, EmployeeRequest objectRequest) {
-        Position subjectPosition = subject.getPosition();   // Caller
+    private void throwIfPositionNotConfigurable(Employee caller, Employee object, EmployeeRequest objectRequest) {
+        Position callerPosition = caller.getPosition();
 
         if (    // 1. Check whether subject can configure not self
-            !subject.getEmployeeNumber().equals(object.getEmployeeNumber())
-            && subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT)
-        ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
+            !caller.getEmployeeNumber().equals(object.getEmployeeNumber())
+            && callerPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT)
+        ) throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 
-        Position objectPosition = positionRepository.findById(objectRequest.getPositionId())
-            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));     // 2. Check position priority
-        int subjectPriority = subjectPosition.getDepartment().getPriority();
+        Position objectPosition = object.getPosition(); // 2. Check position priority
+        Position assigningPosition = positionRepository.findById(objectRequest.getPositionId())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
+        int callerPriority = callerPosition.getDepartment().getPriority();
         int objectPriority = objectPosition.getDepartment().getPriority();
-        if (subjectPriority > objectPriority)   // Subject must have the priority number not less than the object's one 
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+        int assigningPriority = assigningPosition.getDepartment().getPriority();
+        if (
+            callerPriority > objectPriority
+            || callerPriority > assigningPriority
+        )   // Subject must have the priority number not less than the object's one 
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
     }
 
     private void configureWorkshopAndGate(Employee target) {

@@ -1,11 +1,14 @@
 package com.warehouse.demo.service.order.impl;
 
 import com.warehouse.demo.util.action.PositionInheritanceTree;
+import com.warehouse.demo.util.exception.BusinessRuleException;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.OrderRequest;
@@ -30,7 +33,7 @@ import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderServiceImpl extends AbstractService<Order, Long> implements OrderService {
@@ -157,14 +160,14 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         if (
             positionInheritanceTree.isOneOrDescendant(subjectPosition, "ORDERS_PROCEEDER")
             && !target.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED)  // ORDERS_PROCEEDER can only configure orders with status "Accepted"
-        ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+        ) throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
 
         Status status = statusRepository.findByIdAndType(from.getStatusId(), Entity.ORDER.getEntity())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
         if (    // Empty gate is not allowed for orders with status "Sent"
             from.getGateId() == null
             && status.getName().equals(StatusInfo.ORDER_SENT)
-        ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
+        ) throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
     }
 
     private void configureStatus(Order target, OrderRequest from, Employee subject) {
@@ -182,18 +185,18 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
                 ) // Status "Accepted" can be set by certain roles, but only if there are no pallets assigned to the order
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
             
             case StatusInfo.ORDER_STARTED, StatusInfo.ORDER_INCOMPLETE, StatusInfo.ORDER_COMPLETE, StatusInfo.ORDER_SENT: { // Statuses are set either automatically or by SYSTEM_ADMINISTRATOR
                 if (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR")) 
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
 
             default:
-                throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED)); 
+                throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED)); 
         }
     }
 }

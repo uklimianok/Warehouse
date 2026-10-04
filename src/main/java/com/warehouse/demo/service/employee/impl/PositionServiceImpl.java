@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.configuration.security.keycloak.service.KeycloakRoleService;
@@ -17,10 +17,11 @@ import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.PositionService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,7 +46,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     @Transactional
     public Position create(PositionRequest positionRequest) {
         if (positionRepository.existsByName(positionRequest.getName())) 
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         Position position = new Position();
         position.setCodeName(positionRequest.getName().replace(' ', '_').toUpperCase());
@@ -68,7 +69,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
         boolean nameChanged = !position.getName().equals(positionRequest.getName());
         boolean nameExists = positionRepository.existsByName(positionRequest.getName());
         if (nameChanged && nameExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         throwIfInheritanceLooped(position.getId(), positionRequest.getInheritedPositionsId());
 
@@ -76,11 +77,12 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     }
 
     @Override
+    @Transactional 
     @CacheEvict(value = "positions", key = "#id")
     public void delete(Long id) {
         Position position = read(id);
         if (!position.isRemovable())
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
 
         super.delete(id);
         positionRepository.flush();
@@ -114,7 +116,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
 
         for (int i = 0; i < parents.size(); i++) {
             if (parents.get(i) == targetId)
-                throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(LOOP_INHERITANCE_MESSAGE));
+                throw new BusinessRuleException(MessageHandler.getOutputMessage(LOOP_INHERITANCE_MESSAGE));
         
             List<Long> grandParents = positionRepository.findInheritedPositionsIdById(parents.get(i));
             throwIfInheritanceLooped(targetId, grandParents);

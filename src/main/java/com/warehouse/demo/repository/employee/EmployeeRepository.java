@@ -21,8 +21,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT e.employeeNumber FROM Employee e WHERE e.id = :id")
     Optional<String> findEmployeeNumberById(long id);
     @Query(
-        value = "SELECT nextval('employee_id_seq')",
+        value = "SELECT nextval('employee_number_seq')",
         nativeQuery = true
     )
-    long getNextIdValue();
+    long nextEmployeeNumber();
 }

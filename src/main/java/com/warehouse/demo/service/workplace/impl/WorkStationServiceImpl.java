@@ -2,7 +2,6 @@ package com.warehouse.demo.service.workplace.impl;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +13,7 @@ import com.warehouse.demo.repository.workplace.WorkStationRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.WorkStationService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -37,7 +37,7 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     public WorkStation create(WorkStationRequest workStationRequest) {
         boolean stationNameExists = workStationRepository.existsByStationNumber(workStationRequest.getStationNumber());
         if (stationNameExists) 
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
         
         return modifyAndSave(new WorkStation(), workStationRequest);
     }
@@ -49,7 +49,7 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
         boolean stationNumberChanged = !workStation.getStationNumber().equals(workStationRequest.getStationNumber());
         boolean stationNumberExists = workStationRepository.existsByStationNumber(workStationRequest.getStationNumber());
         if (stationNumberChanged && stationNumberExists) 
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(workStation, workStationRequest);
     }

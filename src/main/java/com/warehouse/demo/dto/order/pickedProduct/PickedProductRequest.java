@@ -28,5 +28,5 @@ public class PickedProductRequest {
     private BigDecimal pickedVolume;
 
     @NotNull 
-    private Boolean isCompleted;
+    private Boolean completed;
 }

@@ -22,14 +22,14 @@ ALTER TABLE positions
     ADD is_removable BOOLEAN NOT NULL DEFAULT false,
     ADD controller_flags JSONB NOT NULL DEFAULT '{}'::jsonb,
     ADD department_id BIGINT,
-    CONSTRAINT fk_department
+    ADD CONSTRAINT fk_department
         FOREIGN KEY (department_id)
         REFERENCES departments(id);
 
 CREATE INDEX idx_positions_controller_flags ON positions USING GIN (controller_flags);
 
 ALTER TABLE picked_products
-    ADD is_completed BOOLEAN NOT NULL
+    ADD is_completed BOOLEAN NOT NULL;
 
 ALTER TABLE action_logs
     DROP COLUMN employee_id;

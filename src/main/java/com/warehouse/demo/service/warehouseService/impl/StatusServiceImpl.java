@@ -3,7 +3,6 @@ package com.warehouse.demo.service.warehouseService.impl;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,7 @@ import com.warehouse.demo.repository.service.StatusRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.warehouseService.StatusService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -54,7 +54,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
     public Status create(StatusRequest statusRequest) {
         boolean pairExists = statusRepository.existsByNameAndType(statusRequest.getName(), statusRequest.getType());
         if (pairExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         Status status = new Status();
         return modifyAndSave(status, statusRequest);
@@ -67,7 +67,7 @@ public class StatusServiceImpl extends AbstractService<Status, Long> implements 
         boolean fieldChanged = !status.getName().equals(statusRequest.getName()) || !status.getType().equals(statusRequest.getType());
         boolean pairExists = statusRepository.existsByNameAndType(statusRequest.getName(), statusRequest.getType());
         if (fieldChanged && pairExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         String oldName = status.getName();
         String oldType = status.getType();

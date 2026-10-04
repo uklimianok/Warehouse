@@ -2,7 +2,6 @@ package com.warehouse.demo.service.employee.impl;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import com.warehouse.demo.repository.order.OrderRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.ShiftService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -38,7 +38,7 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
     @Override
     public Shift create(ShiftRequest shiftRequest) {
         if (shiftRepository.existsBySymbol(shiftRequest.getSymbol()))
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(new Shift(), shiftRequest);
     }
@@ -50,7 +50,7 @@ public class ShiftServiceImpl extends AbstractService<Shift, Long> implements Sh
         boolean shiftChanged = !shift.getSymbol().equals(shiftRequest.getSymbol());
         boolean shiftExists = shiftRepository.existsBySymbol(shiftRequest.getSymbol());
         if (shiftChanged && shiftExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(shift, shiftRequest);
     }

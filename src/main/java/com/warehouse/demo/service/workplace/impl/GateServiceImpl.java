@@ -2,7 +2,6 @@ package com.warehouse.demo.service.workplace.impl;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import com.warehouse.demo.repository.workplace.TrackRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.workplace.GateService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -38,7 +38,7 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
     @Override
     public Gate create(GateRequest gateRequest) {
         if (gateRepository.existsBySymbol(gateRequest.getSymbol()))
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(new Gate(), gateRequest);
     }
@@ -50,7 +50,7 @@ public class GateServiceImpl extends AbstractService<Gate, Long> implements Gate
         boolean gateChanged = !gate.getSymbol().equals(gateRequest.getSymbol());
         boolean gateExists = gateRepository.existsBySymbol(gateRequest.getSymbol());
         if (gateChanged && gateExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(gate, gateRequest);
     }

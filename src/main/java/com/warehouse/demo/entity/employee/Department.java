@@ -31,6 +31,6 @@ public class Department implements Identifiable {
     private String codeName;
     @Column(nullable = false)
     private int priority;
-    @Column(nullable = false)
+    @Column(name = "is_removable", nullable = false)
     private boolean removable;
 }

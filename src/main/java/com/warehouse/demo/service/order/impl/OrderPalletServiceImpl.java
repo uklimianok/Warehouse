@@ -8,8 +8,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.order.orderPallet.OrderPalletRequest;
@@ -32,7 +32,7 @@ import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> implements OrderPalletService {
@@ -121,8 +121,13 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                 changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_COMPLETE); 
             else 
                 changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_INCOMPLETE);
-        } else if (orderPalletRepository.areAllInOrderIdHaveStatusId(savedOrderPallet.getOrder().getId(), savedOrderPallet.getStatus().getId()))
-            changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_SENT);
+        } else {
+            Status orderPalletSentStatus = statusRepository.findByNameAndType(StatusInfo.ORDER_PALLET_SENT, Entity.ORDER_PALLET.getEntity())
+                .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+            if (orderPalletRepository.areAllInOrderIdHaveStatusId(savedOrderPallet.getOrder().getId(), orderPalletSentStatus.getId()))
+                changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_SENT);
+        }
 
         return savedOrderPallet;
     }
@@ -170,7 +175,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                 )   // Status "Picking" can be set by certain roles, but only if there are no picked products assigned to the order pallet
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
 
             case StatusInfo.ORDER_PALLET_PICKED: {
@@ -180,12 +185,12 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     || (
                         (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
                     )
                 )   // Status "Picked" can be set by certain roles, but only if all picked products assigned to the order pallet are completed
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
 
             case StatusInfo.ORDER_PALLET_EXPORTING: {
@@ -195,12 +200,12 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     || (
                         (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
                     )   
                 )   // Status "Exporting" can be set either by "Set Goods Exporter" automatically or as "Picked" status
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
 
             case StatusInfo.ORDER_PALLET_LOADING: {
@@ -210,12 +215,12 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     || (
                         (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
                     ) 
                 ) 
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
 
             case StatusInfo.ORDER_PALLET_SENT: {
@@ -224,12 +229,12 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     && (
                         (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
                     )   
                 )   // Status "Sent" can be set only from "Loading" status
                     target.setStatus(newStatus);
                 else
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             }
         }
     }

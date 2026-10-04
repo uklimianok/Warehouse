@@ -7,14 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import com.warehouse.demo.entity.order.Order;
 import com.warehouse.demo.entity.service.Status;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByStoreId(long storeId);
     boolean existsByShiftId(long shiftId);
     boolean existsByStatusId(long statusId);
     boolean existsByGateId(long gateId);
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Transactional 
     @Query("UPDATE Order o SET o.status = :status WHERE o.id = :id")
     int updateStatusById(long id, Status status);

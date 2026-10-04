@@ -30,4 +30,9 @@ public interface ProductPalletRepository extends JpaRepository<ProductPallet, Lo
     int updateNextWorkStationIfMatching(@Param("id") long id, @Param("newValue") Long newNextWorkStationId, @Param("expectedOldValue") Long oldNextWorkStationId);
     List<ProductPallet> findAllByStatusEqualsAndNextWorkStationIsNull(Status status);
     List<ProductPallet> findAllByStatusEqualsAndNextWorkStationWorkshopId(Status status, long workshopId);
+    @Query(
+        value = "SELECT nextval('pallet_number_seq')",
+        nativeQuery = true
+    )
+    long nextPalletNumber();
 }

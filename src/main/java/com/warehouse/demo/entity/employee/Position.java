@@ -40,7 +40,7 @@ public class Position implements Identifiable {
     private String name;
     @Column(unique = true, nullable = false)
     private String codeName;
-    @Column(nullable = false)
+    @Column(name = "is_enabled", nullable = false)
     private boolean enabled;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", referencedColumnName = "id", nullable = false)
@@ -52,7 +52,7 @@ public class Position implements Identifiable {
         inverseJoinColumns = @JoinColumn(name = "inherited_position_id")
     )
     private List<Position> inheritedPositions;
-    @Column(nullable = false)
+    @Column(name = "is_removable", nullable = false)
     private boolean removable;
     @Column(nullable = false, columnDefinition = "jsonb")   // columnDefinition clarifies this field to be "jsonb", not "json"
     @JdbcTypeCode(SqlTypes.JSON)    // Tells Hibernate to serialize it into JSON

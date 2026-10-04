@@ -2,8 +2,8 @@ package com.warehouse.demo.service.employee.impl;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.department.DepartmentRequest;
@@ -14,6 +14,7 @@ import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.DepartmentService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -36,7 +37,7 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
     @Override
     public Department create(DepartmentRequest departmentRequest) {
         if (departmentRepository.existsByName(departmentRequest.getName()))
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
         
         Department department = new Department();
         department.setCodeName(departmentRequest.getName().replace(' ', '_').toUpperCase());
@@ -52,7 +53,7 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
         boolean departmentIsChanged = !department.getName().equals(departmentRequest.getName());
         boolean departmentExists = departmentRepository.existsByName(departmentRequest.getName());
         if (departmentIsChanged && departmentExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         return modifyAndSave(department, departmentRequest);
     }
@@ -62,7 +63,7 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
     public void delete(Long id) {
         Department department = read(id);
         if (!department.isRemovable())
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
 
         super.delete(id);
     }

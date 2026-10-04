@@ -1,6 +1,6 @@
 package com.warehouse.demo.util.action;
 
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import com.warehouse.demo.repository.employee.PositionRepository;
@@ -16,7 +16,7 @@ public class ControllerSecurity {
     public void throwIfUnauthorized(Class<?> controller, String employeeNumber, char mode) {
         boolean hasAccess = positionRepository.modeIsContainedInControllerFlagsByEmployeeNumber(controller.getSimpleName(), employeeNumber, String.valueOf(mode));
         if (!hasAccess)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
+            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 
     public String getResponseObjectType(Class<?> controller, String employeeNumber) {

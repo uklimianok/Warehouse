@@ -2,7 +2,6 @@ package com.warehouse.demo.service.product.impl;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import com.warehouse.demo.repository.product.ProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
@@ -38,7 +38,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     @Override
     public Product create(ProductRequest productRequest) {
         if (productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber()))
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.BARCODE_NUMBER, OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(Entity.BARCODE_NUMBER, OutputMessage.EXISTS));
         
         return modifyAndSave(new Product(), productRequest);
     }
@@ -50,7 +50,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
         boolean barcodeNumberChanged = !product.getBarcodeNumber().equals(productRequest.getBarcodeNumber());
         boolean barcodeNumberExists = productRepository.existsByBarcodeNumber(productRequest.getBarcodeNumber());
         if (barcodeNumberChanged && barcodeNumberExists)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.BARCODE_NUMBER, OutputMessage.EXISTS));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(Entity.BARCODE_NUMBER, OutputMessage.EXISTS));
 
         return modifyAndSave(product, productRequest);
     }

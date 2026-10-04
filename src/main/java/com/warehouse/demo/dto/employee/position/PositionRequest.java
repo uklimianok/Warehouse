@@ -22,7 +22,7 @@ public class PositionRequest {
     private String name;
 
     @NotNull
-    private Boolean isEnabled;
+    private Boolean enabled;
 
     @NotNull
     @Positive 
