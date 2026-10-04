@@ -2,7 +2,6 @@ package com.warehouse.demo.service.product;
 
 import java.util.List;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,7 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service 
@@ -34,7 +34,7 @@ public class ProductPalletNotificationService {
     @Transactional 
     public void consumeProductPalletUnloadedStatusNextWorkStationNullEvent(ProductPalletEvent productPalletEvent) {
         ProductPallet productPallet = productPalletRepository.findByPalletNumber(productPalletEvent.getPalletNumber())
-            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
         List<Employee> dataControllers = employeeRepository.findAllByPositionCodeName("DATA_CONTROLLER");
 
         if (dataControllers.isEmpty()) return;
@@ -52,7 +52,7 @@ public class ProductPalletNotificationService {
     @Transactional 
     public void consumeProductPalletUnloadedStatusNextWorkStationNotNullEvent(ProductPalletEvent productPalletEvent) {
         ProductPallet productPallet = productPalletRepository.findByPalletNumber(productPalletEvent.getPalletNumber())
-            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.NOT_FOUND)));
         List<Employee> operators = employeeRepository.findAllByPositionCodeNameAndWorkshopId("OPERATOR", productPallet.getNextWorkStation().getWorkshop().getId());
 
         if (operators.isEmpty()) return;

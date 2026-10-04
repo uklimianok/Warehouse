@@ -1,6 +1,5 @@
 package com.warehouse.demo.service.warehouseService.impl;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -11,6 +10,7 @@ import com.warehouse.demo.repository.service.ActionLogRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.warehouseService.ActionLogService;
 import com.warehouse.demo.util.action.MessageHandler;
+import com.warehouse.demo.util.exception.BusinessRuleException;
 import com.warehouse.demo.util.info.Entity;
 import lombok.RequiredArgsConstructor;
 
@@ -40,7 +40,7 @@ public class ActionLogServiceImpl extends AbstractService<ActionLog, Long> imple
 
     @Override
     public void delete(Long id) {
-        throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.ACTION_LOG, ACTION_LOG_DELETE_RESTRICTED));
+        throw new BusinessRuleException(MessageHandler.getOutputMessage(Entity.ACTION_LOG, ACTION_LOG_DELETE_RESTRICTED));
     }
 
     @Override

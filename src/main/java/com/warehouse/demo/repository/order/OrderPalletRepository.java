@@ -15,7 +15,7 @@ public interface OrderPalletRepository extends JpaRepository<OrderPallet, Long> 
     ) 
     boolean areAllOrderedProductExistInPickedProduct(long orderId);
     @Query(
-        value = "SELECT NOT EXISTS FROM Order_Pallets WHERE order_id = :orderId AND status_id = :statusId",
+        value = "SELECT NOT EXISTS (SELECT 1 FROM order_pallets WHERE order_id = :orderId AND status_id <> :statusId)",
         nativeQuery = true
     )
     boolean areAllInOrderIdHaveStatusId(long orderId, long statusId);

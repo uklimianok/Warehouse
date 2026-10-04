@@ -6,7 +6,6 @@ import com.warehouse.demo.util.exception.BusinessRuleException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -114,7 +113,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
             order.setGate(null);
 
         if (!order.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED) && order.getGate() == null)
-            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
         Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));

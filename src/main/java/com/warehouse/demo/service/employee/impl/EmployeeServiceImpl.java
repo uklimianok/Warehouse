@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -213,7 +212,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     private void configureWorkshopAndGate(Employee target, EmployeeRequest from) {
         Position position = positionRepository.findById(from.getPositionId())
-            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));
         if (
             from.getWorkshopId() != null
             && (positionInheritanceTree.isOneOrDescendant(position, "GOODS_PICKER")

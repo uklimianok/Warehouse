@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.configuration.security.keycloak.service.KeycloakRoleService;
@@ -82,7 +81,7 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     public void delete(Long id) {
         Position position = read(id);
         if (!position.isRemovable())
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
 
         super.delete(id);
         positionRepository.flush();

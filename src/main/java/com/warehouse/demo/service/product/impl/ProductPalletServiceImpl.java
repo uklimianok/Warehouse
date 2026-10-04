@@ -3,7 +3,6 @@ package com.warehouse.demo.service.product.impl;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -263,14 +262,14 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         switch (status.getName()) {
             case StatusInfo.PRODUCT_PALLET_ORDERED: {
                 if (from.getWorkStationId() != null)
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATION_NOT_REQUIRED));
+                    throw new BusinessRuleException(MessageHandler.getOutputMessage(WORK_STATION_NOT_REQUIRED));
 
                 target.setWorkStation(null);
                 target.setNextWorkStation(
                     from.getNextWorkStationId() == null ?
                     null :
                     workStationRepository.findById(from.getNextWorkStationId())
-                        .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                        .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                 );
             }
                 break;
@@ -278,10 +277,10 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             case StatusInfo.PRODUCT_PALLET_UNLOADED, StatusInfo.PRODUCT_PALLET_STORED: {
                 if (!statusChanged) {
                     if (from.getWorkStationId() == null)
-                        throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATION_REQUIRED));
+                        throw new BusinessRuleException(MessageHandler.getOutputMessage(WORK_STATION_REQUIRED));
 
                     target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
-                        .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                        .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                     );
                 } else {
                     if (
@@ -289,7 +288,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                         && from.getWorkStationId() == null)
                         || (status.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
                         && (from.getWorkStationId() == null || from.getNextWorkStationId() == null))
-                    ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATIONS_REQUIRED));
+                    ) throw new BusinessRuleException(MessageHandler.getOutputMessage(WORK_STATIONS_REQUIRED));
 
                     if (    // GOODS_UNLOADER can change only at UNLOADED and OPERATOR only at STORED
                         (!status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
@@ -306,13 +305,13 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                         target.setNextWorkStation(null);
                     } else {
                         target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
-                            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                         );
                         target.setNextWorkStation(
                             from.getNextWorkStationId() == null ?
                             null :
                             workStationRepository.findById(from.getNextWorkStationId())
-                            .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                         );
                     }
                 }
@@ -321,16 +320,16 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             
             case StatusInfo.PRODUCT_PALLET_ACTIVE: {
                 if (from.getWorkStationId() == null)
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATION_REQUIRED));
+                    throw new BusinessRuleException(MessageHandler.getOutputMessage(WORK_STATION_REQUIRED));
                 if (from.getNextWorkStationId() != null)
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(NEXT_WORK_STATION_NOT_REQUIRED));
+                    throw new BusinessRuleException(MessageHandler.getOutputMessage(NEXT_WORK_STATION_NOT_REQUIRED));
 
                 if (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")) {   // Auto-transition
                     target.setWorkStation(target.getNextWorkStation());
                     target.setNextWorkStation(null);
                 } else {
                     target.setWorkStation(workStationRepository.findById(from.getWorkStationId())
-                        .orElseThrow(() -> new DataIntegrityViolationException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
+                        .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.WORK_STATION, OutputMessage.NOT_FOUND)))
                     );
                     target.setNextWorkStation(null);
                 }
@@ -339,7 +338,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
             case StatusInfo.PRODUCT_PALLET_OUT_OF_USE: {
                 if (from.getWorkStationId() != null || from.getNextWorkStationId() != null) 
-                    throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATIONS_NOT_REQUIRED));
+                    throw new BusinessRuleException(MessageHandler.getOutputMessage(WORK_STATIONS_NOT_REQUIRED));
             
                 configureWorkStations(target);
             }

@@ -3,7 +3,6 @@ package com.warehouse.demo.service.employee.impl;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.warehouse.demo.dto.employee.department.DepartmentRequest;
@@ -63,7 +62,7 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
     public void delete(Long id) {
         Department department = read(id);
         if (!department.isRemovable())
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
 
         super.delete(id);
     }
