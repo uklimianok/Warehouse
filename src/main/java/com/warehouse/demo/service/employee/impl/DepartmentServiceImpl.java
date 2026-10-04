@@ -29,9 +29,18 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
 
     @Override
     @Cacheable(value = "departments", key = "#id")
+    public Department read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
     public Department create(DepartmentRequest departmentRequest) {
+        if (departmentRepository.existsByName(departmentRequest.getName()))
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
+        
         Department department = new Department();
-        department.setCodeName(departmentRequest.getName().toUpperCase());
+        department.setCodeName(departmentRequest.getName().replace(' ', '_').toUpperCase());
+        department.setRemovable(true);
 
         return modifyAndSave(department, departmentRequest);
     }
@@ -51,6 +60,10 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
     @Override
     @CacheEvict(value = "departments", key = "#id")
     public void delete(Long id) {
+        Department department = read(id);
+        if (!department.isRemovable())
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+
         super.delete(id);
     }
 

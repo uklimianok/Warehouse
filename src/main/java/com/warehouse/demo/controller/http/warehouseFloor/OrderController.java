@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class OrderController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends OrderResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends OrderResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<Order> orders = orderService.readAll();
         List<OrderResponse> ordersResponse = orders
@@ -51,8 +54,11 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends OrderResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends OrderResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
         
         Order order = orderService.read(id);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
@@ -61,8 +67,11 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends OrderResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderRequest orderRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends OrderResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid OrderRequest orderRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
         
         Order order = orderService.create(orderRequest);
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
@@ -71,8 +80,12 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends OrderResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrderRequest orderRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends OrderResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid OrderRequest orderRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         Order order = orderService.update(id, orderRequest, userPrincipal.getEmployeeNumber());
         OrderResponse orderResponse = returnObjectResponse(order, userPrincipal);
@@ -81,8 +94,11 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         orderService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.DELETED);
@@ -90,16 +106,14 @@ public class OrderController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private OrderResponse returnObjectResponse(Order from, UserPrincipal principal) {
+    private OrderResponse returnObjectResponse(
+        Order from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case "Full" -> orderResponseMapper.convertToFullResponse(from);
             default -> orderResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

@@ -27,3 +27,6 @@ UPDATE positions
         WHEN 'SYSTEM_ADMINISTRATOR' THEN (SELECT id FROM departments WHERE code_name = 'IT_DEPARTMENT')
     ELSE department_id
 END;
+
+ALTER TABLE positions
+    SET COLUMN department_id NOT NULL;

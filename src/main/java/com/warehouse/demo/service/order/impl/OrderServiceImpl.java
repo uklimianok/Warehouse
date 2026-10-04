@@ -24,12 +24,13 @@ import com.warehouse.demo.repository.workplace.GateRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderService;
 import com.warehouse.demo.util.action.MessageHandler;
-import com.warehouse.demo.util.info.DepartmentInfo;
+import com.warehouse.demo.util.info.DepartmentCodeNames;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class OrderServiceImpl extends AbstractService<Order, Long> implements OrderService {
@@ -79,6 +80,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     }
 
     @Override
+    @Transactional
     public Order create(OrderRequest orderRequest) {
         Order order = new Order();
         order.setStatus(statusRepository
@@ -90,6 +92,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "orders", key = "#id")
     public Order update(long id, OrderRequest orderRequest, String employeeNumber) {    // Develop status system
         Order order = self.read(id);    // Cached object is provided through proxy "self", not through direct "this"
@@ -112,7 +115,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
 
         Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
-        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             orderRequestMapper.convertFromWarehouseEmployeeRequest(orderRequest, order);
         else
             orderRequestMapper.convertFromRequest(orderRequest, order);
@@ -165,9 +168,6 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     }
 
     private void configureStatus(Order target, OrderRequest from, Employee subject) {
-        statusRepository.findByIdAndType(from.getStatusId(), Entity.ORDER.getEntity())
-            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
-
         Position subjectPosition = subject.getPosition();
         Status newStatus = statusRepository.findByIdAndType(from.getStatusId(), Entity.ORDER.getEntity())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
@@ -176,7 +176,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
             case StatusInfo.ORDER_ACCEPTED: {
                 if (
                     (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR")
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                     || positionInheritanceTree.isOneOrDescendant(subjectPosition, "ORDERS_PROCEEDER"))
                     && !orderPalletRepository.existsByOrderId(target.getId())
                 ) // Status "Accepted" can be set by certain roles, but only if there are no pallets assigned to the order

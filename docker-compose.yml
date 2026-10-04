@@ -1,0 +1,82 @@
+services:
+  application-service:
+    container_name: app
+    build: .
+    ports:
+      - "8280:8080"
+    env_file:
+      - ".env"
+    depends_on:
+      - database-service
+
+  database-service:
+    image: postgres:18
+    container_name: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_DB=warehouse_db
+    ports:
+      - "8281:5432"
+
+  redis-service:
+    image: redis:8
+    container_name: redis
+    ports:
+      - "8282:6379"
+
+  kafka-service:
+    image: apache/kafka:4.2.2
+    container_name: broker
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:19092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka-service:19092,PLAINTEXT_HOST://localhost:8283
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-service:29093
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - CLUSTER_ID=4L6g3nShT-eMCtK--X86sw
+    ports:
+      - "8283:9092"
+      - "8284:19092"
+      - "8285:29093"
+
+  keycloak-service:
+    image: quay.io/keycloak/keycloak:26.7.4
+    container_name: keycloak
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=keycloak
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL=${POSTGRES_AUTH_DATASOURCE_URL}
+      - KC_DB_USERNAME=${POSTGRES_AUTH_USERNAME}
+      - KC_DB_PASSWORD=${POSTGRES_AUTH_PASSWORD}
+      - KC_HOSTNAME=http://localhost:8286
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      - SHARED_PASSWORD=${SHARED_PASSWORD}
+    ports:
+      - "8286:8080"
+    depends_on:
+      - database-auth-service
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+
+  database-auth-service:
+    image: postgres:18
+    container_name: postgres-auth
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_AUTH_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_AUTH_USERNAME}
+      - POSTGRES_DB=warehouse_auth_db
+    ports:
+      - "8287:5432"

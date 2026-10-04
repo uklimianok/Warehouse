@@ -15,8 +15,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -44,12 +45,16 @@ public class Position implements Identifiable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", referencedColumnName = "id", nullable = false)
     private Department department;
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inherited_positions_id", referencedColumnName = "id", nullable = true)
-    List<Position> inheritedPositions;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "position_inheritances", 
+        joinColumns = @JoinColumn(name = "position_id"),
+        inverseJoinColumns = @JoinColumn(name = "inherited_position_id")
+    )
+    private List<Position> inheritedPositions;
     @Column(nullable = false)
-    boolean removable;
+    private boolean removable;
     @Column(nullable = false, columnDefinition = "jsonb")   // columnDefinition clarifies this field to be "jsonb", not "json"
     @JdbcTypeCode(SqlTypes.JSON)    // Tells Hibernate to serialize it into JSON
-    Map<String, List<String>> controllerFlags;
+    private Map<String, List<String>> controllerFlags;
 }

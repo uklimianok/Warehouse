@@ -11,5 +11,6 @@ import com.warehouse.demo.entity.employee.Department;
 public interface DepartmentRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "codeName", ignore = true)
+    @Mapping(target = "removable", ignore = true)
     void convertFromRequest(DepartmentRequest departmentRequest, @MappingTarget Department department);
 }

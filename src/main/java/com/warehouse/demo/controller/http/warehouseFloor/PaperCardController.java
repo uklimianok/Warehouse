@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class PaperCardController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends PaperCardResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends PaperCardResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<PaperCard> paperCards = paperCardService.readAll();
         List<? extends PaperCardResponse> paperCardsResponse = paperCards
@@ -51,8 +54,11 @@ public class PaperCardController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends PaperCardResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PaperCardResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         PaperCard paperCard = paperCardService.read(id);
         PaperCardResponse paperCardResponse = returnObjectResponse(paperCard, userPrincipal);
@@ -61,8 +67,11 @@ public class PaperCardController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends PaperCardResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PaperCardRequest paperCardRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PaperCardResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid PaperCardRequest paperCardRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         PaperCard paperCard = paperCardService.create(paperCardRequest);
         PaperCardResponse paperCardResponse = returnObjectResponse(paperCard, userPrincipal);
@@ -71,8 +80,12 @@ public class PaperCardController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends PaperCardResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PaperCardRequest paperCardRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PaperCardResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid PaperCardRequest paperCardRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         PaperCard paperCard = paperCardService.update(id, paperCardRequest);
         PaperCardResponse paperCardResponse = returnObjectResponse(paperCard, userPrincipal);
@@ -81,8 +94,10 @@ public class PaperCardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         paperCardService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.PAPER_CARD, OutputMessage.DELETED);
@@ -91,13 +106,11 @@ public class PaperCardController {
         return response;
     }
 
-    private PaperCardResponse returnObjectResponse(PaperCard from, UserPrincipal principal) {
+    private PaperCardResponse returnObjectResponse(
+        PaperCard from, 
+        UserPrincipal principal
+    ) {
         PaperCardResponse response = paperCardResponseMapper.convertToResponse(from);
         return response;
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +16,8 @@ import com.warehouse.demo.entity.service.ActionLog;
 import com.warehouse.demo.mapper.service.actionLog.ActionLogResponseMapper;
 import com.warehouse.demo.service.warehouseService.ActionLogService;
 import com.warehouse.demo.util.action.ControllerSecurity;
-import com.warehouse.demo.util.action.MessageHandler;
-import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,8 +30,10 @@ public class ActionLogController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends ActionLogResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends ActionLogResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<ActionLog> actionLogs = actionLogService.readAll();
         List<? extends ActionLogResponse> actionLogsResponse = actionLogs
@@ -45,8 +45,11 @@ public class ActionLogController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends ActionLogResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends ActionLogResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(),  userPrincipal.getMainRole(), 'R');
 
         ActionLog actionLog = actionLogService.read(id);
         ActionLogResponse actionLogResponse = returnObjectResponse(actionLog, userPrincipal);
@@ -54,13 +57,11 @@ public class ActionLogController {
         return new ResponseEntity<>(actionLogResponse, HttpStatus.OK);
     }
 
-    private ActionLogResponse returnObjectResponse(ActionLog from, UserPrincipal principal) {
+    private ActionLogResponse returnObjectResponse(
+        ActionLog from, 
+        UserPrincipal principal
+    ) {
         ActionLogResponse response = actionLogResponseMapper.convertToResponse(from);
         return response;
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import com.warehouse.demo.configuration.security.keycloak.service.KeycloakRoleService;
 import com.warehouse.demo.dto.employee.position.PositionRequest;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.mapper.employee.position.PositionRequestMapper;
@@ -19,6 +20,7 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,7 +31,9 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
 
     private final PositionRequestMapper positionRequestMapper;
 
-    private final String LOOP_INHERITANCE_MESSAGE = "This position is already in the chain of position inheritance.";
+    private final KeycloakRoleService keycloakRoleService;
+
+    private static final String LOOP_INHERITANCE_MESSAGE = "This position is already in the chain of position inheritance.";
 
     @Override
     @Cacheable(value = "positions", key = "#id")
@@ -38,18 +42,26 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     }
 
     @Override
+    @Transactional
     public Position create(PositionRequest positionRequest) {
         if (positionRepository.existsByName(positionRequest.getName())) 
             throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.EXISTS));
 
         Position position = new Position();
-        position.setCodeName(position.getName().replace(' ', '_').toUpperCase());
+        position.setCodeName(positionRequest.getName().replace(' ', '_').toUpperCase());
         position.setRemovable(true);
 
-        return modifyAndSave(position, positionRequest);
+        positionRequestMapper.convertFromRequest(positionRequest, position);
+
+        Position savedPosition = positionRepository.saveAndFlush(position);
+
+        keycloakRoleService.createRole(savedPosition.getCodeName());
+
+        return savedPosition;
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "positions", key = "#id")
     public Position update(long id, PositionRequest positionRequest) {
         Position position = read(id);
@@ -63,10 +75,17 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
         return modifyAndSave(position, positionRequest);
     }
 
-    @Override 
+    @Override
     @CacheEvict(value = "positions", key = "#id")
     public void delete(Long id) {
+        Position position = read(id);
+        if (!position.isRemovable())
+            throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+
         super.delete(id);
+        positionRepository.flush();
+
+        keycloakRoleService.deleteRole(position.getCodeName());
     }
 
     private Position modifyAndSave(Position target, PositionRequest from) {

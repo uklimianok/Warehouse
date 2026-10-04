@@ -16,11 +16,12 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,8 +40,10 @@ public class PositionController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends PositionResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends PositionResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<Position> positions = positionService.readAll();
         List<? extends PositionResponse> positionsResponse = positions
@@ -52,8 +55,11 @@ public class PositionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends PositionResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PositionResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
         
         Position position = positionService.read(id);
         PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
@@ -62,8 +68,11 @@ public class PositionController {
     }
     
     @PostMapping
-    public ResponseEntity<? extends PositionResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PositionRequest positionRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PositionResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid PositionRequest positionRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         Position position = positionService.create(positionRequest);
         PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
@@ -72,8 +81,12 @@ public class PositionController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends PositionResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PositionRequest positionRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PositionResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid PositionRequest positionRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         Position position = positionService.update(id, positionRequest);
         PositionResponse positionResponse = returnPositionResponse(position, userPrincipal);
@@ -82,8 +95,11 @@ public class PositionController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         positionService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.DELETED);
@@ -92,16 +108,14 @@ public class PositionController {
         return response;
     }
 
-    private PositionResponse returnPositionResponse(Position from, UserPrincipal principal) {
+    private PositionResponse returnPositionResponse(
+        Position from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case "Full" -> positionResponseMapper.convertToFullResponse(from);
             default -> positionResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

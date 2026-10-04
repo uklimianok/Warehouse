@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class TrackController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends TrackResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends TrackResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<Track> tracks = trackService.readAll();
         List<TrackResponse> tracksResponse = tracks
@@ -51,8 +54,11 @@ public class TrackController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends TrackResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends TrackResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
         
         Track track = trackService.read(id);
         TrackResponse trackResponse = returnObjectResponse(track, userPrincipal);
@@ -61,8 +67,11 @@ public class TrackController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends TrackResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody TrackRequest trackRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends TrackResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid TrackRequest trackRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
         
         Track track = trackService.create(trackRequest);
         TrackResponse trackResponse = returnObjectResponse(track, userPrincipal);
@@ -71,8 +80,12 @@ public class TrackController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends TrackResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody TrackRequest trackRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends TrackResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid TrackRequest trackRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
         
         Track track = trackService.update(id, trackRequest);
         TrackResponse trackResponse = returnObjectResponse(track, userPrincipal);
@@ -81,8 +94,11 @@ public class TrackController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
         
         trackService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.TRACK, OutputMessage.DELETED);
@@ -90,16 +106,14 @@ public class TrackController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private TrackResponse returnObjectResponse(Track from, UserPrincipal principal) {
+    private TrackResponse returnObjectResponse(
+        Track from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case "Full" -> trackResponseMapper.convertToFullResponse(from);
             default -> trackResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

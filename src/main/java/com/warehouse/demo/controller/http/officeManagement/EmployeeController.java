@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,21 +39,34 @@ public class EmployeeController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends EmployeeResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends EmployeeResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
+
+        String responseType = controllerSecurity.getResponseObjectType(getClass(), userPrincipal.getEmployeeNumber());
 
         List<Employee> employees = employeeService.readAll();
         List<? extends EmployeeResponse> employeeResponse = employees
             .stream()
-            .map(e -> returnObjectResponse(e, userPrincipal))
+            .map(e -> {
+                return switch (responseType) {
+                    case "Full" -> employeeResponseMapper.convertToFullResponse(e);
+                    case "DataController" -> employeeResponseMapper.convertToDataControllerResponse(e);
+                    default -> employeeResponseMapper.convertToResponse(e);
+                };
+            })
             .toList();
         
         return new ResponseEntity<>(employeeResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends EmployeeResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends EmployeeResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         Employee employee = employeeService.read(id);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
@@ -61,8 +75,11 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends EmployeeResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody EmployeeRequest employeeRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends EmployeeResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid EmployeeRequest employeeRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         Employee employee = employeeService.create(employeeRequest);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
@@ -71,8 +88,12 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends EmployeeResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody EmployeeRequest employeeRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends EmployeeResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid EmployeeRequest employeeRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         Employee employee = employeeService.update(id, employeeRequest, userPrincipal);
         EmployeeResponse employeeResponse = returnObjectResponse(employee, userPrincipal);
@@ -81,8 +102,11 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         employeeService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.DELETED);
@@ -91,17 +115,15 @@ public class EmployeeController {
         return response;
     }
 
-    private EmployeeResponse returnObjectResponse(Employee from, UserPrincipal principal) {
+    private EmployeeResponse returnObjectResponse(
+        Employee from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case "Full" -> employeeResponseMapper.convertToFullResponse(from);
             case "DataController" -> employeeResponseMapper.convertToDataControllerResponse(from);
             default -> employeeResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

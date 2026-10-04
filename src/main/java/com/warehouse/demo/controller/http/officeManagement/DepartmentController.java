@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController 
@@ -38,8 +39,10 @@ public class DepartmentController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping 
-    public ResponseEntity<List<? extends DepartmentResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends DepartmentResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<Department> departments = departmentService.readAll();
         List<? extends DepartmentResponse> departmentsResponse = departments
@@ -51,8 +54,11 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends DepartmentResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends DepartmentResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         Department department = departmentService.read(id);
         DepartmentResponse departmentResponse = returnObjectResponse(department, userPrincipal);
@@ -61,8 +67,11 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends DepartmentResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody DepartmentRequest departmentRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends DepartmentResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid DepartmentRequest departmentRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         Department department = departmentService.create(departmentRequest);
         DepartmentResponse departmentResponse = returnObjectResponse(department, userPrincipal);
@@ -71,8 +80,12 @@ public class DepartmentController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends DepartmentResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody DepartmentRequest departmentRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends DepartmentResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid DepartmentRequest departmentRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         Department department = departmentService.update(id, departmentRequest);
         DepartmentResponse departmentResponse = returnObjectResponse(department, userPrincipal);
@@ -81,8 +94,11 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         departmentService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.DEPARTMENT, OutputMessage.DELETED);
@@ -90,16 +106,14 @@ public class DepartmentController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private DepartmentResponse returnObjectResponse(Department from, UserPrincipal principal) {
+    private DepartmentResponse returnObjectResponse(
+        Department from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case ("Full") -> departmentResponseMapper.convertToFullResponse(from);
             default -> departmentResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

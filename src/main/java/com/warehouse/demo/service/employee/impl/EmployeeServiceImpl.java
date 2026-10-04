@@ -1,6 +1,7 @@
 package com.warehouse.demo.service.employee.impl;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -8,15 +9,19 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.warehouse.demo.configuration.security.UserPrincipal;
 import com.warehouse.demo.configuration.security.keycloak.service.KeycloakUserService;
 import com.warehouse.demo.dto.employee.EmployeeRequest;
+import com.warehouse.demo.dto.product.productPallet.ProductPalletResponse;
 import com.warehouse.demo.entity.employee.Employee;
 import com.warehouse.demo.entity.employee.Position;
 import com.warehouse.demo.entity.product.ProductPallet;
 import com.warehouse.demo.entity.service.Status;
 import com.warehouse.demo.mapper.employee.EmployeeRequestMapper;
+import com.warehouse.demo.mapper.product.productPallet.ProductPalletResponseMapper;
 import com.warehouse.demo.repository.employee.EmployeeRepository;
 import com.warehouse.demo.repository.employee.PositionRepository;
 import com.warehouse.demo.repository.product.ProductPalletRepository;
@@ -28,7 +33,7 @@ import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.employee.EmployeeService;
 import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.action.PositionInheritanceTree;
-import com.warehouse.demo.util.info.DepartmentInfo;
+import com.warehouse.demo.util.info.DepartmentCodeNames;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -51,10 +56,13 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     private final KeycloakUserService keycloakUserService;
 
     private final EmployeeRequestMapper employeeRequestMapper;
+    private final ProductPalletResponseMapper productPalletResponseMapper;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final PositionInheritanceTree positionInheritanceTree;
+
+    private static AtomicLong EMPLOYEE_NUMBER_COUNTER = new AtomicLong(0);
 
     @Override 
     @Cacheable(value = "employees", key = "#id")
@@ -66,14 +74,14 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
     @Transactional
     public Employee create(EmployeeRequest employeeRequest) {
         Employee employee = new Employee();
-        employee.setEmployeeNumber(generateEmployeeNumber(employeeRequest));
+        generateEmployeeNumber(employee);
         configureWorkshopAndGate(employee);
 
         employeeRequestMapper.convertFromRequest(employeeRequest, employee);
 
         Employee savedEmployee = employeeRepository.saveAndFlush(employee); // save() doesn't fully save the entity at once, so that it may conflict with Keycloak functionality
         if (savedEmployee.getPosition().isEnabled()) 
-            keycloakUserService.create(savedEmployee);
+            keycloakUserService.createUser(savedEmployee);
 
         return savedEmployee;
     }
@@ -85,14 +93,14 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         Employee employee = read(id);
         Position oldPosition = employee.getPosition();
 
-        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getMainRole())
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getEmployeeNumber())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
-        throwIfPositionNotConfigurable(employee, callerEmployee);
+        throwIfPositionNotConfigurable(callerEmployee, employee, employeeRequest);
         configureWorkshopAndGate(employee, employeeRequest);
 
         String department = callerEmployee.getPosition().getDepartment().getCodeName();
-        if (!department.equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+        if (!department.equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             employeeRequestMapper.convertFromRequest(employeeRequest, employee);
         else
             employeeRequestMapper.convertFromWarehouseEmployeeDepartmentRequest(employeeRequest, employee);
@@ -102,8 +110,8 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         sendPendingNotifications(savedEmployee.getEmployeeNumber());
 
         Position newPosition = savedEmployee.getPosition();
-        if (oldPosition != newPosition)
-            keycloakUserService.updatePosition(oldPosition, employee);
+        if (oldPosition.getId() != newPosition.getId())
+            keycloakUserService.updatePositionAtUser(oldPosition, employee);
 
         return savedEmployee;
     }
@@ -118,10 +126,10 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         super.delete(id);
         employeeRepository.flush(); // Commits delete() at once, not later
 
-        keycloakUserService.delete(employeeNumber);
+        keycloakUserService.deleteUser(employeeNumber);
     }
 
-    @Transactional 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendPendingNotifications(String to) {
         Employee employee = employeeRepository.findByEmployeeNumber(to)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
@@ -130,11 +138,14 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
                 .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
             List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationIsNull(status);
+            List<? extends ProductPalletResponse> productPalletsResponse = productPallets.stream()
+                .map(pp -> productPalletResponseMapper.convertToTransferResponse(pp))
+                .toList();
 
             simpMessagingTemplate.convertAndSendToUser(
                 to, 
                 "/queue/notify", 
-                productPallets
+                productPalletsResponse
             );
         }
 
@@ -142,11 +153,14 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
             Status status = statusRepository.findByNameAndType(StatusInfo.PRODUCT_PALLET_UNLOADED, Entity.PRODUCT_PALLET.getEntity())
                 .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
             List<ProductPallet> productPallets = productPalletRepository.findAllByStatusEqualsAndNextWorkStationWorkshopId(status, employee.getWorkshop().getId());
+            List<? extends ProductPalletResponse> productPalletsResponse = productPallets.stream()
+                .map(pp -> productPalletResponseMapper.convertToTransferResponse(pp))
+                .toList();
 
             simpMessagingTemplate.convertAndSendToUser(
                 to, 
                 "/queue/notify", 
-                productPallets
+                productPalletsResponse
             );
         }
     }
@@ -163,29 +177,30 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     @Override
     protected boolean isUsed(Long id) {
-        boolean activeInActionLog = actionLogRepository.existsByEmployeeId(id);
+        String employeeNumber = employeeRepository.findEmployeeNumberById(id)
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+        boolean activeInActionLog = actionLogRepository.existsByEmployeeNumber(employeeNumber);
         return activeInActionLog;
     }
 
-    private String generateEmployeeNumber(EmployeeRequest employee) {
-        long count = employeeRepository.count() + 10_000_000;
-        return String.format("%08d", count);
+    private void generateEmployeeNumber(Employee target) {
+        EMPLOYEE_NUMBER_COUNTER.set(employeeRepository.getNextIdValue() + 10_000_000);
+        target.setEmployeeNumber(String.valueOf(EMPLOYEE_NUMBER_COUNTER.get()));
     }
 
-    private void throwIfPositionNotConfigurable(Employee object, Employee subject) {
-        Position subjectPosition = subject.getPosition();
+    private void throwIfPositionNotConfigurable(Employee subject, Employee object, EmployeeRequest objectRequest) {
+        Position subjectPosition = subject.getPosition();   // Caller
 
         if (    // 1. Check whether subject can configure not self
             !subject.getEmployeeNumber().equals(object.getEmployeeNumber())
-            && subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT)
+            && subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT)
         ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));  // Department.WAREHOUSE_EMPLOYEES_DEPARTMENT can change only themselves
 
-        Position objectPosition = object.getPosition();     // 2. Check position priority
-        int subjectPriority = DepartmentInfo.PRIORITIES.getOrDefault(subjectPosition.getDepartment(), 0);
-        int objectPriority = DepartmentInfo.PRIORITIES.getOrDefault(objectPosition.getDepartment(), 0);
-        if (subjectPriority == 0 || objectPriority == 0)
-            throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.DEPARTMENT, OutputMessage.NOT_FOUND));
-        if (subjectPriority > objectPriority)
+        Position objectPosition = positionRepository.findById(objectRequest.getPositionId())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.POSITION, OutputMessage.NOT_FOUND)));     // 2. Check position priority
+        int subjectPriority = subjectPosition.getDepartment().getPriority();
+        int objectPriority = objectPosition.getDepartment().getPriority();
+        if (subjectPriority > objectPriority)   // Subject must have the priority number not less than the object's one 
             throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
     }
 
@@ -206,7 +221,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         else if (
             from.getGateId() != null
             && (positionInheritanceTree.isOneOrDescendant(position, "GOODS_UNLOADER")
-            || positionInheritanceTree.isOneOrDescendant(position, "SET_GOODS_UNLOADER"))
+            || positionInheritanceTree.isOneOrDescendant(position, "SET_GOODS_LOADER"))
         ) target.setGate(gateRepository.findById(from.getGateId())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND))));
         else configureWorkshopAndGate(target);

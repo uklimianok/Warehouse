@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class ProductPalletController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends ProductPalletResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends ProductPalletResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
         
         List<ProductPallet> productPallets = productPalletService.readAll();
         List<? extends ProductPalletResponse> productPalletsResponse = productPallets
@@ -51,8 +54,11 @@ public class ProductPalletController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends ProductPalletResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends ProductPalletResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         ProductPallet productPallet = productPalletService.read(id);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
@@ -61,8 +67,11 @@ public class ProductPalletController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends ProductPalletResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody ProductPalletRequest productPalletRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends ProductPalletResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid ProductPalletRequest productPalletRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         ProductPallet productPallet = productPalletService.create(productPalletRequest);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
@@ -71,8 +80,12 @@ public class ProductPalletController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends ProductPalletResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody ProductPalletRequest productPalletRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends ProductPalletResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid ProductPalletRequest productPalletRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         ProductPallet productPallet = productPalletService.update(id, productPalletRequest, userPrincipal);
         ProductPalletResponse productPalletResponse = returnObjectResponse(productPallet, userPrincipal);
@@ -81,8 +94,11 @@ public class ProductPalletController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         productPalletService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.PRODUCT_PALLET, OutputMessage.DELETED);
@@ -90,17 +106,15 @@ public class ProductPalletController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private ProductPalletResponse returnObjectResponse(ProductPallet from, UserPrincipal principal) {
+    private ProductPalletResponse returnObjectResponse(
+        ProductPallet from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case "Full" -> productPalletResponseMapper.convertToFullResponse(from);
             case "Transfer" -> productPalletResponseMapper.convertToTransferResponse(from);
             default -> productPalletResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

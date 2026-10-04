@@ -10,10 +10,18 @@ import lombok.Setter;
 public class FullDepartmentResponse extends DepartmentResponse {
     private String codeName;
     private int priority;
+    private boolean isRemovable;
 
-    public FullDepartmentResponse(long id, String name, String codeName, int priority) {
+    public FullDepartmentResponse(
+        long id, 
+        String name, 
+        String codeName, 
+        int priority,
+        boolean isRemovable
+    ) {
         super(id, name);
         this.codeName = codeName;
         this.priority = priority;
+        this.isRemovable = isRemovable;
     }
 }

@@ -2,6 +2,9 @@ package com.warehouse.demo.dto.order.pickedProduct;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +15,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PickedProductRequest {
-    private long orderPalletId;
-    private long packageId;
+    @NotNull
+    @Positive 
+    private Long orderPalletId;
+    
+    @NotNull 
+    @Positive 
+    private Long packageId;
+    
+    @NotNull 
+    @DecimalMin("0.001")
     private BigDecimal pickedVolume;
-    private boolean isCompleted;
+
+    @NotNull 
+    private Boolean isCompleted;
 }

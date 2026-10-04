@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class PickedProductController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends PickedProductResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends PickedProductResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<PickedProduct> pickedProduct = pickedProductService.readAll();
         List<? extends PickedProductResponse> pickedProductResponse = pickedProduct
@@ -51,8 +54,11 @@ public class PickedProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends PickedProductResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PickedProductResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         PickedProduct pickedProduct = pickedProductService.read(id);
         PickedProductResponse pickedProductResponse = returnObjectResponse(pickedProduct, userPrincipal);
@@ -61,8 +67,11 @@ public class PickedProductController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends PickedProductResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody PickedProductRequest pickedProductRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PickedProductResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid PickedProductRequest pickedProductRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         PickedProduct pickedProduct = pickedProductService.create(pickedProductRequest);
         PickedProductResponse pickedProductResponse = returnObjectResponse(pickedProduct, userPrincipal);
@@ -71,8 +80,12 @@ public class PickedProductController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends PickedProductResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody PickedProductRequest pickedProductRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends PickedProductResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid PickedProductRequest pickedProductRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         PickedProduct pickedProduct = pickedProductService.update(id, pickedProductRequest, userPrincipal.getEmployeeNumber());
         PickedProductResponse pickedProductResponse = returnObjectResponse(pickedProduct, userPrincipal);
@@ -81,8 +94,11 @@ public class PickedProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         pickedProductService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.PICKED_PRODUCT, OutputMessage.DELETED);
@@ -90,13 +106,11 @@ public class PickedProductController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private PickedProductResponse returnObjectResponse(PickedProduct from, UserPrincipal principal) {
+    private PickedProductResponse returnObjectResponse(
+        PickedProduct from, 
+        UserPrincipal principal
+    ) {
         PickedProductResponse response = pickedProductResponseMapper.convertToResponse(from);
         return response;
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

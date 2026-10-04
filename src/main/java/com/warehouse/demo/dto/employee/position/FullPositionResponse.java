@@ -3,8 +3,6 @@ package com.warehouse.demo.dto.employee.position;
 import java.util.List;
 import java.util.Map;
 
-import com.warehouse.demo.entity.employee.Position;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,11 +13,11 @@ import lombok.Setter;
 public class FullPositionResponse extends PositionResponse {
     private String codeName;
     private boolean isEnabled;
-    private List<Position> inheritedPositions;
+    private List<PositionResponse> inheritedPositions;
     private boolean isRemovable;
     private Map<String, List<String>> controllerFlags;
 
-    public FullPositionResponse(long id, String name, String codeName, boolean isEnabled, List<Position> inheritedPositions, boolean isRemovable, Map<String, List<String>> controllerFlags) {
+    public FullPositionResponse(long id, String name, String codeName, boolean isEnabled, List<PositionResponse> inheritedPositions, boolean isRemovable, Map<String, List<String>> controllerFlags) {
         super(id, name);
         this.codeName = codeName;
         this.isEnabled = isEnabled;

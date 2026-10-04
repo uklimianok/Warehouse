@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 public class WhoAmIController {
-    @GetMapping("/whoami")
-    public Map<String, Object> getWhoAmI(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    @GetMapping(
+        "/whoami"
+    )
+    public Map<String, Object> getWhoAmI(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
         Map<String, Object> response = Map.of(
             "username", userPrincipal.getName(),
             "role", userPrincipal.getAuthorities(),

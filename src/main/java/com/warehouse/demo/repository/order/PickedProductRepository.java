@@ -7,5 +7,5 @@ import com.warehouse.demo.entity.order.PickedProduct;
 public interface PickedProductRepository extends JpaRepository<PickedProduct, Long> {
     boolean existsByProductPackageId(long productPackageId);
     boolean existsByOrderPalletId(long orderPalletId);
-    boolean existsByOrderPalletIdAndIsCompletedEquals(long orderPalletId, boolean isCompleted);
+    boolean existsByOrderPalletIdAndIsCompleted(long orderPalletId, boolean isCompleted);
 }

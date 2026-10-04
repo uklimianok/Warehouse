@@ -17,7 +17,9 @@ import com.warehouse.demo.configuration.security.keycloak.KeycloakJwtConverter;
 @EnableWebSecurity      // Enables testing
 public class ApplicationConfiguration {
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(
+        HttpSecurity http
+    ) throws Exception {
         return http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/test.html", "/ws/**", "/js/**")
@@ -40,7 +42,10 @@ public class ApplicationConfiguration {
     }
 
     @Bean 
-    AuthorizedClientServiceOAuth2AuthorizedClientManager auth2AuthorizedClientManager(ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientService oAuth2AuthorizedClientService) {
+    AuthorizedClientServiceOAuth2AuthorizedClientManager auth2AuthorizedClientManager(
+        ClientRegistrationRepository clientRegistrationRepository, 
+        OAuth2AuthorizedClientService oAuth2AuthorizedClientService
+    ) {
         return new AuthorizedClientServiceOAuth2AuthorizedClientManager(
             clientRegistrationRepository,
             oAuth2AuthorizedClientService

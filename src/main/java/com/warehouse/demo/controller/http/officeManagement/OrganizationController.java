@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class OrganizationController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends OrganizationResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends OrganizationResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<Organization> organizations = organizationService.readAll();
         List<? extends OrganizationResponse> organizationResponses = organizations
@@ -51,8 +54,11 @@ public class OrganizationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends OrganizationResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends OrganizationResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         Organization organization = organizationService.read(id);
         OrganizationResponse organizationResponse = returnObjectResponse(organization, userPrincipal);
@@ -61,8 +67,11 @@ public class OrganizationController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends OrganizationResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrganizationRequest organizationRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends OrganizationResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid OrganizationRequest organizationRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
 
         Organization organization = organizationService.create(organizationRequest);
         OrganizationResponse organizationResponse = returnObjectResponse(organization, userPrincipal);
@@ -71,8 +80,12 @@ public class OrganizationController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends OrganizationResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody OrganizationRequest organizationRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends OrganizationResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid OrganizationRequest organizationRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
 
         Organization organization = organizationService.update(id, organizationRequest);
         OrganizationResponse organizationResponse = returnObjectResponse(organization, userPrincipal);
@@ -81,8 +94,11 @@ public class OrganizationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         organizationService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.ORGANIZATION, OutputMessage.DELETED);
@@ -90,16 +106,14 @@ public class OrganizationController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private OrganizationResponse returnObjectResponse(Organization from, UserPrincipal principal) {
+    private OrganizationResponse returnObjectResponse(
+        Organization from, 
+        UserPrincipal principal
+    ) {
         String responseType = controllerSecurity.getResponseObjectType(getClass(), principal.getEmployeeNumber());
         return switch (responseType) {
             case "Full" -> organizationResponseMapper.convertToFullResponse(from);
             default -> organizationResponseMapper.convertToResponse(from);
         };
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
-    }
+    }  
 }

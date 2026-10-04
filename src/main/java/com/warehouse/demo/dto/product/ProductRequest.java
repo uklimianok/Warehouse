@@ -2,6 +2,10 @@ package com.warehouse.demo.dto.product;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +16,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductRequest {
+    @NotBlank 
+    @Size(min = 1, max = 100)
     private String name;
+
+    @NotBlank 
+    @Size(min = 1, max = 30)
     private String barcodeNumber;
+
+    @NotBlank 
+    @PositiveOrZero 
     private BigDecimal cost;
-    private long producerId;
+
+    @NotBlank 
+    @Positive 
+    private Long producerId;
 }

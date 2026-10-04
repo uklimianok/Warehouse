@@ -31,4 +31,6 @@ public class Department implements Identifiable {
     private String codeName;
     @Column(nullable = false)
     private int priority;
+    @Column(nullable = false)
+    private boolean removable;
 }

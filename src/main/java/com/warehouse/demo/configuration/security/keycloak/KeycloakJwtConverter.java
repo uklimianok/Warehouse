@@ -12,7 +12,9 @@ import com.warehouse.demo.configuration.security.UserPrincipal;
 
 public class KeycloakJwtConverter implements Converter<Jwt, AbstractAuthenticationToken> {
     @Override
-    public AbstractAuthenticationToken convert(Jwt source) {
+    public AbstractAuthenticationToken convert(
+        Jwt source
+    ) {
         Collection<GrantedAuthority> authorities = new KeycloakRealmRoleConverter().convert(source);
         String employeeNumber = source.getClaimAsString("preferred_username");
         UserPrincipal userPrincipal = new UserPrincipal(employeeNumber, authorities);

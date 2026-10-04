@@ -23,7 +23,10 @@ public class ActionLoggingAspect {
         pointcut = "execution(* com.warehouse.demo.service..*.create(..)) || execution(* com.warehouse.demo.service..*.update(..))", 
         returning = "result"
     )
-    public void logSave(JoinPoint joinPoint, Object result) {
+    public void logSave(
+        JoinPoint joinPoint, 
+        Object result
+    ) {
         if (result instanceof Identifiable identifiable) {
             ActionLogEvent actionLogEvent = new ActionLogEvent();
             actionLogEvent.setEmployeeNumber(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -36,8 +39,12 @@ public class ActionLoggingAspect {
         }
     }
 
-    @AfterReturning("execution(* com.warehouse.demo.service..*.delete(..))")
-    public void logDelete(JoinPoint joinPoint) {
+    @AfterReturning(
+        "execution(* com.warehouse.demo.service..*.delete(..))"
+    )
+    public void logDelete(
+        JoinPoint joinPoint
+    ) {
         if (joinPoint.getArgs().length > 0 && joinPoint.getArgs()[0] instanceof Long id) {
             ActionLogEvent actionLogEvent = new ActionLogEvent();
             actionLogEvent.setEmployeeNumber(SecurityContextHolder.getContext().getAuthentication().getName());

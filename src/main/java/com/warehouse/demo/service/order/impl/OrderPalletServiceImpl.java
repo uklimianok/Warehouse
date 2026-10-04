@@ -3,6 +3,8 @@ package com.warehouse.demo.service.order.impl;
 import com.warehouse.demo.repository.service.StatusRepository;
 
 import com.warehouse.demo.util.action.PositionInheritanceTree;
+
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
@@ -24,12 +26,13 @@ import com.warehouse.demo.repository.order.PickedProductRepository;
 import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.order.OrderPalletService;
 import com.warehouse.demo.util.action.MessageHandler;
-import com.warehouse.demo.util.info.DepartmentInfo;
+import com.warehouse.demo.util.info.DepartmentCodeNames;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> implements OrderPalletService {
@@ -46,6 +49,8 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
 
     private final OrderPalletRequestMapper orderPalletRequestMapper;
 
+    private final CacheManager cacheManager;
+
     public OrderPalletServiceImpl(
         @Lazy OrderPalletService self, 
         StatusRepository statusRepository, 
@@ -54,7 +59,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         PickedProductRepository pickedProductRepository, 
         OrderPalletRequestMapper orderPalletRequestMapper,
         EmployeeRepository employeeRepository,
-        OrderRepository orderRepository, PositionInheritanceTree positionInheritanceTree
+        OrderRepository orderRepository, 
+        PositionInheritanceTree positionInheritanceTree,
+        CacheManager cacheManager
     ) {
         this.self = self;
         this.statusRepository = statusRepository;
@@ -65,6 +72,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         this.employeeRepository = employeeRepository;
         this.orderRepository = orderRepository;
         this.positionInheritanceTree = positionInheritanceTree;
+        this.cacheManager = cacheManager;
     }
 
     @Override 
@@ -74,6 +82,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     }
 
     @Override
+    @Transactional 
     public OrderPallet create(OrderPalletRequest orderPalletRequest) {
         OrderPallet orderPallet = new OrderPallet();
         orderPallet.setStatus(
@@ -90,6 +99,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "orderPallets", key = "#id")
     public OrderPallet update(long id, OrderPalletRequest orderPalletRequest, String employeeNumber) {  // Develop status system
         OrderPallet orderPallet = self.read(id);
@@ -98,7 +108,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
 
         configureStatus(orderPallet, orderPalletRequest, callerEmployee);
 
-        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentInfo.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             orderPalletRequestMapper.convertFromWarehouseEmployeeRequest(orderPalletRequest, orderPallet);
         else
             orderPalletRequestMapper.convertFromRequest(orderPalletRequest, orderPallet);
@@ -106,12 +116,12 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         OrderPallet savedOrderPallet = orderPalletRepository.save(orderPallet);
         
         if (savedOrderPallet.getStatus().getName().equals(StatusInfo.ORDER_PALLET_PICKED)) {
-            boolean allPickedProductsCompleted = orderPalletRepository.isAllOrderedProductExistInPickedProduct();
+            boolean allPickedProductsCompleted = orderPalletRepository.areAllOrderedProductExistInPickedProduct(savedOrderPallet.getOrder().getId());
             if (allPickedProductsCompleted)
                 changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_COMPLETE); 
             else 
                 changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_INCOMPLETE);
-        } else if (savedOrderPallet.getStatus().getName().equals(StatusInfo.ORDER_PALLET_SENT))
+        } else if (orderPalletRepository.areAllInOrderIdHaveStatusId(savedOrderPallet.getOrder().getId(), savedOrderPallet.getStatus().getId()))
             changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_SENT);
 
         return savedOrderPallet;
@@ -146,9 +156,6 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
     }
 
     private void configureStatus(OrderPallet target, OrderPalletRequest from, Employee subject) {
-        statusRepository.findByIdAndType(from.getStatusId(), getEntityName().getEntity())
-            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
-
         Position subjectPosition = subject.getPosition();
         Status oldStatus = target.getStatus();
         Status newStatus = statusRepository.findByIdAndType(from.getStatusId(), getEntityName().getEntity())
@@ -157,7 +164,7 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         switch (newStatus.getName()) {
             case StatusInfo.ORDER_PALLET_PICKING: {
                 if (
-                    (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                     || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
                     && !pickedProductRepository.existsByOrderPalletId(target.getId())
                 )   // Status "Picking" can be set by certain roles, but only if there are no picked products assigned to the order pallet
@@ -171,9 +178,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     (oldStatus.getName().equals(StatusInfo.ORDER_PALLET_PICKING)
                     && positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_PICKER"))
                     || (
-                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
                     )
                 )   // Status "Picked" can be set by certain roles, but only if all picked products assigned to the order pallet are completed
                     target.setStatus(newStatus);
@@ -186,9 +193,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     (oldStatus.getName().equals(StatusInfo.ORDER_PALLET_PICKED)
                     && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SET_GOODS_EXPORTER")))
                     || (
-                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
                     )   
                 )   // Status "Exporting" can be set either by "Set Goods Exporter" automatically or as "Picked" status
                     target.setStatus(newStatus);
@@ -201,9 +208,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                     (oldStatus.getName().equals(StatusInfo.ORDER_PALLET_EXPORTING)
                     && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SET_GOODS_LOADER")))
                     || (
-                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
                     ) 
                 ) 
                     target.setStatus(newStatus);
@@ -215,9 +222,9 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
                 if (
                     oldStatus.getName().equals(StatusInfo.ORDER_PALLET_LOADING)
                     && (
-                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                        (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                         || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
-                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompletedEquals(target.getId(), false)
+                        && !pickedProductRepository.existsByOrderPalletIdAndIsCompleted(target.getId(), false)
                     )   
                 )   // Status "Sent" can be set only from "Loading" status
                     target.setStatus(newStatus);
@@ -231,8 +238,10 @@ public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> i
         Status orderSentStatus = statusRepository.findByNameAndType(statusName, Entity.ORDER.getEntity())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
 
-        int affectedRows = orderRepository.updateStatusById(orderId, orderSentStatus.getId());
+        int affectedRows = orderRepository.updateStatusById(orderId, orderSentStatus);
         if (affectedRows < 1) 
             throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.NOT_FOUND));
+
+        cacheManager.getCache("orders").evict(orderId);  // Cache is deleted only after DB operation
     }
 }

@@ -26,7 +26,7 @@ import com.warehouse.demo.service.AbstractService;
 import com.warehouse.demo.service.product.ProductPalletService;
 import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.action.PositionInheritanceTree;
-import com.warehouse.demo.util.info.DepartmentInfo;
+import com.warehouse.demo.util.info.DepartmentCodeNames;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 import com.warehouse.demo.util.info.StatusInfo;
@@ -99,7 +99,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     @CacheEvict(value = "productPallets", key = "#id")
     public ProductPallet update(long id, ProductPalletRequest productPalletRequest, UserPrincipal userPrincipal) {
         ProductPallet productPallet = self.read(id);
-        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getMainRole())
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getEmployeeNumber())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
         throwIfNotConfigurable(productPallet, productPalletRequest, callerEmployee);
@@ -175,7 +175,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     }
 
     private void generatePalletNumber(ProductPallet target) {
-        boolean palletNumberExists = productPalletRepository.existsByPalletNumber(String.format("%12d", PALLET_NUMBER_COUNTER.incrementAndGet()));
+        boolean palletNumberExists = productPalletRepository.existsByPalletNumber(String.format("%012d", PALLET_NUMBER_COUNTER.incrementAndGet()));
         if (palletNumberExists)
             PALLET_NUMBER_COUNTER.set(productPalletRepository.count() + 1);
 
@@ -199,8 +199,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         switch (newStatus.getName()) {
             case StatusInfo.PRODUCT_PALLET_ORDERED: {
                 if (
-                    subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT)
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT)
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -211,7 +211,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_ORDERED) 
                     && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_UNLOADER")
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -222,7 +222,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
                     && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -233,7 +233,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
                     && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -244,8 +244,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 if (
                     oldStatus.getName().equals(StatusInfo.PRODUCT_PALLET_ACTIVE)
                     && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "OPERATOR")
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.IT_DEPARTMENT)
-                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentInfo.AUXILIARY_EMPLOYEES_DEPARTMENT))
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT)
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT))
                 ) target.setStatus(newStatus);
                 else 
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
@@ -264,7 +264,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
     private void configureWorkStations(ProductPallet target, ProductPalletRequest from, Employee subject, boolean statusChanged) {
         Position subjectPosition = subject.getPosition();
-        Status status = target.getStatus();
+        Status status = target.getStatus(); // Already configured in configureStatus() method (i.e. new status)
 
         switch (status.getName()) {
             case StatusInfo.PRODUCT_PALLET_ORDERED: {
@@ -293,7 +293,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                     if (
                         (status.getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
                         && from.getWorkStationId() == null)
-                        || (status.getName().equals(StatusInfo.PRODUCT_PALLET_ACTIVE)
+                        || (status.getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
                         && (from.getWorkStationId() == null || from.getNextWorkStationId() == null))
                     ) throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATIONS_REQUIRED));
 
@@ -344,7 +344,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
                 break;
 
             case StatusInfo.PRODUCT_PALLET_OUT_OF_USE: {
-                if (from.getWorkStationId() != null && from.getNextWorkStationId() != null) 
+                if (from.getWorkStationId() != null || from.getNextWorkStationId() != null) 
                     throw new DataIntegrityViolationException(MessageHandler.getOutputMessage(WORK_STATIONS_NOT_REQUIRED));
             
                 configureWorkStations(target);

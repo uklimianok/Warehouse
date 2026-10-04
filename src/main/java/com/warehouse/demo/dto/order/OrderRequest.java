@@ -1,5 +1,7 @@
 package com.warehouse.demo.dto.order;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +12,20 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderRequest {
-    private long storeId;
+    @NotNull 
+    @Positive 
+    private Long storeId;
+
+    @Positive 
     private Long gateId;
-    private long shiftId;
-    private long statusId;
+
+    @NotNull 
+    @Positive 
+    private Long shiftId;
+
+    @NotNull 
+    @Positive 
+    private Long statusId;
+
     private String note;
 }

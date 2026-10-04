@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +25,8 @@ import com.warehouse.demo.util.action.MessageHandler;
 import com.warehouse.demo.util.info.Entity;
 import com.warehouse.demo.util.info.OutputMessage;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -38,8 +39,10 @@ public class WorkshopController {
     private final ControllerSecurity controllerSecurity;
 
     @GetMapping
-    public ResponseEntity<List<? extends WorkshopResponse>> readAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<List<? extends WorkshopResponse>> readAll(
+        @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
 
         List<Workshop> workshops = workshopService.readAll();
         List<? extends WorkshopResponse> workshopResponse = workshops
@@ -51,8 +54,11 @@ public class WorkshopController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<? extends WorkshopResponse> read(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('R', userPrincipal.getMainRole());
+    public ResponseEntity<? extends WorkshopResponse> read(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'R');
         
         Workshop workshop = workshopService.read(id);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
@@ -61,8 +67,11 @@ public class WorkshopController {
     }
 
     @PostMapping
-    public ResponseEntity<? extends WorkshopResponse> create(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody WorkshopRequest workshopRequest) {
-        throwIfUnauthorized('C', userPrincipal.getMainRole());
+    public ResponseEntity<? extends WorkshopResponse> create(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @RequestBody @Valid WorkshopRequest workshopRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'C');
         
         Workshop workshop = workshopService.create(workshopRequest);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
@@ -71,8 +80,12 @@ public class WorkshopController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<? extends WorkshopResponse> update(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id, @RequestBody WorkshopRequest workshopRequest) {
-        throwIfUnauthorized('U', userPrincipal.getMainRole());
+    public ResponseEntity<? extends WorkshopResponse> update(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id, 
+        @RequestBody @Valid WorkshopRequest workshopRequest
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'U');
         
         Workshop workshop = workshopService.update(id, workshopRequest);
         WorkshopResponse workshopResponse = returnObjectResponse(workshop, userPrincipal);
@@ -81,8 +94,11 @@ public class WorkshopController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long id) {
-        throwIfUnauthorized('D', userPrincipal.getMainRole());
+    public ResponseEntity<String> delete(
+        @AuthenticationPrincipal UserPrincipal userPrincipal, 
+        @PathVariable @Positive long id
+    ) {
+        controllerSecurity.throwIfUnauthorized(getClass(), userPrincipal.getEmployeeNumber(), 'D');
 
         workshopService.delete(id);
         String message = MessageHandler.getOutputMessage(Entity.WORKSHOP, OutputMessage.DELETED);
@@ -90,13 +106,11 @@ public class WorkshopController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    private WorkshopResponse returnObjectResponse(Workshop from, UserPrincipal principal) {
+    private WorkshopResponse returnObjectResponse(
+        Workshop from, 
+        UserPrincipal principal
+    ) {
         WorkshopResponse response = workshopResponseMapper.convertToResponse(from);
         return response;
-    }
-
-    private void throwIfUnauthorized(char mode, String role) {
-        if (!controllerSecurity.getAccessRoles(getClass(), mode).contains(role))
-            throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.ACCESS_DENIED));
     }
 }

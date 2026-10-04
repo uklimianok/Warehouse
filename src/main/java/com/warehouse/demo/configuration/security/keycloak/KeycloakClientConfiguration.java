@@ -13,7 +13,9 @@ public class KeycloakClientConfiguration {
     private String baseUrl;
 
     @Bean 
-    RestClient keycloakRestClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+    RestClient keycloakRestClient(
+        OAuth2AuthorizedClientManager authorizedClientManager
+    ) {
         OAuth2ClientHttpRequestInterceptor requestInterceptor = new OAuth2ClientHttpRequestInterceptor(authorizedClientManager);
         requestInterceptor.setClientRegistrationIdResolver(request -> "keycloak");
 
