@@ -1,0 +1,16 @@
+INSERT INTO statuses (id, name, type) VALUES
+    (nextval('status_seq'), "Ordered", "Product pallet"),
+    (nextval('status_seq'), "Unloaded", "Product pallet"),
+    (nextval('status_seq'), "Stored", "Product pallet"),
+    (nextval('status_seq'), "Active", "Product pallet"),
+    (nextval('status_seq'), "Out-of-use", "Product pallet"),
+    (nextval('status_seq'), "Accepted", "Order"),
+    (nextval('status_seq'), "Started", "Order"),
+    (nextval('status_seq'), "Incomplete", "Order"),
+    (nextval('status_seq'), "Complete", "Order"),
+    (nextval('status_seq'), "Sent", "Order"),
+    (nextval('status_seq'), "Picking", "Order pallet"),
+    (nextval('status_seq'), "Picked", "Order pallet"),
+    (nextval('status_seq'), "Exporting", "Order pallet"),
+    (nextval('status_seq'), "Loading", "Order pallet"),
+    (nextval('status_seq'), "Sent", "Order pallet");
