@@ -818,7 +818,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "secret" : "NjVqOap7x68duZbhkPpSGdSSEJ6MkyTwktot26oQjtJpmX9q8j7dmVilPEhsgT56VSsFlO9kruAWdoiuCHTaXF",
+    "secret" : "${KEYCLOAK_CLIENT_SECRET}",
     "redirectUris" : [ ],
     "webOrigins" : [ ],
     "notBefore" : 0,
