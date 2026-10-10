@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.warehouse.demo.entity.product.ProductPallet;
 import com.warehouse.demo.entity.service.Status;
-import com.warehouse.demo.util.info.StatusInfo;
 
 public interface ProductPalletRepository extends JpaRepository<ProductPallet, Long> {
     boolean existsByProductPackageId(long productPackageId);
@@ -25,9 +24,9 @@ public interface ProductPalletRepository extends JpaRepository<ProductPallet, Lo
     @Modifying  // Allows manual UPDATE/DELETE @Query
     @Query(
         nativeQuery = true, 
-        value = "UPDATE product_pallets SET next_work_station_id = :newValue WHERE id = :id AND status_id = (SELECT id FROM statuses WHERE name = '" + StatusInfo.PRODUCT_PALLET_UNLOADED + "' AND type = 'Product pallet') AND next_work_station_id IS NOT DISTINCT FROM :expectedOldValue"
+        value = "UPDATE product_pallets SET next_work_station_id = :newValue WHERE id = :id AND status_id = (SELECT id FROM statuses WHERE name = :status AND type = 'Product pallet') AND next_work_station_id IS NOT DISTINCT FROM :expectedOldValue"
     )   // non-static final value cannot be invoked in an annotation
-    int updateNextWorkStationIfMatching(@Param("id") long id, @Param("newValue") Long newNextWorkStationId, @Param("expectedOldValue") Long oldNextWorkStationId);
+    int updateNextWorkStationIfMatching(@Param("id") long id, @Param("status") String statusName, @Param("newValue") Long newNextWorkStationId, @Param("expectedOldValue") Long oldNextWorkStationId);
     List<ProductPallet> findAllByStatusEqualsAndNextWorkStationIsNull(Status status);
     List<ProductPallet> findAllByStatusEqualsAndNextWorkStationWorkshopId(Status status, long workshopId);
     @Query(

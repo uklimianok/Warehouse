@@ -23,8 +23,15 @@ import lombok.Setter;
 @Setter
 public class Status implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "status_seq")
-    @SequenceGenerator(name = "status_seq", sequenceName = "status_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "status_seq"
+    )
+    @SequenceGenerator(
+        name = "status_seq", 
+        sequenceName = "status_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(nullable = false)
     private String name;

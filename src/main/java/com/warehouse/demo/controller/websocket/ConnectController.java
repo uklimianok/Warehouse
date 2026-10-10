@@ -18,7 +18,10 @@ public class ConnectController {
     private final EmployeeService employeeService;
 
     @MessageMapping("/connect")
-    public void connect(String message, Principal principal) {
+    public void connect(
+        String message, 
+        Principal principal
+    ) {
         String employeeNumber = principal.getName();
         String fullMessage = employeeNumber + " " + message;
 

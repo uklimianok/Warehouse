@@ -1,5 +1,6 @@
 package com.warehouse.demo.mapper.workplace.track;
 
+import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -9,7 +10,7 @@ import com.warehouse.demo.dto.workplace.track.TrackRequest;
 import com.warehouse.demo.entity.workplace.Track;
 import com.warehouse.demo.mapper.workplace.gate.GateResolver;
 
-@Mapper(componentModel = "spring", uses = GateResolver.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = GateResolver.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR, builder = @Builder(disableBuilder = true))
 public interface TrackRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "gate", source = "trackRequest.gateId")

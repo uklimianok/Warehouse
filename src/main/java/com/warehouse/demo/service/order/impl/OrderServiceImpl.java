@@ -3,9 +3,6 @@ package com.warehouse.demo.service.order.impl;
 import com.warehouse.demo.util.action.PositionInheritanceTree;
 import com.warehouse.demo.util.exception.BusinessRuleException;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -38,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl extends AbstractService<Order, Long> implements OrderService {
     private final PositionInheritanceTree positionInheritanceTree;
 
-    private final OrderService self;
+    //private final OrderService self;
 
     private final OrderRepository orderRepository;
     private final OrderedProductRepository orderedProductRepository;
@@ -53,7 +50,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     public static final String GATE_REQUIRED = "must contain any gate.";
 
     public OrderServiceImpl(
-        @Lazy OrderService self, 
+        //@Lazy OrderService self, 
         OrderRepository orderRepository, 
         OrderedProductRepository orderedProductRepository, 
         OrderPalletRepository orderPalletRepository, 
@@ -63,7 +60,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         OrderRequestMapper orderRequestMapper,
         EmployeeRepository employeeRepository, PositionInheritanceTree positionInheritanceTree
     ) {
-        this.self = self;   // @Lazy sets only when it is used, not when declared
+        //this.self = self;   // @Lazy sets only when it is used, not when declared
         this.orderRepository = orderRepository;
         this.orderedProductRepository = orderedProductRepository;
         this.orderPalletRepository = orderPalletRepository;
@@ -75,8 +72,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         this.positionInheritanceTree = positionInheritanceTree;
     }
 
-    @Override 
-    @Cacheable(value = "orders", key = "#id")
+    @Override
     public Order read(Long id) {
         return super.read(id);
     }
@@ -95,15 +91,16 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
 
     @Override
     @Transactional
-    @CacheEvict(value = "orders", key = "#id")
-    public Order update(long id, OrderRequest orderRequest, String employeeNumber) {    // Develop status system
-        Order order = self.read(id);    // Cached object is provided through proxy "self", not through direct "this"
+    public Order update(long id, OrderRequest orderRequest, String employeeNumber) {
+        Order order = read(id);
         Employee employee = employeeRepository.findByEmployeeNumber(employeeNumber)
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
         throwIfNotConfigurable(order, orderRequest, employee);
-        configureStatus(order, orderRequest, employee);
-        
+
+        boolean statusChanged = order.getStatus().getId() != orderRequest.getStatusId();
+        if (statusChanged)
+            configureStatus(order, orderRequest, employee);
 
         if (orderRequest.getGateId() != null)
             order.setGate(gateRepository.findById(orderRequest.getGateId())
@@ -115,9 +112,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         if (!order.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED) && order.getGate() == null)
             throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
 
-        Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
-            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
-        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+        if (employee.getPosition().getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
             orderRequestMapper.convertFromWarehouseEmployeeRequest(orderRequest, order);
         else
             orderRequestMapper.convertFromRequest(orderRequest, order);
@@ -125,8 +120,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
         return orderRepository.save(order);
     }
 
-    @Override 
-    @CacheEvict(value = "orders", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }
@@ -157,8 +151,10 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
     private void throwIfNotConfigurable(Order target, OrderRequest from, Employee subject) {
         Position subjectPosition = subject.getPosition();
         if (
-            positionInheritanceTree.isOneOrDescendant(subjectPosition, "ORDERS_PROCEEDER")
-            && !target.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED)  // ORDERS_PROCEEDER can only configure orders with status "Accepted"
+            (positionInheritanceTree.isOneOrDescendant(subjectPosition, "ORDERS_PROCEEDER")
+            && !target.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED))  // ORDERS_PROCEEDER can only configure orders with status "Accepted"
+            || (!subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT)
+            && target.getStatus().getName().equals(StatusInfo.ORDER_SENT))  // Only IT department can configure orders with status "Sent"
         ) throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
 
         Status status = statusRepository.findByIdAndType(from.getStatusId(), Entity.ORDER.getEntity())
@@ -187,7 +183,7 @@ public class OrderServiceImpl extends AbstractService<Order, Long> implements Or
                     throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
             } break;
             
-            case StatusInfo.ORDER_STARTED, StatusInfo.ORDER_INCOMPLETE, StatusInfo.ORDER_COMPLETE, StatusInfo.ORDER_SENT: { // Statuses are set either automatically or by SYSTEM_ADMINISTRATOR
+            case StatusInfo.ORDER_PROCESSING, StatusInfo.ORDER_INCOMPLETED, StatusInfo.ORDER_COMPLETED, StatusInfo.ORDER_SENT: { // Statuses are set either automatically or by SYSTEM_ADMINISTRATOR
                 if (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR")) 
                     target.setStatus(newStatus);
                 else

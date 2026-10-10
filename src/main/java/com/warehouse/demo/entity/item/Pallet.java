@@ -24,8 +24,15 @@ import lombok.Setter;
 @Setter
 public class Pallet implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pallet_seq")
-    @SequenceGenerator(name = "pallet_seq", sequenceName = "pallet_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "pallet_seq"
+    )
+    @SequenceGenerator(
+        name = "pallet_seq", 
+        sequenceName = "pallet_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(nullable = false)
     private String name;

@@ -1,7 +1,5 @@
 package com.warehouse.demo.service.product.impl;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +27,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
 
     private final ProductRequestMapper productRequestMapper;
 
-    @Override 
-    @Cacheable(value = "products", key = "#id")
+    @Override
     public Product read(Long id) {
         return super.read(id);
     }
@@ -44,7 +41,6 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
     }
 
     @Override
-    @CacheEvict(value = "products", key = "#id")
     public Product update(long id, ProductRequest productRequest) {
         Product product = read(id);
         boolean barcodeNumberChanged = !product.getBarcodeNumber().equals(productRequest.getBarcodeNumber());
@@ -55,8 +51,7 @@ public class ProductServiceImpl extends AbstractService<Product, Long> implement
         return modifyAndSave(product, productRequest);
     }
 
-    @Override 
-    @CacheEvict(value = "products", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }

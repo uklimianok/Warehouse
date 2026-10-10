@@ -29,8 +29,7 @@ public class ProductPalletRequest {
     @NotBlank 
     @Size(min = 1, max = 20)
     private String groupNumber;
-
-    @NotNull 
+ 
     @Positive 
     private Long statusId;
     

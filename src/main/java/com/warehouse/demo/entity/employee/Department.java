@@ -22,8 +22,15 @@ import lombok.Setter;
 @AllArgsConstructor 
 public class Department implements Identifiable {
     @Id 
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "department_seq")
-    @SequenceGenerator(name = "department_seq", sequenceName = "department_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "department_seq"
+    )
+    @SequenceGenerator(
+        name = "department_seq", 
+        sequenceName = "department_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String name;

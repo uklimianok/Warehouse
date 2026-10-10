@@ -1,7 +1,5 @@
 package com.warehouse.demo.service.workplace.impl;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     private final WorkStationRequestMapper workStationRequestMapper;
     
     @Override
-    @Cacheable(value = "workStations", key = "#id")
     public WorkStation read(Long id) {
         return super.read(id);
     }
@@ -43,7 +40,6 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
     }
 
     @Override
-    @CacheEvict(value = "workStations", key = "#id")
     public WorkStation update(long id, WorkStationRequest workStationRequest) {
         WorkStation workStation = read(id);
         boolean stationNumberChanged = !workStation.getStationNumber().equals(workStationRequest.getStationNumber());
@@ -54,8 +50,7 @@ public class WorkStationServiceImpl extends AbstractService<WorkStation, Long> i
         return modifyAndSave(workStation, workStationRequest);
     }
 
-    @Override 
-    @CacheEvict(value = "workStations", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }

@@ -23,8 +23,15 @@ import lombok.Setter;
 @Setter
 public class ActionLog implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "action_logs_seq")
-    @SequenceGenerator(name = "action_logs_seq", sequenceName = "action_logs_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "action_logs_seq"
+    )
+    @SequenceGenerator(
+        name = "action_logs_seq", 
+        sequenceName = "action_logs_seq", 
+        allocationSize = 50
+    )
     private long id;
     @Column(nullable = false)
     private String employeeNumber;

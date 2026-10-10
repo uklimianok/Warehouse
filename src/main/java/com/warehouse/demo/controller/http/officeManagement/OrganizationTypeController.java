@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/organization_types")
+@RequestMapping("/organization-types")
 @RequiredArgsConstructor
 public class OrganizationTypeController {
     private final OrganizationTypeService organizationTypeService;

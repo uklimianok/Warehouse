@@ -26,16 +26,35 @@ import lombok.Setter;
 @Setter
 public class OrderPallet implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_pallet_seq")
-    @SequenceGenerator(name = "order_pallet_seq", sequenceName = "order_pallet_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "order_pallet_seq"
+    )
+    @SequenceGenerator(
+        name = "order_pallet_seq", 
+        sequenceName = "order_pallet_seq", 
+        allocationSize = 50
+    )
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "order_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Order order;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pallet_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "pallet_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Pallet pallet;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "status_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Status status;
 }

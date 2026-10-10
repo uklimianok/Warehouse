@@ -19,7 +19,10 @@ public class FullDepartmentResponse extends DepartmentResponse {
         int priority,
         boolean isRemovable
     ) {
-        super(id, name);
+        super(
+            id, 
+            name
+        );
         this.codeName = codeName;
         this.priority = priority;
         this.isRemovable = isRemovable;

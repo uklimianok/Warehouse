@@ -28,28 +28,55 @@ import lombok.Setter;
 @Setter
 public class ProductPallet implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_pallet_seq")
-    @SequenceGenerator(name = "product_pallet_seq", sequenceName = "product_pallet_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "product_pallet_seq"
+    )
+    @SequenceGenerator(
+        name = "product_pallet_seq", 
+        sequenceName = "product_pallet_seq", 
+        allocationSize = 50
+    )
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "package_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "package_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private ProductPackage productPackage;
     @Column(nullable = false)
     private int packageAmount;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pallet_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(
+        name = "pallet_id", 
+        referencedColumnName = "id", 
+        nullable = true
+    )
     private Pallet pallet;
     @Column(unique = true, nullable = false)
     private String palletNumber;
     @Column(nullable = false)
     private String groupNumber;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "status_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Status status;
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="work_station_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(
+        name="work_station_id", 
+        referencedColumnName = "id", 
+        nullable = true
+    )
     private WorkStation workStation;
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="next_work_station_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(
+        name="next_work_station_id", 
+        referencedColumnName = "id", 
+        nullable = true
+    )
     private WorkStation nextWorkStation;
 }

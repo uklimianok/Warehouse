@@ -2,8 +2,6 @@ package com.warehouse.demo.service.employee.impl;
 
 import java.util.List;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +34,6 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     private static final String LOOP_INHERITANCE_MESSAGE = "This position is already in the chain of position inheritance.";
 
     @Override
-    @Cacheable(value = "positions", key = "#id")
     public Position read(Long id) {
         return super.read(id);
     }
@@ -62,7 +59,6 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
 
     @Override
     @Transactional
-    @CacheEvict(value = "positions", key = "#id")
     public Position update(long id, PositionRequest positionRequest) {
         Position position = read(id);
         boolean nameChanged = !position.getName().equals(positionRequest.getName());
@@ -76,12 +72,11 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     }
 
     @Override
-    @Transactional 
-    @CacheEvict(value = "positions", key = "#id")
+    @Transactional
     public void delete(Long id) {
         Position position = read(id);
         if (!position.isRemovable())
-            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
 
         super.delete(id);
         positionRepository.flush();
@@ -107,7 +102,8 @@ public class PositionServiceImpl extends AbstractService<Position, Long> impleme
     @Override
     protected boolean isUsed(Long id) {
         boolean activeInEmployee = employeeRepository.existsByPositionId(id);
-        return activeInEmployee;
+        boolean isInherited = positionRepository.existsByInheritedPositionsId(id);
+        return activeInEmployee || isInherited;
     }
 
     private void throwIfInheritanceLooped(long targetId, List<Long> parents) {

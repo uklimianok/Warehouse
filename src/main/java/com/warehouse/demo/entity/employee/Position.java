@@ -33,8 +33,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Position implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "position_seq")
-    @SequenceGenerator(name = "position_seq", sequenceName = "position_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "position_seq"
+    )
+    @SequenceGenerator(
+        name = "position_seq", 
+        sequenceName = "position_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String name;
@@ -43,7 +50,11 @@ public class Position implements Identifiable {
     @Column(name = "is_enabled", nullable = false)
     private boolean enabled;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "department_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Department department;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

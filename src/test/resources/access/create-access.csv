@@ -1,0 +1,13 @@
+employee, url, expected
+24000001, /gates,               201
+13000001, /gates,               403
+09000001, /gates,               201
+03000001, /gates,               403
+24000001, /organization-types,  201
+13000001, /organization-types,  201
+09000001, /organization-types,  403
+03000001, /organization-types,  403
+24000001, /workshops,           201
+13000001, /workshops,           403
+09000001, /workshops,           201
+03000001, /workshops,           403

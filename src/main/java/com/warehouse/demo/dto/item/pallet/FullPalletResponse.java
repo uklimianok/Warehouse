@@ -15,8 +15,20 @@ public class FullPalletResponse extends PalletResponse {
     private BigDecimal height;
     private BigDecimal weight;
 
-    public FullPalletResponse(long id, String name, String color, BigDecimal length, BigDecimal width, BigDecimal height, BigDecimal weight) {
-        super(id, name, color);
+    public FullPalletResponse(
+        long id, 
+        String name, 
+        String color, 
+        BigDecimal length, 
+        BigDecimal width, 
+        BigDecimal height, 
+        BigDecimal weight
+    ) {
+        super(
+            id, 
+            name, 
+            color
+        );
         this.length = length;
         this.width = width;
         this.height = height;

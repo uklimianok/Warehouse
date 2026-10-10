@@ -1,7 +1,5 @@
 package com.warehouse.demo.service.workplace.impl;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +23,7 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
 
     private final TrackRequestMapper trackRequestMapper;
 
-    @Override 
-    @Cacheable(value = "tracks", key = "#id")
+    @Override
     public Track read(Long id) {
         return super.read(id);
     }
@@ -40,7 +37,6 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
     }
 
     @Override
-    @CacheEvict(value = "tracks", key = "#id")
     public Track update(long id, TrackRequest trackRequest) {
         Track track = read(id);
         boolean trackChanged = !track.getSymbol().equals(trackRequest.getSymbol());
@@ -51,8 +47,7 @@ public class TrackServiceImpl extends AbstractService<Track, Long> implements Tr
         return modifyAndSave(track, trackRequest);
     }
 
-    @Override 
-    @CacheEvict(value = "tracks", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }

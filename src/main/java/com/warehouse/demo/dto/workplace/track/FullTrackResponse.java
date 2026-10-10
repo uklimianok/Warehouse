@@ -15,8 +15,18 @@ public class FullTrackResponse extends TrackResponse {
     private BigDecimal length;
     private BigDecimal width;
 
-    public FullTrackResponse(long id, String symbol, BigDecimal length, BigDecimal width, GateResponse gateResponse) {
-        super(id, symbol, gateResponse);
+    public FullTrackResponse(
+        long id, 
+        String symbol, 
+        BigDecimal length, 
+        BigDecimal width, 
+        GateResponse gateResponse
+    ) {
+        super(
+            id, 
+            symbol, 
+            gateResponse
+        );
         this.length = length;
         this.width = width;
     }

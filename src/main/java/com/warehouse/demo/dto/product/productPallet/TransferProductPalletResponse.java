@@ -15,8 +15,22 @@ public class TransferProductPalletResponse extends ProductPalletResponse {
     private PalletResponse pallet;
     private WorkStationResponse nextWorkStation;
 
-    public TransferProductPalletResponse(long id, ProductPackageResponse productPackage, PalletResponse pallet, String palletNumber, String groupNumber, WorkStationResponse workStation, WorkStationResponse nextWorkStation) {
-        super(id, productPackage, palletNumber, groupNumber, workStation);
+    public TransferProductPalletResponse(
+        long id, 
+        ProductPackageResponse productPackage, 
+        PalletResponse pallet, 
+        String palletNumber, 
+        String groupNumber, 
+        WorkStationResponse workStation, 
+        WorkStationResponse nextWorkStation
+    ) {
+        super(
+            id, 
+            productPackage, 
+            palletNumber, 
+            groupNumber, 
+            workStation
+        );
         this.pallet = pallet;
         this.nextWorkStation = nextWorkStation;
     }

@@ -55,4 +55,6 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
         nativeQuery = true
     )
     Optional<String> findControllerFlags_ResponseObjectTypeByEmployee_EmployeeNumberAndControllerFlagsEquals(@Param("key") String controllerName, @Param("number") String employeeNumber);
+
+    boolean existsByInheritedPositionsId(long id);
 }

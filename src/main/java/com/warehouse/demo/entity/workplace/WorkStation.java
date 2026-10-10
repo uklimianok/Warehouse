@@ -25,8 +25,15 @@ import lombok.Setter;
 @Setter
 public class WorkStation implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "work_station_seq")
-    @SequenceGenerator(name = "work_station_seq", sequenceName = "work_station_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "work_station_seq"
+    )
+    @SequenceGenerator(
+        name = "work_station_seq", 
+        sequenceName = "work_station_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String stationNumber;
@@ -35,6 +42,10 @@ public class WorkStation implements Identifiable {
     @Column(nullable = false)
     private String type;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workshop_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "workshop_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Workshop workshop;
 }

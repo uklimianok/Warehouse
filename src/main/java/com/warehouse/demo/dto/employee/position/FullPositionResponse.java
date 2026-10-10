@@ -17,8 +17,19 @@ public class FullPositionResponse extends PositionResponse {
     private boolean isRemovable;
     private Map<String, List<String>> controllerFlags;
 
-    public FullPositionResponse(long id, String name, String codeName, boolean isEnabled, List<PositionResponse> inheritedPositions, boolean isRemovable, Map<String, List<String>> controllerFlags) {
-        super(id, name);
+    public FullPositionResponse(
+        long id, 
+        String name, 
+        String codeName, 
+        boolean isEnabled, 
+        List<PositionResponse> inheritedPositions, 
+        boolean isRemovable, 
+        Map<String, List<String>> controllerFlags
+    ) {
+        super(
+            id, 
+            name
+        );
         this.codeName = codeName;
         this.isEnabled = isEnabled;
         this.inheritedPositions = inheritedPositions;

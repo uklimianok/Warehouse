@@ -29,20 +29,43 @@ import lombok.Setter;
 @Setter
 public class Order implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_seq")
-    @SequenceGenerator(name = "order_seq", sequenceName = "order_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "order_seq"
+    )
+    @SequenceGenerator(
+        name = "order_seq", 
+        sequenceName = "order_seq", 
+        allocationSize = 50
+    )
     private long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "store_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Organization store;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gate_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(
+        name = "gate_id", 
+        referencedColumnName = "id", 
+        nullable = true
+    )
     private Gate gate;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shift_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "shift_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Shift shift;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "status_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Status status;
     @Column(nullable = true)
     private String note;

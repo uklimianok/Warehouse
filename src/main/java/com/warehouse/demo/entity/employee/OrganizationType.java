@@ -22,8 +22,15 @@ import lombok.Setter;
 @Setter
 public class OrganizationType implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_type_seq")
-    @SequenceGenerator(name = "organization_type_seq", sequenceName = "organization_type_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "organization_type_seq"
+    )
+    @SequenceGenerator(
+        name = "organization_type_seq", 
+        sequenceName = "organization_type_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String name;

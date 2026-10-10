@@ -1,7 +1,5 @@
 package com.warehouse.demo.service.employee.impl;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +29,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
 
     private final OrganizationRequestMapper organizationRequestMapper;
 
-    @Override 
-    @Cacheable(value = "organizations", key = "#id")
+    @Override
     public Organization read(Long id) {
         return super.read(id);
     }
@@ -46,7 +43,6 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
     }
 
     @Override
-    @CacheEvict(value = "organizations", key = "#id")
     public Organization update(long id, OrganizationRequest organizationRequest) {
         Organization organization = read(id);
         boolean organizationNumberChanged = !organization.getOrganizationNumber().equals(organizationRequest.getOrganizationNumber());
@@ -57,8 +53,7 @@ public class OrganizationServiceImpl extends AbstractService<Organization, Long>
         return modifyAndSave(organization, organizationRequest);
     }
 
-    @Override 
-    @CacheEvict(value = "organizations", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }

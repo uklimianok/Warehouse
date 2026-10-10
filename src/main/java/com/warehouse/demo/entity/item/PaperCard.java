@@ -26,12 +26,23 @@ import lombok.Setter;
 @Setter
 public class PaperCard implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "paper_card_seq")
-    @SequenceGenerator(name = "paper_card_seq", sequenceName = "paper_card_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "paper_card_seq"
+    )
+    @SequenceGenerator(
+        name = "paper_card_seq", 
+        sequenceName = "paper_card_seq", 
+        allocationSize = 50
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String code;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_pallet_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "order_pallet_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private OrderPallet orderPallet;
 }

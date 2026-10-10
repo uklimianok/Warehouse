@@ -1,5 +1,6 @@
 package com.warehouse.demo.mapper.product.productPackage;
 
+import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -9,7 +10,7 @@ import com.warehouse.demo.dto.product.productPackage.ProductPackageRequest;
 import com.warehouse.demo.entity.product.ProductPackage;
 import com.warehouse.demo.mapper.product.ProductResolver;
 
-@Mapper(componentModel = "spring", uses = ProductResolver.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = ProductResolver.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR, builder = @Builder(disableBuilder = true))
 public interface ProductPackageRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "product", source = "productPackageRequest.productId")

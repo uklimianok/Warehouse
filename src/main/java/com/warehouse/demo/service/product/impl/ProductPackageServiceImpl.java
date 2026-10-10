@@ -1,7 +1,5 @@
 package com.warehouse.demo.service.product.impl;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +26,7 @@ public class ProductPackageServiceImpl extends AbstractService<ProductPackage, L
 
     private final ProductPackageRequestMapper productPackageRequestMapper;
 
-    @Override 
-    @Cacheable(value = "packages", key = "#id")
+    @Override
     public ProductPackage read(Long id) {
         return super.read(id);
     }
@@ -40,13 +37,11 @@ public class ProductPackageServiceImpl extends AbstractService<ProductPackage, L
     }
 
     @Override
-    @CacheEvict(value = "packages", key = "#id")
     public ProductPackage update(long id, ProductPackageRequest productPackageRequest) {
         return modifyAndSave(read(id), productPackageRequest);
     }
 
-    @Override 
-    @CacheEvict(value = "packages", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }

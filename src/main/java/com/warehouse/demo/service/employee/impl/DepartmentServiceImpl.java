@@ -62,7 +62,7 @@ public class DepartmentServiceImpl extends AbstractService<Department, Long> imp
     public void delete(Long id) {
         Department department = read(id);
         if (!department.isRemovable())
-            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), OutputMessage.OPERATION_DENIED));
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
 
         super.delete(id);
     }

@@ -3,6 +3,7 @@ package com.warehouse.demo.dto.product;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -24,11 +25,11 @@ public class ProductRequest {
     @Size(min = 1, max = 30)
     private String barcodeNumber;
 
-    @NotBlank 
+    @NotNull 
     @PositiveOrZero 
     private BigDecimal cost;
 
-    @NotBlank 
+    @NotNull 
     @Positive 
     private Long producerId;
 }

@@ -28,8 +28,15 @@ import lombok.Setter;
 @Setter
 public class Product implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
-    @SequenceGenerator(name = "product_seq", sequenceName = "product_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "product_seq"
+    )
+    @SequenceGenerator(
+        name = "product_seq", 
+        sequenceName = "product_seq", 
+        allocationSize = 50
+    )
     private long id;
     @Column(nullable = false)
     private String name;
@@ -38,6 +45,10 @@ public class Product implements Identifiable {
     @Column(nullable = false)
     private BigDecimal cost;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producer_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "producer_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Organization producer;
 }

@@ -16,8 +16,27 @@ import lombok.Setter;
 public class DataControllerEmployeeResponse extends EmployeeResponse {
     private ShiftResponse shift;
 
-    public DataControllerEmployeeResponse(long id, String firstName, String lastName, OrganizationResponse employerOrganization, String employeeNumber, PositionResponse position, ShiftResponse shift, WorkshopResponse workshop, GateResponse gate) {
-        super(id, firstName, lastName, employerOrganization, employeeNumber, position, workshop, gate);
+    public DataControllerEmployeeResponse(
+        long id, 
+        String firstName, 
+        String lastName, 
+        OrganizationResponse employerOrganization, 
+        String employeeNumber, 
+        PositionResponse position, 
+        ShiftResponse shift, 
+        WorkshopResponse workshop, 
+        GateResponse gate
+    ) {
+        super(
+            id, 
+            firstName, 
+            lastName, 
+            employerOrganization, 
+            employeeNumber, 
+            position, 
+            workshop, 
+            gate
+        );
         this.shift = shift;
     }
 }

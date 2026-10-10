@@ -1,5 +1,6 @@
 package com.warehouse.demo.mapper.product.productPallet;
 
+import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,7 +13,7 @@ import com.warehouse.demo.mapper.product.productPackage.ProductPackageResolver;
 import com.warehouse.demo.mapper.service.status.StatusResolver;
 import com.warehouse.demo.mapper.workplace.workStation.WorkStationResolver;
 
-@Mapper(componentModel = "spring", uses = {ProductPackageResolver.class, PalletResolver.class, StatusResolver.class, WorkStationResolver.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = {ProductPackageResolver.class, PalletResolver.class, StatusResolver.class, WorkStationResolver.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR, builder = @Builder(disableBuilder = true))
 public interface ProductPalletRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "productPackage", source = "productPalletRequest.productPackageId")

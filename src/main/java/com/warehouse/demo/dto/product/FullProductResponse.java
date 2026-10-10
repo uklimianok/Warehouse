@@ -16,8 +16,17 @@ public class FullProductResponse extends ProductResponse {
     private BigDecimal cost;
     private OrganizationResponse producer;
 
-    public FullProductResponse(long id, String name, String barcodeNumber, BigDecimal cost, OrganizationResponse producer) {
-        super(id, name);
+    public FullProductResponse(
+        long id, 
+        String name, 
+        String barcodeNumber, 
+        BigDecimal cost, 
+        OrganizationResponse producer
+    ) {
+        super(
+            id, 
+            name
+        );
         this.barcodeNumber = barcodeNumber;
         this.cost = cost;
         this.producer = producer;

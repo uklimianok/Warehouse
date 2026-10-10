@@ -25,7 +25,7 @@ public class OrganizationRequest {
 
     @NotNull
     @Positive 
-    private long organizationTypeId;
+    private Long organizationTypeId;
 
     @Size(min = 5, max = 100)
     private String address;

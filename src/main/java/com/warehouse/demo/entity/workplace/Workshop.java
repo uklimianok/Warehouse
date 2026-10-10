@@ -24,8 +24,15 @@ import lombok.Setter;
 @Setter
 public class Workshop implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workshop_seq")
-    @SequenceGenerator(name = "workshop_seq", sequenceName = "workshop_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "workshop_seq"
+    )
+    @SequenceGenerator(
+        name = "workshop_seq", 
+        sequenceName = "workshop_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(nullable = false)
     private String name;

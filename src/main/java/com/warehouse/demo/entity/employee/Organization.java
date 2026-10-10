@@ -25,15 +25,26 @@ import lombok.Setter;
 @Setter
 public class Organization implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organization_seq")
-    @SequenceGenerator(name = "organization_seq", sequenceName = "organization_seq", allocationSize = 50)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "organization_seq"
+    )
+    @SequenceGenerator(
+        name = "organization_seq", 
+        sequenceName = "organization_seq", 
+        allocationSize = 50
+    )
     private long id;
     @Column(nullable = false)
     private String name;
     @Column(unique = true, nullable = false)
     private String organizationNumber;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_type_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "organization_type_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private OrganizationType organizationType;
     @Column(nullable = true)
     private String address;

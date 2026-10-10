@@ -22,8 +22,15 @@ import lombok.Setter;
 @Setter
 public class Shift implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shift_seq")
-    @SequenceGenerator(name = "shift_seq", sequenceName = "shift_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "shift_seq"
+    )
+    @SequenceGenerator(
+        name = "shift_seq", 
+        sequenceName = "shift_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String symbol; 

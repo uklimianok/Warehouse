@@ -14,11 +14,28 @@ import lombok.Setter;
 @Setter 
 public class FullProductPalletResponse extends TransferProductPalletResponse {
     private int packageAmount;
-    private PalletResponse pallet;
     private StatusResponse status;
 
-    public FullProductPalletResponse(long id, ProductPackageResponse productPackage, int packageAmount, PalletResponse pallet, String palletNumber, String groupNumber, StatusResponse status, WorkStationResponse workStation, WorkStationResponse nextWorkStation) {
-        super(id, productPackage, pallet, palletNumber, groupNumber, workStation, nextWorkStation);
+    public FullProductPalletResponse(
+        long id, 
+        ProductPackageResponse productPackage, 
+        int packageAmount, 
+        PalletResponse pallet, 
+        String palletNumber, 
+        String groupNumber, 
+        StatusResponse status, 
+        WorkStationResponse workStation, 
+        WorkStationResponse nextWorkStation
+    ) {
+        super(
+            id, 
+            productPackage, 
+            pallet, 
+            palletNumber, 
+            groupNumber, 
+            workStation, 
+            nextWorkStation
+        );
         this.packageAmount = packageAmount;
         this.status = status;
     }

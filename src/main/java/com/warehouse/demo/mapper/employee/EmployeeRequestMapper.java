@@ -1,5 +1,6 @@
 package com.warehouse.demo.mapper.employee;
 
+import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,7 +12,7 @@ import com.warehouse.demo.mapper.employee.organization.OrganizationResolver;
 import com.warehouse.demo.mapper.employee.position.PositionResolver;
 import com.warehouse.demo.mapper.employee.shift.ShiftResolver;
 
-@Mapper(componentModel = "spring", uses = {OrganizationResolver.class, PositionResolver.class, ShiftResolver.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = {OrganizationResolver.class, PositionResolver.class, ShiftResolver.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR, builder = @Builder(disableBuilder = true))
 public interface EmployeeRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "employeeNumber", ignore = true)

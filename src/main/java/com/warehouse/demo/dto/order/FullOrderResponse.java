@@ -16,8 +16,20 @@ public class FullOrderResponse extends OrderResponse {
     private ShiftResponse shift;
     private StatusResponse status;
 
-    public FullOrderResponse(long id, OrganizationResponse store, GateResponse gate, ShiftResponse shift, StatusResponse status, String note) {
-        super(id, store, gate, note);
+    public FullOrderResponse(
+        long id, 
+        OrganizationResponse store, 
+        GateResponse gate, 
+        ShiftResponse shift, 
+        StatusResponse status, 
+        String note
+    ) {
+        super(
+            id, 
+            store, 
+            gate, 
+            note
+        );
         this.shift = shift;
         this.status = status;
     }

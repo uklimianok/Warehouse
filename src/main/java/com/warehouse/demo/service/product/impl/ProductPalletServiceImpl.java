@@ -1,8 +1,5 @@
 package com.warehouse.demo.service.product.impl;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,7 +31,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Long> implements ProductPalletService {
-    private final ProductPalletService self;
+    //private final ProductPalletService self;
 
     private final ProductPalletRepository productPalletRepository;
     private final StatusRepository statusRepository;
@@ -57,7 +54,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     private static final String UNLOADED_STATUS_NEXT_WORK_STATION_NULL_EVENT = "product-pallet-unloaded-status-next-work-station-null-event";
 
     public ProductPalletServiceImpl(
-        @Lazy ProductPalletService self, 
+        //@Lazy ProductPalletService self, 
         ProductPalletRepository productPalletRepository, 
         StatusRepository statusRepository, 
         WorkStationRepository workStationRepository, 
@@ -66,7 +63,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         KafkaTemplate<String, ProductPalletEvent> kafkaTemplate,
         PositionInheritanceTree positionInheritanceTree
     ) {
-        this.self = self;
+        //this.self = self;
         this.productPalletRepository = productPalletRepository;
         this.statusRepository = statusRepository;
         this.workStationRepository = workStationRepository;
@@ -76,8 +73,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         this.positionInheritanceTree = positionInheritanceTree;
     }
 
-    @Override 
-    @Cacheable(value = "productPallets", key = "#id")
+    @Override
     public ProductPallet read(Long id) {
         return super.read(id);
     }
@@ -93,9 +89,8 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
     }
 
     @Override
-    @CacheEvict(value = "productPallets", key = "#id")
     public ProductPallet update(long id, ProductPalletRequest productPalletRequest, UserPrincipal userPrincipal) {
-        ProductPallet productPallet = self.read(id);
+        ProductPallet productPallet = read(id);
         Employee callerEmployee = employeeRepository.findByEmployeeNumber(userPrincipal.getEmployeeNumber())
             .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
 
@@ -109,12 +104,15 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
 
         ProductPallet savedProductPallet = modifyAndSave(productPallet, productPalletRequest);
 
-        if (savedProductPallet.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)) {
+        if (
+            savedProductPallet.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_UNLOADED)
+            || savedProductPallet.getStatus().getName().equals(StatusInfo.PRODUCT_PALLET_STORED)
+        ) {
             if (!statusChanged) {
                 Long oldNextWorkStationId = productPallet.getNextWorkStation() == null ? null : productPallet.getNextWorkStation().getId();
                 Long newNextWorkStationId = productPalletRequest.getNextWorkStationId();
 
-                int rows = productPalletRepository.updateNextWorkStationIfMatching(id, newNextWorkStationId, oldNextWorkStationId);
+                int rows = productPalletRepository.updateNextWorkStationIfMatching(id, savedProductPallet.getStatus().getName(), newNextWorkStationId, oldNextWorkStationId);
                 if (rows == 0)
                     throw new BusinessRuleException(MessageHandler.getOutputMessage(Entity.NEXT_WORK_STATION, OutputMessage.SET));
 
@@ -132,8 +130,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
         return savedProductPallet;
     }
 
-    @Override 
-    @CacheEvict(value = "productPallets", key = "#id")
+    @Override
     public void delete(Long id) {
         super.delete(id);
     }
@@ -245,7 +242,7 @@ public class ProductPalletServiceImpl extends AbstractService<ProductPallet, Lon
             }
                 break;
 
-            default:    // StatusInfo.PRODUCT_PALLET_ORDERED or other types
+            default:    // Other status types
                 throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
         }
     }

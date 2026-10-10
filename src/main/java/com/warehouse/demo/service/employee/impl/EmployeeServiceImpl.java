@@ -2,8 +2,6 @@ package com.warehouse.demo.service.employee.impl;
 
 import java.util.List;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -62,8 +60,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Override 
-    @Cacheable(value = "employees", key = "#id")
+    @Override
     public Employee read(Long id) {
         return super.read(id);
     }
@@ -86,7 +83,6 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
 
     @Override
     @Transactional
-    @CacheEvict(value = "employees", key = "#id")
     public Employee update(long id, EmployeeRequest employeeRequest, UserPrincipal userPrincipal) {
         Employee employee = read(id);
         Position oldPosition = employee.getPosition();
@@ -114,8 +110,7 @@ public class EmployeeServiceImpl extends AbstractService<Employee, Long> impleme
         return savedEmployee;
     }
 
-    @Override 
-    @CacheEvict(value = "employees", key = "#id")
+    @Override
     @Transactional
     public void delete(Long id) {
         String employeeNumber = employeeRepository.findEmployeeNumberById(id)

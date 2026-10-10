@@ -24,7 +24,7 @@ public class WorkStationRequest {
     private String controlNumber;
 
     @NotBlank 
-    @Pattern(regexp = "[A|a]ctive|[P|p]assive")
+    @Pattern(regexp = "[Aa]ctive|[Pp]assive")
     private String type;
 
     @NotNull 

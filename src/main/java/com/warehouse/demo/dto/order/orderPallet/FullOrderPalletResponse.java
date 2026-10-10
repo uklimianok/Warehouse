@@ -14,8 +14,17 @@ import lombok.Setter;
 public class FullOrderPalletResponse extends OrderPalletResponse {
     private StatusResponse status;
 
-    public FullOrderPalletResponse(long id, OrderResponse order, PalletResponse pallet, StatusResponse status) {
-        super(id, order, pallet);
+    public FullOrderPalletResponse(
+        long id, 
+        OrderResponse order, 
+        PalletResponse pallet, 
+        StatusResponse status
+    ) {
+        super(
+            id, 
+            order, 
+            pallet
+        );
         this.status = status;
     }
 }

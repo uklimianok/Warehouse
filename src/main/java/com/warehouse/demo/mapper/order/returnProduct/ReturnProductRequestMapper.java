@@ -1,5 +1,6 @@
 package com.warehouse.demo.mapper.order.returnProduct;
 
+import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -10,7 +11,7 @@ import com.warehouse.demo.entity.order.ReturnProduct;
 import com.warehouse.demo.mapper.order.OrderResolver;
 import com.warehouse.demo.mapper.product.ProductResolver;
 
-@Mapper(componentModel = "spring", uses = {OrderResolver.class, ProductResolver.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = {OrderResolver.class, ProductResolver.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR, builder = @Builder(disableBuilder = true))
 public interface ReturnProductRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "order", source = "returnProductRequest.orderId")

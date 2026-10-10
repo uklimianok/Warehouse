@@ -27,8 +27,15 @@ import lombok.Setter;
 @Setter
 public class Track implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "track_seq")
-    @SequenceGenerator(name = "track_seq", sequenceName = "track_seq", allocationSize = 1)
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE, 
+        generator = "track_seq"
+    )
+    @SequenceGenerator(
+        name = "track_seq", 
+        sequenceName = "track_seq", 
+        allocationSize = 1
+    )
     private long id;
     @Column(unique = true, nullable = false)
     private String symbol;
@@ -37,6 +44,10 @@ public class Track implements Identifiable {
     @Column(nullable = false)
     private BigDecimal width;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gate_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(
+        name = "gate_id", 
+        referencedColumnName = "id", 
+        nullable = false
+    )
     private Gate gate;
 }

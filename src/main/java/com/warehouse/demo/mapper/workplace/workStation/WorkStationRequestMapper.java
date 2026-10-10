@@ -1,5 +1,6 @@
 package com.warehouse.demo.mapper.workplace.workStation;
 
+import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -9,7 +10,7 @@ import com.warehouse.demo.dto.workplace.workStation.WorkStationRequest;
 import com.warehouse.demo.entity.workplace.WorkStation;
 import com.warehouse.demo.mapper.workplace.workshop.WorkshopResolver;
 
-@Mapper(componentModel = "spring", uses = WorkshopResolver.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = WorkshopResolver.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR, builder = @Builder(disableBuilder = true))
 public interface WorkStationRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "workshop", source = "workStationRequest.workshopId")
