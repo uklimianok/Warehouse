@@ -1,0 +1,18 @@
+package local.warehouse.app.dto.workplace.workshop;
+
+import java.math.BigDecimal;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter 
+public class WorkshopResponse {
+    private long id;
+    private String name;
+    private BigDecimal standard;
+}

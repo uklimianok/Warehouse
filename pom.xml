@@ -6,14 +6,14 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.1.1</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
-	<groupId>com.warehouse</groupId>
-	<artifactId>demo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
-	<description/>
-	<url/>
+	<groupId>local.warehouse</groupId>
+	<artifactId>warehouse-app</artifactId>
+	<version>2.1.0</version>
+	<name>Warehouse Enterprise Application</name>
+	<description>REST backend for warehouse operations: Spring Boot 4, PostgreSQL, Kafka, Redis, Keycloak (OAuth2/JWT)</description>
+	<url>https://github.com/uklimianok/Warehouse</url>
 	<licenses>
 		<license/>
 	</licenses>

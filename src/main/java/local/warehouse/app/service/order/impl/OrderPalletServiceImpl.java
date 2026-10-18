@@ -1,0 +1,235 @@
+package local.warehouse.app.service.order.impl;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
+import local.warehouse.app.dto.order.orderPallet.OrderPalletRequest;
+import local.warehouse.app.entity.employee.Employee;
+import local.warehouse.app.entity.employee.Position;
+import local.warehouse.app.entity.order.OrderPallet;
+import local.warehouse.app.entity.service.Status;
+import local.warehouse.app.mapper.order.orderPallet.OrderPalletRequestMapper;
+import local.warehouse.app.repository.employee.EmployeeRepository;
+import local.warehouse.app.repository.item.PaperCardRepository;
+import local.warehouse.app.repository.order.OrderPalletRepository;
+import local.warehouse.app.repository.order.OrderRepository;
+import local.warehouse.app.repository.order.PickedProductRepository;
+import local.warehouse.app.repository.service.StatusRepository;
+import local.warehouse.app.service.AbstractService;
+import local.warehouse.app.service.order.OrderPalletService;
+import local.warehouse.app.util.action.MessageHandler;
+import local.warehouse.app.util.action.PositionInheritanceTree;
+import local.warehouse.app.util.info.DepartmentCodeNames;
+import local.warehouse.app.util.info.Entity;
+import local.warehouse.app.util.info.OutputMessage;
+import local.warehouse.app.util.info.StatusInfo;
+
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class OrderPalletServiceImpl extends AbstractService<OrderPallet, Long> implements OrderPalletService {
+    private final PositionInheritanceTree positionInheritanceTree;
+
+    //private final OrderPalletService self;
+
+    private final StatusRepository statusRepository;
+    private final OrderPalletRepository orderPalletRepository;
+    private final PaperCardRepository paperCardRepository;
+    private final PickedProductRepository pickedProductRepository;
+    private final EmployeeRepository employeeRepository;
+    private final OrderRepository orderRepository;
+
+    private final OrderPalletRequestMapper orderPalletRequestMapper;
+
+    //private final CacheManager cacheManager;
+
+    public OrderPalletServiceImpl(
+        //@Lazy OrderPalletService self, 
+        StatusRepository statusRepository, 
+        OrderPalletRepository orderPalletRepository, 
+        PaperCardRepository paperCardRepository, 
+        PickedProductRepository pickedProductRepository, 
+        OrderPalletRequestMapper orderPalletRequestMapper,
+        EmployeeRepository employeeRepository,
+        OrderRepository orderRepository, 
+        PositionInheritanceTree positionInheritanceTree
+        //CacheManager cacheManager
+    ) {
+        //this.self = self;
+        this.statusRepository = statusRepository;
+        this.orderPalletRepository = orderPalletRepository;
+        this.paperCardRepository = paperCardRepository;
+        this.pickedProductRepository = pickedProductRepository;
+        this.orderPalletRequestMapper = orderPalletRequestMapper;
+        this.employeeRepository = employeeRepository;
+        this.orderRepository = orderRepository;
+        this.positionInheritanceTree = positionInheritanceTree;
+        //this.cacheManager = cacheManager;
+    }
+
+    @Override
+    public OrderPallet read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
+    @Transactional 
+    public OrderPallet create(OrderPalletRequest orderPalletRequest) {
+        OrderPallet orderPallet = new OrderPallet();
+        orderPallet.setStatus(
+            statusRepository.findByNameAndType(StatusInfo.ORDER_PALLET_PICKING, getEntityName().getEntity())
+                .orElseThrow(() ->
+                    new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)) 
+            )   
+        );
+
+        OrderPallet savedOrderPallet = modifyAndSave(orderPallet, orderPalletRequest);
+        changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_PROCESSING);
+
+        return savedOrderPallet;
+    }
+
+    @Override
+    @Transactional
+    public OrderPallet update(long id, OrderPalletRequest orderPalletRequest, String employeeNumber) {
+        OrderPallet orderPallet = read(id);
+        Employee callerEmployee = employeeRepository.findByEmployeeNumber(employeeNumber)
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+
+        configureStatus(orderPallet, orderPalletRequest, callerEmployee);
+
+        if (callerEmployee.getPosition().getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+            orderPalletRequestMapper.convertFromWarehouseEmployeeRequest(orderPalletRequest, orderPallet);
+        else
+            orderPalletRequestMapper.convertFromRequest(orderPalletRequest, orderPallet);
+
+        OrderPallet savedOrderPallet = orderPalletRepository.save(orderPallet);
+        
+        if (savedOrderPallet.getStatus().getName().equals(StatusInfo.ORDER_PALLET_PICKED)) {
+            boolean allPickedProductsCompleted = orderPalletRepository.areAllOrderedProductExistInPickedProduct(savedOrderPallet.getOrder().getId());
+            if (allPickedProductsCompleted)
+                changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_COMPLETED); 
+            else 
+                changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_INCOMPLETED);
+        } else {
+            Status orderPalletSentStatus = statusRepository.findByNameAndType(StatusInfo.ORDER_PALLET_SENT, Entity.ORDER_PALLET.getEntity())
+                .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+            if (orderPalletRepository.areAllInOrderIdHaveStatusId(savedOrderPallet.getOrder().getId(), orderPalletSentStatus.getId()))
+                changeOrderStatus(savedOrderPallet.getOrder().getId(), StatusInfo.ORDER_SENT);
+        }
+
+        return savedOrderPallet;
+    }
+
+    @Override
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    @Override
+    protected JpaRepository<OrderPallet, Long> getRepository() {
+        return orderPalletRepository;
+    }
+
+    @Override
+    protected Entity getEntityName() {
+        return Entity.ORDER_PALLET;
+    }
+
+    @Override
+    protected boolean isUsed(Long id) {
+        boolean activeInPaperCard = paperCardRepository.existsByOrderPalletId(id);
+        boolean activeInPickedProduct = pickedProductRepository.existsByOrderPalletId(id);
+        return activeInPaperCard || activeInPickedProduct;
+    }
+
+    private OrderPallet modifyAndSave(OrderPallet target, OrderPalletRequest from) {
+        orderPalletRequestMapper.convertFromRequest(from, target);
+        return orderPalletRepository.save(target);
+    }
+
+    private void configureStatus(OrderPallet target, OrderPalletRequest from, Employee subject) {
+        Position subjectPosition = subject.getPosition();
+        Status oldStatus = target.getStatus();
+        Status newStatus = statusRepository.findByIdAndType(from.getStatusId(), getEntityName().getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+        switch (newStatus.getName()) {
+            case StatusInfo.ORDER_PALLET_PICKING: {
+                if (
+                    (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletId(target.getId())
+                )   // Status "Picking" can be set by certain roles, but only if there are no picked products assigned to the order pallet
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_PICKED: {
+                if (
+                    oldStatus.getName().equals(StatusInfo.ORDER_PALLET_PICKING)
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "GOODS_PICKER")
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
+                )   // Status "Picked" can be set by certain roles, but only if all picked products assigned to the order pallet are completed
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_EXPORTING: {
+                if (
+                    oldStatus.getName().equals(StatusInfo.ORDER_PALLET_PICKED)
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SET_GOODS_EXPORTER")
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
+                )   // Status "Exporting" can be set either by "Set Goods Exporter" automatically or as "Picked" status
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_LOADING: {
+                if (
+                    oldStatus.getName().equals(StatusInfo.ORDER_PALLET_EXPORTING)
+                    && (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SET_GOODS_LOADER")
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
+                )
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            case StatusInfo.ORDER_PALLET_SENT: {
+                if (
+                    oldStatus.getName().equals(StatusInfo.ORDER_PALLET_LOADING)
+                    && (subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR"))
+                    && !pickedProductRepository.existsByOrderPalletIdAndCompleted(target.getId(), false)
+                )   // Status "Sent" can be set only from "Loading" status
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            }
+        }
+    }
+
+    private void changeOrderStatus(long orderId, String statusName) {
+        Status orderSentStatus = statusRepository.findByNameAndType(statusName, Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+        int affectedRows = orderRepository.updateStatusById(orderId, orderSentStatus);
+        if (affectedRows < 1) 
+            throw new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.ORDER, OutputMessage.NOT_FOUND));
+
+        //cacheManager.getCache("orders").evict(orderId);  // Cache is deleted only after DB operation
+    }
+}

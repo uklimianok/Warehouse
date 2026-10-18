@@ -1,0 +1,196 @@
+package local.warehouse.app.service.order.impl;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
+import local.warehouse.app.dto.order.OrderRequest;
+import local.warehouse.app.entity.employee.Employee;
+import local.warehouse.app.entity.employee.Position;
+import local.warehouse.app.entity.order.Order;
+import local.warehouse.app.entity.service.Status;
+import local.warehouse.app.mapper.order.OrderRequestMapper;
+import local.warehouse.app.repository.employee.EmployeeRepository;
+import local.warehouse.app.repository.order.OrderPalletRepository;
+import local.warehouse.app.repository.order.OrderRepository;
+import local.warehouse.app.repository.order.OrderedProductRepository;
+import local.warehouse.app.repository.order.ReturnProductRepository;
+import local.warehouse.app.repository.service.StatusRepository;
+import local.warehouse.app.repository.workplace.GateRepository;
+import local.warehouse.app.service.AbstractService;
+import local.warehouse.app.service.order.OrderService;
+import local.warehouse.app.util.action.MessageHandler;
+import local.warehouse.app.util.action.PositionInheritanceTree;
+import local.warehouse.app.util.exception.BusinessRuleException;
+import local.warehouse.app.util.info.DepartmentCodeNames;
+import local.warehouse.app.util.info.Entity;
+import local.warehouse.app.util.info.OutputMessage;
+import local.warehouse.app.util.info.StatusInfo;
+
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class OrderServiceImpl extends AbstractService<Order, Long> implements OrderService {
+    private final PositionInheritanceTree positionInheritanceTree;
+
+    //private final OrderService self;
+
+    private final OrderRepository orderRepository;
+    private final OrderedProductRepository orderedProductRepository;
+    private final OrderPalletRepository orderPalletRepository;
+    private final ReturnProductRepository returnProductRepository;
+    private final GateRepository gateRepository;
+    private final StatusRepository statusRepository;
+    private final EmployeeRepository employeeRepository;
+
+    private final OrderRequestMapper orderRequestMapper;
+
+    public static final String GATE_REQUIRED = "must contain any gate.";
+
+    public OrderServiceImpl(
+        //@Lazy OrderService self, 
+        OrderRepository orderRepository, 
+        OrderedProductRepository orderedProductRepository, 
+        OrderPalletRepository orderPalletRepository, 
+        ReturnProductRepository returnProductRepository, 
+        GateRepository gateRepository, 
+        StatusRepository statusRepository, 
+        OrderRequestMapper orderRequestMapper,
+        EmployeeRepository employeeRepository, PositionInheritanceTree positionInheritanceTree
+    ) {
+        //this.self = self;   // @Lazy sets only when it is used, not when declared
+        this.orderRepository = orderRepository;
+        this.orderedProductRepository = orderedProductRepository;
+        this.orderPalletRepository = orderPalletRepository;
+        this.returnProductRepository = returnProductRepository;
+        this.gateRepository = gateRepository;
+        this.statusRepository = statusRepository;
+        this.orderRequestMapper = orderRequestMapper;
+        this.employeeRepository = employeeRepository;
+        this.positionInheritanceTree = positionInheritanceTree;
+    }
+
+    @Override
+    public Order read(Long id) {
+        return super.read(id);
+    }
+
+    @Override
+    @Transactional
+    public Order create(OrderRequest orderRequest) {
+        Order order = new Order();
+        order.setStatus(statusRepository
+            .findByNameAndType(StatusInfo.ORDER_ACCEPTED, Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)))  
+        );
+
+        return modifyAndSave(order, orderRequest);
+    }
+
+    @Override
+    @Transactional
+    public Order update(long id, OrderRequest orderRequest, String employeeNumber) {
+        Order order = read(id);
+        Employee employee = employeeRepository.findByEmployeeNumber(employeeNumber)
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.EMPLOYEE, OutputMessage.NOT_FOUND)));
+
+        throwIfNotConfigurable(order, orderRequest, employee);
+
+        boolean statusChanged = order.getStatus().getId() != orderRequest.getStatusId();
+        if (statusChanged)
+            configureStatus(order, orderRequest, employee);
+
+        if (orderRequest.getGateId() != null)
+            order.setGate(gateRepository.findById(orderRequest.getGateId())
+                .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.GATE, OutputMessage.NOT_FOUND)))
+            );
+        else
+            order.setGate(null);
+
+        if (!order.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED) && order.getGate() == null)
+            throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
+
+        if (employee.getPosition().getDepartment().getCodeName().equals(DepartmentCodeNames.WAREHOUSE_EMPLOYEES_DEPARTMENT))
+            orderRequestMapper.convertFromWarehouseEmployeeRequest(orderRequest, order);
+        else
+            orderRequestMapper.convertFromRequest(orderRequest, order);
+
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    @Override
+    protected JpaRepository<Order, Long> getRepository() {
+        return orderRepository;
+    }
+
+    @Override
+    protected Entity getEntityName() {
+        return Entity.ORDER;
+    }
+
+    @Override
+    protected boolean isUsed(Long id) {
+        boolean activeInOrderedProduct = orderedProductRepository.existsByOrderId(id);
+        boolean activeInOrderPallet = orderPalletRepository.existsByOrderId(id);
+        boolean activeInReturnProduct = returnProductRepository.existsByOrderId(id);
+        return activeInOrderedProduct || activeInOrderPallet || activeInReturnProduct;
+    }
+
+    private Order modifyAndSave(Order target, OrderRequest from) {
+        orderRequestMapper.convertFromRequest(from, target);
+        return orderRepository.save(target);
+    }
+
+    private void throwIfNotConfigurable(Order target, OrderRequest from, Employee subject) {
+        Position subjectPosition = subject.getPosition();
+        if (
+            (positionInheritanceTree.isOneOrDescendant(subjectPosition, "ORDERS_PROCEEDER")
+            && !target.getStatus().getName().equals(StatusInfo.ORDER_ACCEPTED))  // ORDERS_PROCEEDER can only configure orders with status "Accepted"
+            || (!subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.IT_DEPARTMENT)
+            && target.getStatus().getName().equals(StatusInfo.ORDER_SENT))  // Only IT department can configure orders with status "Sent"
+        ) throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+
+        Status status = statusRepository.findByIdAndType(from.getStatusId(), Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+        if (    // Empty gate is not allowed for orders with status "Sent"
+            from.getGateId() == null
+            && status.getName().equals(StatusInfo.ORDER_SENT)
+        ) throw new BusinessRuleException(MessageHandler.getOutputMessage(getEntityName(), GATE_REQUIRED));
+    }
+
+    private void configureStatus(Order target, OrderRequest from, Employee subject) {
+        Position subjectPosition = subject.getPosition();
+        Status newStatus = statusRepository.findByIdAndType(from.getStatusId(), Entity.ORDER.getEntity())
+            .orElseThrow(() -> new EntityNotFoundException(MessageHandler.getOutputMessage(Entity.STATUS, OutputMessage.NOT_FOUND)));
+
+        switch (newStatus.getName()) {
+            case StatusInfo.ORDER_ACCEPTED: {
+                if (
+                    (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR")
+                    || subjectPosition.getDepartment().getCodeName().equals(DepartmentCodeNames.AUXILIARY_EMPLOYEES_DEPARTMENT)
+                    || positionInheritanceTree.isOneOrDescendant(subjectPosition, "ORDERS_PROCEEDER"))
+                    && !orderPalletRepository.existsByOrderId(target.getId())
+                ) // Status "Accepted" can be set by certain roles, but only if there are no pallets assigned to the order
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+            
+            case StatusInfo.ORDER_PROCESSING, StatusInfo.ORDER_INCOMPLETED, StatusInfo.ORDER_COMPLETED, StatusInfo.ORDER_SENT: { // Statuses are set either automatically or by SYSTEM_ADMINISTRATOR
+                if (positionInheritanceTree.isOneOrDescendant(subjectPosition, "SYSTEM_ADMINISTRATOR")) 
+                    target.setStatus(newStatus);
+                else
+                    throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED));
+            } break;
+
+            default:
+                throw new AccessDeniedException(MessageHandler.getOutputMessage(OutputMessage.OPERATION_DENIED)); 
+        }
+    }
+}

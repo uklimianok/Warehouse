@@ -24,12 +24,14 @@ services:
   redis-service:
     image: redis:8
     container_name: redis
+    restart: always
     ports:
       - "8282:6379"
 
   kafka-service:
     image: apache/kafka:4.2.2
-    container_name: broker
+    container_name: kafka
+    restart: always
     environment:
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
@@ -51,6 +53,7 @@ services:
   keycloak-service:
     image: quay.io/keycloak/keycloak:26.7.4
     container_name: keycloak
+    restart: always
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=keycloak
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD}

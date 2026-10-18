@@ -1,0 +1,12 @@
+package local.warehouse.app.repository.workplace;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import local.warehouse.app.entity.workplace.Track;
+
+public interface TrackRepository extends JpaRepository<Track, Long> {
+
+    boolean existsByGateId(long gateId);
+    
+    boolean existsBySymbol(String symbol);
+}
